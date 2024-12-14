@@ -223,78 +223,100 @@
             historyList.innerHTML = '';
         }
 
-        const maleNames = ["Adam", "Adrian", "Aidan", "Alan", "Alex", "Alexander", "Amir", "Andrew", 
-            "Anthony", "Arief", "Aryan", "Asher", "Aswin", "Austin", "Bastian", 
-            "Ben", "Brandon", "Brian", "Bruno", "Caleb", "Callum", "Calvin", 
-            "Daniel", "David", "Dylan", "Elijah", "Emil", "Eric", "Evan", "Farhan", 
-            "Felix", "Finn", "Gabriel", "Gino", "Glen", "Greg", "Hans", "Harry", 
-            "Henry", "Ian", "Iqbal", "Jack", "Jacob", "James", "Jason", "Jeremy", 
-            "John", "Jonathan", "Jordan", "Julian", "Justin", "Kai", "Kevin", 
-            "Kyle", "Leo", "Liam", "Lucas", "Mark", "Martin", "Mason", "Matthew", 
-            "Michael", "Miles", "Muhammad", "Nathan", "Noah", "Oliver", "Oscar", 
-            "Owen", "Parker", "Paul", "Peter", "Philip", "Quincy", "Rafi", 
-            "Raphael", "Reza", "Rian", "Riley", "Robert", "Ryan", "Samuel", 
-            "Santoso", "Sebastian", "Seth", "Shamil", "Syahrul", "Taufik", 
-            "Theo", "Thomas", "Tim", "Toby", "Tommy", "Tristan", "Tyler", "Umar", 
-            "Valentino", "Victor", "Vincent", "William", "Yusuf", "Zain", "Zaki", 
-            "Abdurrahman", "Alif", "Alvin", "Ananda", "Angga", "Anshar", "Arif", 
-            "Bayu", "Bima", "Cahya", "Cakra", "Damar", "Danu", "Darma", "Darmawan", "Darren", "David", "Delvin", 
-            "Dimas", "Dito", "Doni", "Dwi", "Eko", "Elvin", "Erik", "Fadhil", 
-            "Farid", "Fero", "Fikri", "Galang", "Guntur", "Hanif", "Hendra", 
-            "Hendri", "Ilham", "Indra", "Iqbal", "Iskandar", "Jaka", "Jendral", 
-            "Jonathan", "Junaidi", "Kian", "Kiran", "Leo", "Luthfi", "Mahendra", 
-            "Maulana", "Naufal", "Niko", "Nugroho", "Nur", "Rafael", "Rizal", 
-            "Roni", "Rudi", "Rul", "Rully", "Ryan", "Sandi", "Satria", "Steven", 
-            "Syafii", "Syukron", "Teguh", "Tino", "Tio", "Toto", "Tyo", "Wawan", 
-            "Wira", "Yuda", "Yusran", "Yudha", "Agung", "Arjuna", "Catur", 
-            "Fajar", "Galih", "Handoko", "Joko", "Krish", "Listyo", "Mahendra", 
-            "Mutiara", "Prabowo", "Pramono", "Satria", "Singgih", "Taufiq", 
-            "Taufik", "Yusuf", "Zaki", "Aris", "Elias", "Gerry", "Haikal", 
-            "Malik", "Rajendra", "Tariq", "Badr", "Hikmat", "Azhar", "Zainul", 
-            "Zaki", "Rizqi", "Diana", "Fandy", "Gilang", "Hadi", "Syaiful", 
-            "Dani", "Fikri", "Dany", "Faris", "Zaki", "Yusuf", "Alfian"];
-        const femaleNames = ["Aaliyah", "Abigail", "Adeline", "Adriana", "Aisha", "Alana", "Alina", 
-            "Alyssa", "Amara", "Amaya", "Amber", "Amelia", "Ariana", "Ayla", 
-            "Bella", "Bianca", "Brooke", "Camila", "Cara", "Carla", "Cassandra", 
-            "Charlotte", "Chloe", "Clara", "Dahlia", "Diana", "Diana", "Eleanor", 
-            "Eliana", "Elisa", "Ella", "Elsa", "Emilia", "Emma", "Evelyn", 
-            "Faith", "Freya", "Gabriella", "Gemma", "Gina", "Grace", "Hannah", 
-            "Ivy", "Jasmine", "Julia", "Katherine", "Kira", "Layla", "Lena", 
-            "Lila", "Luna", "Madison", "Maya", "Mila", "Naomi", "Nina", "Olivia", 
-            "Piper", "Quinn", "Raina", "Reese", "Riley", "Rose", "Ruby", "Sabrina", 
-            "Samantha", "Sarah", "Savannah", "Selena", "Sienna", "Sophia", "Stella", 
-            "Talia", "Tara", "Thea", "Violet", "Willow", "Zara", "Zoe", "Zuri", 
-            "Aisya", "Alya", "Alisha", "Alma", "Anisa", "Anita", "Arum", "Aulia", 
-            "Aurora", "Azura", "Bella", "Bela", "Cynthia", "Dahlia", "Dewi", 
-            "Dinda", "Dira", "Dwi", "Eliana", "Farah", "Fatimah", "Fitria", 
-            "Hani", "Indah", "Intan", "Ira", "Isabella", "Jasmine", "Julianna", 
-            "Karina", "Keira", "Khadijah", "Kiki", "Laila", "Linda", "Maya", 
-            "Misha", "Nadia", "Nia", "Nina", "Nisa", "Nova", "Olivia", "Olya", 
-            "Putri", "Rania", "Ratu", "Reni", "Rita", "Sabrina", "Sari", 
-            "Siti", "Sofia", "Sukma", "Tania", "Tari", "Tia", "Vania", "Yasmine", 
-            "Yuliana", "Zahra", "Zarina", "Zulaikha", "Celia", "Flora", "Selvi", 
-            "Melati", "Rindang", "Puspa", "Indira", "Sekar", "Mentari", 
-            "Cahaya", "Binar", "Samudra", "Cinta", "Rasa", "Surya", "Alia", 
-            "Zara", "Sari", "Anita", "Linda", "Bunga", "Tiara", "Indah", 
-            "Wanda", "Mira", "Kristina", "Regina", "Renata", "Rhea", 
-            "Ava", "Scarlett", "Mila", "Sofia", "Chloe", "Emma", "Lily"];
+        const maleNames = [
+    "Adrian", "Aditya", "Agusto", "Ahmadi", "Ajiman", "Akbari", "Alamin", "Aldrin", "Alexio", "Alifin",
+    "Aliham", "Alvino", "Amiron", "Andrey", "Andria", "Anggri", "Anwaro", "Ardino", "Ariman", "Arifin",
+    "Asepar", "Bagito", "Bambang", "Bayuma", "Bimaru", "Bobbis", "Budiro", "Cahyan", "Candran", "Daffan",
+    "Damaru", "Danilo", "Danian", "Darmal", "Dedino", "Dedyan", "Denilo", "Dewano", "Dianri", "Dikman",
+    "Dikaro", "Dimasy", "Dinora", "Dionel", "Donilo", "Dwiyan", "Edrian", "Edwaro", "Ekoyan", "Elando",
+    "Elihan", "Elvino", "Emilan", "Erican", "Evanio", "Fadlio", "Fajrio", "Fakriz", "Fandry", "Farhano",
+    "Fauzri", "Febrian", "Felicio", "Fikran", "Firmal", "Fransy", "Galino", "Galang", "Gemaro", "Gilang",
+    "Gionan", "Guntor", "Hadiza", "Hafizi", "Haikal", "Halima", "Handry", "Hanifo", "Harito", "Haryon",
+    "Hendry", "Henris", "Hermano", "Herrio", "Hidayo", "Husein", "Ianosy", "Ibardo", "Ibrahim", "Idrisy",
+    "Ikhsan", "Ilhano", "Indrani", "Iqbalz", "Irfano", "Ismail", "Ivanyo", "Jafaro", "Jakran", "Jamalz",
+    "Jayaro", "Jeffri", "Jerrio", "Johana", "Jokoyo", "Jonath", "Jordan", "Julian", "Kamilo", "Kevinm",
+    "Khalid", "Kikman", "Krisno", "Krishno", "Leonar", "Lukman", "Lutfik", "Mahend", "Maulid", "Muhamd",
+    "Muklis", "Nandan", "Naufal", "Nicola", "Nikoyo", "Nizaro", "Novano", "Nurhan", "Omaryo", "Oscaro",
+    "Pandru", "Panjor", "Pashan", "Pratma", "Praygo", "Putram", "Rafino", "Rahmat", "Ramdan", "Ramyar",
+    "Randyz", "Ranggu", "Rianos", "Rickyo", "Ridhom", "Rifkan", "Rizalo", "Rizkio", "Robbyr", "Rudian",
+    "Ryanzo", "Saiful", "Samsul", "Samuel", "Sandio", "Satris", "Setwan", "Sigita", "Sulaim", "Syahro",
+    "Syamsu", "Taufiq", "Teguzo", "Tionel", "Tonilo", "Triano", "Tyomor", "Untoro", "Usmani", "Wawani",
+    "Wiboyo", "Widodo", "Wirano", "Yanura", "Yogaro", "Yogita", "Yudist", "Yusufi", "Zaidan", "Zainal",
+    "Zakiro", "Abdrah", "Adhiyo", "Akhmad", "Alamiz", "Aldyon", "Aminoz", "Anango", "Anasta", "Anindy",
+    "Antoni", "Ardian", "Arifin", "Arjuna", "Armany", "Arsyda", "Asrulo", "Azizur", "Bagiro", "Bakriy",
+    "Beniro", "Bimaru", "Bintar", "Bobbiq", "Bondri", "Cahyan", "Chandr", "Ciptan", "Cokron", "Daffar",
+    "Damian", "Dandio", "Dedina", "Dendro", "Derryz", "Didino", "Dinoro", "Dodino", "Edward", "Egaorn",
+    "Ekanyo", "Erwins", "Fadilo", "Farido", "Farizo", "Faturo", "Fauzan", "Febris", "Ferral", "Fikrol",
+    "Firdao", "Fitran", "Fuadro", "Gerrio", "Ghifar", "Gibron", "Gunman", "Hamido", "Hardyi", "Harris",
+    "Hartyo", "Hasyim", "Hendro", "Herwan", "Hilman", "Husena", "Ihsano", "Ikbalz", "Imamal", "Indara",
+    "Irsado", "Iskano", "Iwanyo", "Jaluzo", "Jameso", "Kamaly", "Krisor", "Laoday", "Lukito", "Mansuy",
+    "Marioz", "Martio", "Marwan", "Masrio", "Megany", "Mikoro", "Morgan", "Muchli", "Nadifo", "Natano",
+    "Nasiru", "Naufaz", "Nazril", "Okkoyo", "Ottoro", "Padlio", "Parman", "Rachmi", "Radity", "Ramziy",
+    "Rasyid", "Rezano", "Rianto", "Ridoma", "Rindro", "Rionan", "Robiro", "Salman", "Saputr", "Sarwon",
+    "Satyar", "Sayido", "Septio", "Sidiko", "Sofyaz", "Subagy", "Sukmar", "Suryos", "Tamaon", "Taufik",
+    "Tegusa", "Tirtan", "Topano", "Tresny", "Udinor", "Usnami", "Utomar", "Vegazi", "Vikris", "Wahyua",
+    "Waluya", "Wirato", "Yahyan", "Yansio", "Zamzam", "Zulfik"
+];
+
+        const femaleNames = ["Aaliyah", "Abigail", "Adelina", "Adinda", "Adriana", "Afnanah", "Aisha", "Aisyah", "Ajengti", "Alanna",
+    "Alinka", "Alisha", "Amalina", "Amarina", "Amelina", "Amirina", "Anastasia", "Andrina", "Anisya", "Antonia",
+    "Aurelia", "Auriana", "Azaleah", "Azimina", "Azriela", "Bianca", "Bintang", "Cahaya", "Camille", "Carmela",
+    "Cempaka", "Celinea", "Chelsea", "Chikaya", "Clarina", "Dahlina", "Damayanti", "Dianita", "Diandra", "Divaela",
+    "Dwiarti", "Elisaya", "Elysaia", "Emilia", "Endasha", "Erikina", "Evalina", "Farahna", "Fathina", "Febriani",
+    "Felicia", "Fitriani", "Gabriela", "Giselia", "Hanifah", "Hasniah", "Heliana", "Hestina", "Ilyasha", "Indriya",
+    "Irfiana", "Isabela", "Ivanyah", "Jasmina", "Juliana", "Kamilla", "Kirana", "Larissa", "Lavinia", "Leandra",
+    "Maharani", "Mahisya", "Malinda", "Malvina", "Meliana", "Melinda", "Mildana", "Milania", "Monika", "Mutiana",
+    "Nabilah", "Nadiana", "Naomiah", "Natalia", "Naylina", "Novianna", "Olivia", "Puspita", "Rafika", "Raisina",
+    "Renalia", "Rosalina", "Safrina", "Salinda", "Samantha", "Serafina", "Shafina", "Shanira", "Silvana", "Sofiana",
+    "Syafina", "Sylviana", "Tersina", "Tersiana", "Valencia", "Valerina", "Verenita", "Violetta", "Wahidah", "Wulanita",
+    "Yasminta", "Yohanita", "Zafrina", "Zanirah", "Zelinah", "Zivanna", "Zubairah", "Zulfiara", "Zuliyana", "Zurinata",
+    "Amarissa", "Angelina", "Annabeth", "Arletta", "Avelina", "Brianna", "Calista", "Celestia", "Clarissa", "Coraline",
+    "Darlina", "Deliana", "Denisya", "Desmira", "Deviana", "Dominia", "Edeline", "Eleanora", "Elisabet", "Eloisa",
+    "Emmaline", "Esperanza", "Eugenia", "Evaline", "Fabiola", "Faradina", "Febriana", "Florina", "Frederica", "Genoviva",
+    "Geraline", "Giselina", "Hadriana", "Halimah", "Hannissa", "Harietta", "Herliana", "Imanina", "Indriana", "Irinata",
+    "Izzanita", "Janetina", "Jesinta", "Joveline", "Karmilla", "Kasandra", "Keisiana", "Khadijah", "Kristina", "Laksmina",
+    "Lanovita", "Laurinda", "Leontina", "Lilianah", "Lindiana", "Liselina", "Lucillea", "Lunamara", "Madelina", "Mahendra",
+    "Marcelia", "Margenta", "Marietta", "Marietha", "Marilena", "Marindra", "Meilinda", "Melodina", "Milandra", "Mirabela",
+    "Myrianne", "Nafisina", "Najmiyah", "Narsilla", "Natassia", "Nazirah", "Nelliama", "Nessyrah", "Novarina", "Nuraylah",
+    "Nurazmah", "Nuriana", "Odelinda", "Onettina", "Ottalina", "Parasita", "Patricia", "Permatas", "Primasha", "Priscila",
+    "Radiyana", "Rafisya", "Rafisyan", "Ramandia", "Rashmiya", "Reginata", "Renaliya", "Rianesha", "Rionatta", "Rosamila",
+    "Rosyanda", "Rukmanah", "Safitria", "Salviana", "Samantara", "Saskiana", "Savienna", "Setyania", "Shaqeela", "Shavianna",
+    "Sherlita", "Shofiana", "Simarena", "Silviana", "Sivandre", "Slyvania", "Soleneva", "Sorantina", "Sufiyati", "Sulthani",
+    "Susyanda", "Sutriyana", "Sylvester", "Syuhania", "Tameriana", "Tashimira", "Tazmiyah", "Temariya", "Theophia", "Thessalia",
+    "Thoriahya", "Tiandraa", "Tiarnina", "Timoryah", "Triastina", "Triwanita", "Tsabirah", "Tsavrina", "Tsoviyana", "Ulfayana",
+    "Ummiarah", "Umrunita", "Urfiana", "Vaisilla", "Valenzia", "Valrennia", "Vessiana", "Viandria", "Vinoliah", "Virantia",
+    "Wajriani", "Waltinah", "Wantriya", "Wayuniar", "Winlatta", "Wirinata", "Wolindah", "Yarishma", "Yasvatra", "Yasyanti",
+    "Yasynara", "Yosavina", "Zailinya", "Zakiyrah", "Zarivana", "Zarlinah", "Zasfiya", "Zephina", "Zerahina", "Zhanriya",
+    "Zhivanna", "Zorvitha", "Zurhiyah", "Zuriyana", "Zylveria", "Zyvannah"];
 
 function generateAndCopyName() {
             const gender = Math.random() < 0.5 ? 'male' : 'female';
             let fullName = '';
 
+           // Tentukan jumlah kata (1 atau 2) secara acak
+            const numberOfWords = Math.random() < 0.5 ? 1 : 2;
+
             if (gender === 'male') {
                 const randomIndex1 = Math.floor(Math.random() * maleNames.length);
-                const randomIndex2 = Math.floor(Math.random() * maleNames.length);
-                fullName = maleNames[randomIndex1] + " " + maleNames[randomIndex2];
+                if (numberOfWords === 1) {
+                    fullName = maleNames[randomIndex1];
+                } else {
+                    const randomIndex2 = Math.floor(Math.random() * maleNames.length);
+                    fullName = maleNames[randomIndex1] + " " + maleNames[randomIndex2];
+                }
             } else {
                 const randomIndex1 = Math.floor(Math.random() * femaleNames.length);
-                const randomIndex2 = Math.floor(Math.random() * femaleNames.length);
-                fullName = femaleNames[randomIndex1] + " " + femaleNames[randomIndex2];
+                if (numberOfWords === 1) {
+                    fullName = femaleNames[randomIndex1];
+                } else {
+                    const randomIndex2 = Math.floor(Math.random() * femaleNames.length);
+                    fullName = femaleNames[randomIndex1] + " " + femaleNames[randomIndex2];
+                }
             }
 
             document.getElementById("nameBox").innerText = fullName;
 
+            // Salin ke papan klip
             const tempInput = document.createElement("input");
             tempInput.style = "position: absolute; left: -1000px; top: -1000px";
             tempInput.value = fullName;
@@ -302,8 +324,6 @@ function generateAndCopyName() {
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
-
-            showToast("Nama telah disalin: " + fullName);
         }
     </script>
 </body>
