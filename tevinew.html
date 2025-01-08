@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Copy dan Increment Email & Nama Acak</title>
+    <style>
+        /* Gaya Global */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #eaf8e0;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            min-height: 100vh;
+            flex-direction: column;
+            overflow-x: hidden;
+            padding-top: 20px;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            margin: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Gaya Input & Tombol */
+        input, button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Notifikasi Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            display: none;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsif untuk perangkat kecil */
+        @media (max-width: 600px) {
+            .container {
+                max-width: 100%;
+                padding: 15px;
+            }
+
+            input, button {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Bagian untuk Nama Acak -->
+        <div id="nameBox" style="font-size: 20px; font-weight: bold;">Nama Acak Generator</div>
+        <button id="copyButton" onclick="generateAndCopyName()">Salin Nama</button>
+    </div>
+
+    <div class="container">
+        <!-- Bagian untuk Email -->
+        <input type="text" id="emailBox" value="contoh1@gmail.com">
+        <button onclick="copyAndIncrement()">Salin Email</button>
+        <button onclick="saveEmailHistory()">Simpan Riwayat Email</button>
+        
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script>
+        let emailHistory = []; // Menyimpan riwayat email yang disalin
+
+        // Fungsi untuk menyalin teks ke clipboard
+        async function copyTextToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (err) {
+                console.error('Gagal menyalin ke clipboard:', err);
+                return false;
+            }
+        }
+
+        // Fungsi untuk menampilkan notifikasi (toast)
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 1500);
+        }
+
+        // Fungsi untuk salin nama acak
+        function generateAndCopyName() {
+            const gender = Math.random() < 0.5 ? 'male' : 'female';
+            const names = gender === 'male' ? maleNames : femaleNames;
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            document.getElementById("nameBox").textContent = randomName;
+
+            // Salin nama ke clipboard
+            copyTextToClipboard(randomName).then(() => {
+                showToast(`Nama "${randomName}" disalin!`);
+            }).catch(err => {
+                console.error('Gagal menyalin nama:', err);
+            });
+        }
+
+        // Daftar nama pria dan wanita
+        const maleNames = ["Adrian", "Aditya", "Agusto", "Ahmadi", "Ajiman", "Akbari", "Alamin", "Aldrin", "Alexio", "Alifin",
+    "Aliham", "Alvino", "Amiron", "Andrey", "Andria", "Anggri", "Anwaro", "Ardino", "Ariman", "Arifin",
+    "Asepar", "Bagito", "Bambang", "Bayuma", "Bimaru", "Bobbis", "Budiro", "Cahyan", "Candran", "Daffan",
+    "Damaru", "Danilo", "Danian", "Darmal", "Dedino", "Dedyan", "Denilo", "Dewano", "Dianri", "Dikman",
+    "Dikaro", "Dimasy", "Dinora", "Dionel", "Donilo", "Dwiyan", "Edrian", "Edwaro", "Ekoyan", "Elando",
+    "Elihan", "Elvino", "Emilan", "Erican", "Evanio", "Fadlio", "Fajrio", "Fakriz", "Fandry", "Farhano",
+    "Fauzri", "Febrian", "Felicio", "Fikran", "Firmal", "Fransy", "Galino", "Galang", "Gemaro", "Gilang",
+    "Gionan", "Guntor", "Hadiza", "Hafizi", "Haikal", "Halima", "Handry", "Hanifo", "Harito", "Haryon",
+    "Hendry", "Henris", "Hermano", "Herrio", "Hidayo", "Husein", "Ianosy", "Ibardo", "Ibrahim", "Idrisy",
+    "Ikhsan", "Ilhano", "Indrani", "Iqbalz", "Irfano", "Ismail", "Ivanyo", "Jafaro", "Jakran", "Jamalz",
+    "Jayaro", "Jeffri", "Jerrio", "Johana", "Jokoyo", "Jonath", "Jordan", "Julian", "Kamilo", "Kevinm",
+    "Khalid", "Kikman", "Krisno", "Krishno", "Leonar", "Lukman", "Lutfik", "Mahend", "Maulid", "Muhamd",
+    "Muklis", "Nandan", "Naufal", "Nicola", "Nikoyo", "Nizaro", "Novano", "Nurhan", "Omaryo", "Oscaro",
+    "Pandru", "Panjor", "Pashan", "Pratma", "Praygo", "Putram", "Rafino", "Rahmat", "Ramdan", "Ramyar",
+    "Randyz", "Ranggu", "Rianos", "Rickyo", "Ridhom", "Rifkan", "Rizalo", "Rizkio", "Robbyr", "Rudian",
+    "Ryanzo", "Saiful", "Samsul", "Samuel", "Sandio", "Satris", "Setwan", "Sigita", "Sulaim", "Syahro",
+    "Syamsu", "Taufiq", "Teguzo", "Tionel", "Tonilo", "Triano", "Tyomor", "Untoro", "Usmani", "Wawani",
+    "Wiboyo", "Widodo", "Wirano", "Yanura", "Yogaro", "Yogita", "Yudist", "Yusufi", "Zaidan", "Zainal",
+    "Zakiro", "Abdrah", "Adhiyo", "Akhmad", "Alamiz", "Aldyon", "Aminoz", "Anango", "Anasta", "Anindy",
+    "Antoni", "Ardian", "Arifin", "Arjuna", "Armany", "Arsyda", "Asrulo", "Azizur", "Bagiro", "Bakriy",
+    "Beniro", "Bimaru", "Bintar", "Bobbiq", "Bondri", "Cahyan", "Chandr", "Ciptan", "Cokron", "Daffar",
+    "Damian", "Dandio", "Dedina", "Dendro", "Derryz", "Didino", "Dinoro", "Dodino", "Edward", "Egaorn",
+    "Ekanyo", "Erwins", "Fadilo", "Farido", "Farizo", "Faturo", "Fauzan", "Febris", "Ferral", "Fikrol",
+    "Firdao", "Fitran", "Fuadro", "Gerrio", "Ghifar", "Gibron", "Gunman", "Hamido", "Hardyi", "Harris",
+    "Hartyo", "Hasyim", "Hendro", "Herwan", "Hilman", "Husena", "Ihsano", "Ikbalz", "Imamal", "Indara",
+    "Irsado", "Iskano", "Iwanyo", "Jaluzo", "Jameso", "Kamaly", "Krisor", "Laoday", "Lukito", "Mansuy",
+    "Marioz", "Martio", "Marwan", "Masrio", "Megany", "Mikoro", "Morgan", "Muchli", "Nadifo", "Natano",
+    "Nasiru", "Naufaz", "Nazril", "Okkoyo", "Ottoro", "Padlio", "Parman", "Rachmi", "Radity", "Ramziy",
+    "Rasyid", "Rezano", "Rianto", "Ridoma", "Rindro", "Rionan", "Robiro", "Salman", "Saputr", "Sarwon",
+    "Satyar", "Sayido", "Septio", "Sidiko", "Sofyaz", "Subagy", "Sukmar", "Suryos", "Tamaon", "Taufik",
+    "Tegusa", "Tirtan", "Topano", "Tresny", "Udinor", "Usnami", "Utomar", "Vegazi", "Vikris", "Wahyua",
+    "Waluya", "Wirato", "Yahyan", "Yansio", "Zamzam", "Zulfik"];
+        const femaleNames = ["Aaliyah", "Abigail", "Adelina", "Adinda", "Adriana", "Afnanah", "Aisha", "Aisyah", "Ajengti", "Alanna",
+    "Alinka", "Alisha", "Amalina", "Amarina", "Amelina", "Amirina", "Anastasia", "Andrina", "Anisya", "Antonia",
+    "Aurelia", "Auriana", "Azaleah", "Azimina", "Azriela", "Bianca", "Bintang", "Cahaya", "Camille", "Carmela",
+    "Cempaka", "Celinea", "Chelsea", "Chikaya", "Clarina", "Dahlina", "Damayanti", "Dianita", "Diandra", "Divaela",
+    "Dwiarti", "Elisaya", "Elysaia", "Emilia", "Endasha", "Erikina", "Evalina", "Farahna", "Fathina", "Febriani",
+    "Felicia", "Fitriani", "Gabriela", "Giselia", "Hanifah", "Hasniah", "Heliana", "Hestina", "Ilyasha", "Indriya",
+    "Irfiana", "Isabela", "Ivanyah", "Jasmina", "Juliana", "Kamilla", "Kirana", "Larissa", "Lavinia", "Leandra",
+    "Maharani", "Mahisya", "Malinda", "Malvina", "Meliana", "Melinda", "Mildana", "Milania", "Monika", "Mutiana",
+    "Nabilah", "Nadiana", "Naomiah", "Natalia", "Naylina", "Novianna", "Olivia", "Puspita", "Rafika", "Raisina",
+    "Renalia", "Rosalina", "Safrina", "Salinda", "Samantha", "Serafina", "Shafina", "Shanira", "Silvana", "Sofiana",
+    "Syafina", "Sylviana", "Tersina", "Tersiana", "Valencia", "Valerina", "Verenita", "Violetta", "Wahidah", "Wulanita",
+    "Yasminta", "Yohanita", "Zafrina", "Zanirah", "Zelinah", "Zivanna", "Zubairah", "Zulfiara", "Zuliyana", "Zurinata",
+    "Amarissa", "Angelina", "Annabeth", "Arletta", "Avelina", "Brianna", "Calista", "Celestia", "Clarissa", "Coraline",
+    "Darlina", "Deliana", "Denisya", "Desmira", "Deviana", "Dominia", "Edeline", "Eleanora", "Elisabet", "Eloisa",
+    "Emmaline", "Esperanza", "Eugenia", "Evaline", "Fabiola", "Faradina", "Febriana", "Florina", "Frederica", "Genoviva",
+    "Geraline", "Giselina", "Hadriana", "Halimah", "Hannissa", "Harietta", "Herliana", "Imanina", "Indriana", "Irinata",
+    "Izzanita", "Janetina", "Jesinta", "Joveline", "Karmilla", "Kasandra", "Keisiana", "Khadijah", "Kristina", "Laksmina",
+    "Lanovita", "Laurinda", "Leontina", "Lilianah", "Lindiana", "Liselina", "Lucillea", "Lunamara", "Madelina", "Mahendra",
+    "Marcelia", "Margenta", "Marietta", "Marietha", "Marilena", "Marindra", "Meilinda", "Melodina", "Milandra", "Mirabela",
+    "Myrianne", "Nafisina", "Najmiyah", "Narsilla", "Natassia", "Nazirah", "Nelliama", "Nessyrah", "Novarina", "Nuraylah",
+    "Nurazmah", "Nuriana", "Odelinda", "Onettina", "Ottalina", "Parasita", "Patricia", "Permatas", "Primasha", "Priscila",
+    "Radiyana", "Rafisya", "Rafisyan", "Ramandia", "Rashmiya", "Reginata", "Renaliya", "Rianesha", "Rionatta", "Rosamila",
+    "Rosyanda", "Rukmanah", "Safitria", "Salviana", "Samantara", "Saskiana", "Savienna", "Setyania", "Shaqeela", "Shavianna",
+    "Sherlita", "Shofiana", "Simarena", "Silviana", "Sivandre", "Slyvania", "Soleneva", "Sorantina", "Sufiyati", "Sulthani",
+    "Susyanda", "Sutriyana", "Sylvester", "Syuhania", "Tameriana", "Tashimira", "Tazmiyah", "Temariya", "Theophia", "Thessalia",
+    "Thoriahya", "Tiandraa", "Tiarnina", "Timoryah", "Triastina", "Triwanita", "Tsabirah", "Tsavrina", "Tsoviyana", "Ulfayana",
+    "Ummiarah", "Umrunita", "Urfiana", "Vaisilla", "Valenzia", "Valrennia", "Vessiana", "Viandria", "Vinoliah", "Virantia",
+    "Wajriani", "Waltinah", "Wantriya", "Wayuniar", "Winlatta", "Wirinata", "Wolindah", "Yarishma", "Yasvatra", "Yasyanti",
+    "Yasynara", "Yosavina", "Zailinya", "Zakiyrah", "Zarivana", "Zarlinah", "Zasfiya", "Zephina", "Zerahina", "Zhanriya",
+    "Zhivanna", "Zorvitha", "Zurhiyah", "Zuriyana", "Zylveria", "Zyvannah"];
+
+        // Fungsi untuk menyalin email dan melakukan increment
+        async function copyAndIncrement() {
+            const emailBox = document.getElementById('emailBox');
+            let email = emailBox.value.trim();
+
+            if (!email) {
+                showToast("Email kosong, tidak dapat disalin.");
+                return;
+            }
+
+            // Salin email ke clipboard
+            const copied = await copyTextToClipboard(email);
+            if (copied) {
+                showToast(`Email "${email}" telah disalin!`);
+                emailHistory.push(email); // Tambahkan email ke riwayat
+            } else {
+                showToast("Gagal menyalin email.");
+                return;
+            }
+
+            // Regex untuk menangkap angka di depan, nama, angka di belakang sebelum "@", dan domain
+            const regex = /^(\d*)(.*?)(\d*)(@.*)$/;
+            const match = email.match(regex);
+
+            if (match) {
+                let [_, frontNumber, name, backNumber, domain] = match;
+
+                // Jika ada angka di depan, increment angka depan
+                if (frontNumber) {
+                    frontNumber = String(parseInt(frontNumber, 10) + 1);
+                }
+                // Jika tidak ada angka di depan, increment angka belakang sebelum "@"
+                else if (backNumber) {
+                    backNumber = String(parseInt(backNumber, 10) + 1);
+                }
+
+                // Update email
+                emailBox.value = `${frontNumber}${name}${backNumber}${domain}`;
+            } else {
+                showToast("Format email tidak valid.");
+            }
+        }
+
+        // Fungsi untuk menyimpan riwayat email ke file .txt
+        function saveEmailHistory() {
+            if (emailHistory.length === 0) {
+                showToast("Tidak ada riwayat email untuk disimpan.");
+                return;
+            }
+
+            const now = new Date();
+            const day = now.toLocaleDateString('id-ID', { weekday: 'long' });
+            const date = now.getDate();
+            const month = now.toLocaleDateString('id-ID', { month: 'long' });
+            const year = now.getFullYear();
+
+            const fileName = `${day}, ${date} ${month} ${year} - ${emailHistory.length} email.txt`;
+            const fileContent = emailHistory.join('\n');
+
+            // Buat file Blob dan unduh
+            const blob = new Blob([fileContent], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+
+            // Reset riwayat email
+            emailHistory = [];
+            showToast("Riwayat email telah disimpan dan direset.");
+        }
+    </script>
+
+</body>
+</html>
