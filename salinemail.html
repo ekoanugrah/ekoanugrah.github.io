@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salin Email</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f4f4f9;
+    }
+    .container {
+      text-align: center;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 90%;
+    }
+    input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Salin Email</h1>
+    <input type="email" id="emailBox" placeholder="Masukkan email" required>
+    <button onclick="copyAndIncrementEmail()">Salin Email</button>
+  </div>
+
+  <script>
+    // Ambil data dari localStorage jika tersedia
+    document.addEventListener("DOMContentLoaded", () => {
+      const emailBox = document.getElementById("emailBox");
+      const savedEmail = localStorage.getItem("email");
+      emailBox.value = savedEmail ? savedEmail : "1contoh@gmail.com";
+    });
+
+    function copyAndIncrementEmail() {
+      const emailBox = document.getElementById("emailBox");
+      const email = emailBox.value;
+
+      // Validasi format email
+      const emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
+      if (!emailRegex.test(email)) {
+        showToast("Harap masukkan email yang valid!");
+        return;
+      }
+
+      // Pisahkan angka awal dan tambahkan 1
+      const emailParts = email.split("@");
+      const match = emailParts[0].match(/^(\d+)(.+)$/);
+      if (match) {
+        const incrementedEmail = `${parseInt(match[1], 10) + 1}${match[2]}@${emailParts[1]}`;
+        emailBox.value = incrementedEmail;
+
+        // Salin ke clipboard
+        navigator.clipboard.writeText(incrementedEmail)
+          .then(() => showToast("Email berhasil disalin: " + incrementedEmail))
+          .catch(err => showToast("Gagal menyalin email: " + err));
+        
+        // Simpan email ke localStorage
+        localStorage.setItem("email", incrementedEmail);
+      } else {
+        showToast("Format email tidak sesuai. Pastikan email dimulai dengan angka.");
+      }
+    }
+  </script>
+</body>
+</html>
