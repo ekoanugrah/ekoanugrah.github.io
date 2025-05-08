@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copy and Increment Email & Nama Acak</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            margin: 10px 0;
+        }
+
+        input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        .history {
+            margin-top: 15px;
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .history-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .history-list li {
+            background: #f9f9f9;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-list li span {
+            display: inline-block;
+        }
+
+        .history-list li span.time {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="nameContainer">
+        <div id="nameBox">"NAMA ACAK GENERATOR"</div>
+        <button id="copyButton" onclick="generateAndCopyName()">Salin Nama</button>
+    </div>
+
+    <div class="container" id="emailContainer">
+        <input type="text" id="emailBox" value="yandu1@gmail.com">
+        <button onclick="copyAndIncrement()">Copy</button>
+        <button onclick="copyAndClearHistory()">Salin Riwayat Email</button>
+        <div id="toast" class="toast"></div>
+        <div class="history">
+            <div class="history-title">Riwayat Email:</div>
+            <ul id="historyList" class="history-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        const maleNames = ["Adrian", "Bayu", "Cahyo", "Dimas", "Eka", "Fajar", "Gilang", "Hafiz", "Irwan", "Joko"];
+        const femaleNames = ["Ayu", "Bella", "Citra", "Dewi", "Evi", "Fitri", "Gita", "Hana", "Indah", "Jihan"];
+
+        function generateAndCopyName() {
+            const randomFromArray = arr => arr[Math.floor(Math.random() * arr.length)];
+            const name1 = randomFromArray(maleNames);
+            const name2 = randomFromArray(femaleNames);
+            const fullNameNoSpace = (name1 + name2).replace(/\s/g, ''); // hilangkan spasi
+            document.getElementById("nameBox").textContent = fullNameNoSpace;
+
+            const tempInput = document.createElement("input");
+            tempInput.value = fullNameNoSpace;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast(`Nama "${fullNameNoSpace}" telah disalin!`);
+        }
+
+        window.onload = function() {
+            const savedEmail = localStorage.getItem('email');
+            const emailHistory = JSON.parse(localStorage.getItem('emailHistory')) || [];
+            const emailBox = document.getElementById('emailBox');
+
+            if (savedEmail) emailBox.value = savedEmail;
+
+            emailHistory.forEach(item => {
+                addEmailToHistoryList(item.email, item.time);
+            });
+        }
+
+        function copyAndIncrement() {
+            const emailBox = document.getElementById('emailBox');
+            const email = emailBox.value;
+
+            emailBox.select();
+            document.execCommand('copy');
+            showToast(`Email "${email}" telah disalin!`);
+
+            const emailHistory = JSON.parse(localStorage.getItem('emailHistory')) || [];
+            const timeString = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            emailHistory.unshift({ email, time: timeString });
+            localStorage.setItem('emailHistory', JSON.stringify(emailHistory));
+            addEmailToHistoryList(email, timeString);
+
+            const emailPartsFront = email.match(/^(\d+)(.*?)(@.*)/);
+            const emailPartsBack = email.match(/(.*?)(\d+)(@.*)/);
+            if (emailPartsFront) {
+                let number = parseInt(emailPartsFront[1]) + 1;
+                emailBox.value = number + emailPartsFront[2] + emailPartsFront[3];
+            } else if (emailPartsBack) {
+                let number = parseInt(emailPartsBack[2]) + 1;
+                emailBox.value = emailPartsBack[1] + number + emailPartsBack[3];
+            } else {
+                emailBox.value = '1' + email;
+            }
+
+            localStorage.setItem('email', emailBox.value);
+        }
+
+        function addEmailToHistoryList(email, time) {
+            const historyList = document.getElementById('historyList');
+            const listItem = document.createElement('li');
+
+            const emailSpan = document.createElement('span');
+            emailSpan.textContent = email;
+
+            const timeSpan = document.createElement('span');
+            timeSpan.textContent = time;
+            timeSpan.classList.add('time');
+
+            listItem.appendChild(emailSpan);
+            listItem.appendChild(timeSpan);
+            historyList.prepend(listItem);
+        }
+
+        function copyAndClearHistory() {
+            const emailHistory = JSON.parse(localStorage.getItem('emailHistory')) || [];
+            const emailList = emailHistory.map(item => item.email).join('\n');
+
+            const tempInput = document.createElement("textarea");
+            tempInput.value = emailList;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast("Riwayat email telah disalin ke papan klip!");
+            localStorage.removeItem('emailHistory');
+            document.getElementById('historyList').innerHTML = '';
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
