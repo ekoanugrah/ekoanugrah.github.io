@@ -76,6 +76,27 @@
       background-color: #17a2b8;
       color: white;
     }
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 10px;
+      position: fixed;
+      z-index: 1;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .toast.show {
+      visibility: visible;
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -93,6 +114,8 @@
       <button class="btn-save" onclick="saveText()">Simpan</button>
     </div>
   </div>
+
+  <div id="toast" class="toast"></div>
 
   <script>
     const STORAGE_KEY = "kata_tersimpan";
@@ -114,6 +137,7 @@
 
       document.getElementById("textInput").value = "";
       toggleInput();
+      showToast("Kata berhasil disimpan");
     }
 
     function displayData() {
@@ -127,41 +151,51 @@
       const lines = outputBox.textContent.split("\n").map(line => line.trim()).filter(line => line);
 
       if (lines.length === 0) {
-        alert("Tidak ada kata untuk disalin.");
+        showToast("Tidak ada kata untuk disalin");
         return;
       }
 
       const randomText = lines[Math.floor(Math.random() * lines.length)];
 
-      // Cek dukungan clipboard
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(randomText)
-          .then(() => {
-            alert("Teks berhasil disalin: " + randomText);
-          })
-          .catch(err => {
-            alert("Gagal menyalin teks: " + err);
-          });
-      } else {
-        // Fallback jika clipboard API tidak tersedia
-        const tempInput = document.createElement("textarea");
-        tempInput.value = randomText;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand("copy");
-        document.body.removeChild(tempInput);
-        alert("Teks berhasil disalin (fallback): " + randomText);
-      }
+      // Coba Clipboard API, jika gagal gunakan fallback
+      navigator.clipboard.writeText(randomText)
+        .then(() => {
+          showToast("Disalin: " + randomText);
+        })
+        .catch(() => {
+          // Fallback
+          const tempInput = document.createElement("textarea");
+          tempInput.value = randomText;
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          try {
+            document.execCommand("copy");
+            showToast("Disalin: " + randomText);
+          } catch (err) {
+            showToast("Gagal menyalin");
+          }
+          document.body.removeChild(tempInput);
+        });
     }
 
     function clearAll() {
       if (confirm("Apakah Anda yakin ingin menghapus semua data?")) {
         localStorage.removeItem(STORAGE_KEY);
         displayData();
+        showToast("Semua data dihapus");
       }
     }
 
-    // Inisialisasi saat halaman dimuat
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.className = "toast show";
+      setTimeout(() => {
+        toast.className = toast.className.replace("show", "");
+      }, 3000);
+    }
+
+    // Inisialisasi
     displayData();
   </script>
 </body>
