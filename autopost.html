@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proyek Tambah Kata</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .btn-copy {
+      background-color: #007bff;
+      color: white;
+    }
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-add {
+      background-color: #28a745;
+      color: white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .output-box {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+      white-space: pre-wrap;
+      user-select: text;
+    }
+    #inputSection {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 80px;
+      padding: 10px;
+      font-size: 14px;
+    }
+    .btn-save {
+      background-color: #17a2b8;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="button-group">
+      <button class="btn-copy" onclick="copyRandom()">Copy</button>
+      <button class="btn-add" onclick="toggleInput()">+</button>
+      <button class="btn-delete" onclick="clearAll()">Hapus</button>
+    </div>
+
+    <div class="output-box" id="outputBox" readonly></div>
+
+    <div id="inputSection">
+      <textarea id="textInput" placeholder="Masukkan kata-kata, pisahkan dengan koma"></textarea>
+      <button class="btn-save" onclick="saveText()">Simpan</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "kata_tersimpan";
+
+    function toggleInput() {
+      const section = document.getElementById("inputSection");
+      section.style.display = section.style.display === "none" ? "flex" : "none";
+    }
+
+    function saveText() {
+      const input = document.getElementById("textInput").value;
+      let kata = input.split(',').map(k => k.trim()).filter(k => k);
+
+      let existing = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      existing.push(...kata);
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+      displayData();
+
+      document.getElementById("textInput").value = "";
+      toggleInput();
+    }
+
+    function displayData() {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const output = document.getElementById("outputBox");
+      output.textContent = data.join("\n");
+    }
+
+    function copyRandom() {
+      const outputBox = document.getElementById("outputBox");
+      const lines = outputBox.textContent.split("\n").map(line => line.trim()).filter(line => line);
+
+      if (lines.length === 0) {
+        alert("Tidak ada kata untuk disalin.");
+        return;
+      }
+
+      const randomText = lines[Math.floor(Math.random() * lines.length)];
+
+      // Cek dukungan clipboard
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(randomText)
+          .then(() => {
+            alert("Teks berhasil disalin: " + randomText);
+          })
+          .catch(err => {
+            alert("Gagal menyalin teks: " + err);
+          });
+      } else {
+        // Fallback jika clipboard API tidak tersedia
+        const tempInput = document.createElement("textarea");
+        tempInput.value = randomText;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        alert("Teks berhasil disalin (fallback): " + randomText);
+      }
+    }
+
+    function clearAll() {
+      if (confirm("Apakah Anda yakin ingin menghapus semua data?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        displayData();
+      }
+    }
+
+    // Inisialisasi saat halaman dimuat
+    displayData();
+  </script>
+</body>
+</html>
