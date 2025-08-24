@@ -2,215 +2,103 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copy Text</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Account Helper</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            align-items: flex-start; /* Mengatur agar elemen berada di atas */
-            justify-content: center;
-            position: relative;
-            padding-top: 20px; /* Mengurangi ruang di atas */
-            background-color: #FFF8DC; /* Menambahkan warna latar belakang */
-        }
-        .container {
-            position: fixed; /* Menetapkan posisi tetap */
-            top: 20px; /* Menempatkan di bagian atas */
-            left: 50%; /* Menempatkan di tengah horizontal */
-            transform: translateX(-50%); /* Menggeser elemen ke tengah */
-            text-align: center; /* Menyelaraskan teks di tengah */
-        }
-        .textbox {
-            width: 300px;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        .copy-button {
-            background-color: #007BFF;
-            color: white;
-        }
-        .previous-button, .next-button {
-            width: 100px; /* Lebar tombol */
-            height: 40px; /* Tinggi tombol */
-            border-radius: 5px; /* Sudut membulat */
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 0 10px;
-        }
-        .previous-button {
-            background-color: red;
-        }
-        .next-button {
-            background-color: green;
-        }
-        .button-container {
-            display: flex;
-            justify-content: center;
-        }
-        /* Gaya untuk toast notification */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            z-index: 1000;
-        }
-        h1 {
-            margin-bottom: 20px; /* Memberikan ruang di bawah judul */
-        }
+        :root{--card-bg:#ffffff;--page-bg:#f4f7f9;--text-color:#333;--border-color:#e6e9ec;--primary-color:#007BFF;--secondary-color:#6c757d;--success-color:#28a745;--info-color:#17a2b8;--shadow:0 4px 15px rgba(0,0,0,.08)}html,body{height:100%;overflow:hidden;margin:0}
+        
+        /* PERUBAHAN DI SINI */
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background-color:orange;color:var(--text-color);display:flex;justify-content:center;align-items:center;padding:10px;box-sizing:border-box}
+        
+        .main-wrapper{display:flex;flex-direction:column;gap:15px;width:100%;max-width:380px}.container{background-color:var(--card-bg);border-radius:12px;box-shadow:var(--shadow);border:1px solid var(--border-color);padding:15px;box-sizing:border-box;text-align:center}h1{margin-top:0;margin-bottom:15px;font-size:1.4em;color:var(--primary-color)}.textbox{width:100%;box-sizing:border-box;padding:10px;margin-bottom:10px;border:1px solid var(--border-color);border-radius:8px;font-size:.95em;text-align:center;background-color:#f8f9fa}.button{padding:10px 15px;border-radius:8px;cursor:pointer;color:#fff;font-size:.9em;font-weight:500;width:100%;border:none;transition:all .2s ease}.button:active{transform:scale(.97)}.button:disabled{background-color:#ccc;cursor:not-allowed;transform:none}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background-color:#333;color:#fff;padding:10px 20px;border-radius:50px;font-size:.9em;box-shadow:0 5px 15px rgba(0,0,0,.2);opacity:0;transition:opacity .5s ease,transform .5s ease;z-index:1000;pointer-events:none}.copy-email-button{background-color:var(--primary-color);margin-bottom:10px}.button-container{display:flex;gap:10px}.previous-button{background-color:var(--secondary-color)}.next-button{background-color:var(--success-color)}.copy-name-button{background-color:var(--info-color);margin-top:10px}.form-group{text-align:left;margin-top:15px;padding:10px;border-radius:8px;background-color:#f8f9fa;border:1px solid var(--border-color)}.form-group-title{font-weight:700;margin-bottom:8px;display:block;color:#555;font-size:.9em}.radio-group,.checkbox-group{display:flex;justify-content:flex-start;gap:15px;padding-left:5px}.radio-group label,.checkbox-group label{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.85em}
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1>COPY TEXT</h1> <!-- Judul ditambahkan di sini -->
-        <input type="text" class="textbox" id="emailInput" placeholder="Masukkan Email Anda" />
-
-        <button class="button copy-button" id="copyButton">Salin Email</button>
-
-        <div class="button-container">
-            <button class="previous-button" id="previousButton">Previous</button>
-            <button class="next-button" id="nextButton">Next</button>
+    <div class="main-wrapper">
+        <div class="container" id="email-helper">
+            <h1>Email & Nama Generator</h1>
+            <input type="text" class="textbox" id="emailInput" placeholder="Masukkan Email Anda" />
+            <button class="button copy-email-button" id="copyEmailButton">Salin Email</button>
+            <div class="button-container">
+                <button class="button previous-button" id="previousButton">Previous</button>
+                <button class="button next-button" id="nextButton">Next</button>
+            </div>
+        </div>
+        <div class="container" id="name-generator">
+            <h1>Nama Acak</h1>
+            <input type="text" class="textbox" id="nameOutput" placeholder="Nama acak akan muncul di sini" readonly />
+            <div class="form-group">
+                <span class="form-group-title">Jenis Kelamin</span>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="cowok" checked> Cowok</label>
+                    <label><input type="radio" name="gender" value="cewek"> Cewek</label>
+                    <label><input type="radio" name="gender" value="acak"> Acak</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <span class="form-group-title">Format Nama</span>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="checkDigabung" value="digabung"> Digabung</label>
+                    <label><input type="checkbox" id="checkDipisah" value="dipisah" checked> Dipisah</label>
+                </div>
+            </div>
+            <button class="button copy-name-button" id="copyNameButton">Salin Nama</button>
         </div>
     </div>
-
-    <!-- Toast notification -->
-    <div class="toast" id="toast">Email disalin!</div>
-
+    <div class="toast" id="toast" aria-live="polite"></div>
     <script>
-        // Memuat nilai dari Local Storage saat halaman dimuat
-        window.onload = function() {
+    (() => {
+        const maleNames=["Adi","Aditya","Agung","Agus","Ahmad","Ali","Amin","Amir","Andi","Andre","Angga","Anwar","Ardi","Ari","Arif","Bagas","Bagus","Bambang","Bayu","Bima","Budi","Cahya","Candra","Cecep","Dadang","Dadan","Dani","Dedi","Deni","Dian","Dimas","Dodi","Doni","Dwi","Edi","Eka","Eko","Endra","Fajar","Fahmi","Farhan","Feri","Gagah","Galih","Gilang","Gunawan","Hadi","Hasan","Hendri","Heri","Heru","Ibrahim","Ilham","Imam","Indra","Irfan","Iwan","Jajang","Jamal","Joko","Joni","Junaidi","Krisna","Kurniawan","Kusuma","Lutfi","Mahmud","Maman","Muhammad","Mukhlis","Mulya","Nana","Nugroho","Nur","Prasetyo","Purnama","Putra","Rahmat","Rangga","Reza","Rian","Rico","Ridwan","Rizki","Roni","Rudi","Samsul","Slamet","Sofyan","Sugeng","Suharto","Sujono","Supri","Surya","Sutrisno","Taufik","Tegar","Toni","Tri","Ujang","Wahyudi","Widodo","Yogi","Yoga","Yusuf","Zainal"];
+        const femaleNames=["Ade","Agnes","Aisyah","Amelia","Ana","Andini","Angel","Ani","Anisa","Anita","Aprilia","Ariani","Astuti","Ayu","Bella","Cahaya","Cici","Cindy","Citra","Dewi","Diah","Diana","Dian","Dinda","Eka","Eka","Eli","Elisa","Elsa","Endah","Evi","Fani","Farah","Fatimah","Febri","Fitri","Fitria","Hani","Hasanah","Indah","Indri","Intan","Irma","Jessica","Jihan","Julia","Kartika","Khairunnisa","Kiki","Krisna","Laila","Lestari","Lia","Lina","Linda","Lisa","Lusi","Maria","Maya","Mega","Melati","Mia","Mila","Mita","Mutia","Nadia","Nana","Nia","Nida","Niken","Nina","Nisa","Nita","Novi","Novita","Nur","Nurul","Putri","Rahma","Rani","Ratih","Ratna","Restu","Ria","Rina","Rini","Riska","Rita","Sari","Sarah","Sinta","Siska","Siti","Sri","Susanti","Tiara","Tina","Tuti","Ulfah","Wahyuni","Wulan","Yani","Yanti","Yulia","Yuni","Zahra"];
+        const emailInput=document.getElementById("emailInput"),copyEmailButton=document.getElementById("copyEmailButton"),previousButton=document.getElementById("previousButton"),nextButton=document.getElementById("nextButton"),nameOutput=document.getElementById("nameOutput"),copyNameButton=document.getElementById("copyNameButton"),checkDigabung=document.getElementById("checkDigabung"),checkDipisah=document.getElementById("checkDipisah"),toast=document.getElementById("toast");
+        const genderRadios = document.querySelectorAll('input[name="gender"]');
+        const showToast=e=>{toast.textContent=e,toast.style.opacity=1,toast.style.transform="translateX(-50%) translateY(-10px)",setTimeout(()=>{toast.style.opacity=0,toast.style.transform="translateX(-50%) translateY(0px)"},2e3)};
+        const saveState = () => {
+            localStorage.setItem('saved_name', nameOutput.value);
+            const selectedGender = document.querySelector('input[name="gender"]:checked');
+            if (selectedGender) {
+                localStorage.setItem('saved_gender', selectedGender.value);
+            }
+            localStorage.setItem('saved_format_digabung', checkDigabung.checked);
+            localStorage.setItem('saved_format_dipisah', checkDipisah.checked);
+        };
+        const loadState = () => {
             const savedEmail = localStorage.getItem('email');
-            if (savedEmail) {
-                document.getElementById('emailInput').value = savedEmail;
+            if (savedEmail) { emailInput.value = savedEmail; }
+            checkPreviousButtonState(); 
+            const savedName = localStorage.getItem('saved_name');
+            if (savedName) { nameOutput.value = savedName; }
+            const savedGender = localStorage.getItem('saved_gender');
+            if (savedGender) {
+                document.querySelector(`input[name="gender"][value="${savedGender}"]`).checked = true;
+            }
+            const savedFormatDigabung = localStorage.getItem('saved_format_digabung');
+            if (savedFormatDigabung !== null) {
+                checkDigabung.checked = (savedFormatDigabung === 'true');
+            }
+            
+            const savedFormatDipisah = localStorage.getItem('saved_format_dipisah');
+            if (savedFormatDipisah !== null) {
+                checkDipisah.checked = (savedFormatDipisah === 'true');
             }
         };
-
-        // Fungsi untuk menyimpan nilai textbox ke Local Storage
-        function saveEmailToLocalStorage(email) {
-            localStorage.setItem('email', email);
-        }
-
-        // Fungsi untuk menyalin email dan mengubah nomornya
-        document.getElementById('copyButton').addEventListener('click', function() {
-            const emailInput = document.getElementById('emailInput');
-            const emailValue = emailInput.value;
-
-            // Cek apakah textbox kosong
-            if (emailValue.trim() === "") {
-                showToast("Textbox kosong! Masukkan email terlebih dahulu.");
-                return; // Keluar dari fungsi jika textbox kosong
-            }
-
-            // Cek format email
-            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailPattern.test(emailValue)) {
-                showToast("Format email tidak valid! Masukkan email yang benar.");
-                return; // Keluar dari fungsi jika format email tidak valid
-            }
-
-            // Menyalin email ke clipboard
-            emailInput.select();
-            document.execCommand('copy');
-
-            // Mengubah nomor di depan email
-            const emailParts = emailValue.split('@');
-            const emailPrefix = emailParts[0];
-            const emailDomain = emailParts[1];
-
-            // Mengambil nomor dari prefix
-            const numberMatch = emailPrefix.match(/^(\d+)/);
-            if (numberMatch) {
-                const currentNumber = parseInt(numberMatch[0], 10);
-                const nextNumber = currentNumber + 1;
-                const newEmail = `${nextNumber}${emailPrefix.slice(numberMatch[0].length)}@${emailDomain}`;
-                emailInput.value = newEmail; // Mengubah nilai textbox
-                saveEmailToLocalStorage(newEmail); // Simpan email baru ke Local Storage
-            } else {
-                saveEmailToLocalStorage(emailValue); // Simpan email asli ke Local Storage
-            }
-
-            // Menampilkan toast notification
-            showToast("Email disalin!");
-        });
-
-        // Fungsi untuk menampilkan toast notification
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message; // Mengubah teks toast
-            toast.style.opacity = 1; // Menampilkan toast
-            setTimeout(() => {
-                toast.style.opacity = 0; // Menghilangkan toast setelah 1 detik
-            }, 1000);
-        }
-
-        // Fungsi untuk tombol Previous
-        document.getElementById('previousButton').addEventListener('click', function() {
-            const emailInput = document.getElementById('emailInput');
-            const emailValue = emailInput.value;
-
-            // Mengubah nomor di depan email
-            const emailParts = emailValue.split('@');
-            const emailPrefix = emailParts[0];
-            const emailDomain = emailParts[1];
-
-            // Mengambil nomor dari prefix
-            const numberMatch = emailPrefix.match(/^(\d+)/);
-            if (numberMatch) {
-                const currentNumber = parseInt(numberMatch[0], 10);
-                const previousNumber = currentNumber > 0 ? currentNumber - 1 : 0; // Pastikan tidak negatif
-                const newEmail = `${previousNumber}${emailPrefix.slice(numberMatch[0].length)}@${emailDomain}`;
-                emailInput.value = newEmail; // Mengubah nilai textbox
-                saveEmailToLocalStorage(newEmail); // Simpan email baru ke Local Storage
-            }
-        });
-
-        // Fungsi untuk tombol Next
-        document.getElementById('nextButton').addEventListener('click', function() {
-            const emailInput = document.getElementById('emailInput');
-            const emailValue = emailInput.value;
-
-            // Mengubah nomor di depan email
-            const emailParts = emailValue.split('@');
-            const emailPrefix = emailParts[0];
-            const emailDomain = emailParts[1];
-
-            // Mengambil nomor dari prefix
-            const numberMatch = emailPrefix.match(/^(\d+)/);
-            if (numberMatch) {
-                const currentNumber = parseInt(numberMatch[0], 10);
-                const nextNumber = currentNumber + 1; // Tambah satu
-                const newEmail = `${nextNumber}${emailPrefix.slice(numberMatch[0].length)}@${emailDomain}`;
-                emailInput.value = newEmail; // Mengubah nilai textbox
-                saveEmailToLocalStorage(newEmail); // Simpan email baru ke Local Storage
-            }
-        });
-
-        // Mencegah keyboard muncul saat tombol salin ditekan
-        document.getElementById('emailInput').addEventListener('focus', function() {
-            this.select(); // Memilih teks saat textbox difokuskan
-        });
+        const updateEmailNumber=(offset,save=true)=>{const emailValue=emailInput.value;if(!emailValue)return;const emailParts=emailValue.split("@");if(2!==emailParts.length)return;let prefix=emailParts[0];const domain=emailParts[1],endNumberMatch=prefix.match(/(\d+)$/);if(endNumberMatch){const numberStr=endNumberMatch[0],originalLength=numberStr.length,currentNumber=parseInt(numberStr,10),newNumber=Math.max(0,currentNumber+offset),newNumberStr=String(newNumber).padStart(originalLength,"0"),textPart=prefix.slice(0,-numberStr.length);prefix=`${textPart}${newNumberStr}`}else{const startNumberMatch=prefix.match(/^(\d+)/);if(startNumberMatch){const numberStr=startNumberMatch[0],originalLength=numberStr.length,currentNumber=parseInt(numberStr,10),newNumber=Math.max(0,currentNumber+offset),newNumberStr=String(newNumber).padStart(originalLength,"0"),textPart=prefix.slice(numberStr.length);prefix=`${newNumberStr}${textPart}`}}emailInput.value=`${prefix}@${domain}`;if(save)localStorage.setItem("email",emailInput.value);checkPreviousButtonState()};
+        const getActiveNumber=()=>{const prefix=(emailInput.value.split("@")[0]||""),endMatch=prefix.match(/(\d+)$/);if(endMatch)return parseInt(endMatch[0],10);const startMatch=prefix.match(/^(\d+)/);return startMatch?parseInt(startMatch[0],10):null};
+        const checkPreviousButtonState=()=>{const activeNumber=getActiveNumber();previousButton.disabled=null===activeNumber||activeNumber<=0};
+        const copyEmail=async()=>{const emailValue=emailInput.value.trim();if(""===emailValue)return void showToast("Textbox email kosong.");if(!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailValue))return void showToast("Format email tidak valid.");try{await navigator.clipboard.writeText(emailValue),showToast("Email berhasil disalin!"),updateEmailNumber(1)}catch(err){try{emailInput.select(),document.execCommand("copy"),showToast("Email berhasil disalin!"),updateEmailNumber(1)}catch(fallbackErr){showToast("Gagal menyalin email.")}}};
+        const handleCheckbox=checkbox=>{"checkDigabung"===checkbox.id&&checkbox.checked?checkDipisah.checked=!1:"checkDipisah"===checkbox.id&&checkbox.checked&&(checkDigabung.checked=!1);saveState()};
+        const generateName=()=>{let namePool="cowok"===document.querySelector('input[name="gender"]:checked').value?maleNames:"cewek"===document.querySelector('input[name="gender"]:checked').value?femaleNames:Math.random()<.5?maleNames:femaleNames,firstName=namePool[Math.floor(Math.random()*namePool.length)],lastName=namePool[Math.floor(Math.random()*namePool.length)];for(;firstName===lastName;)lastName=namePool[Math.floor(Math.random()*namePool.length)];let fullName=checkDigabung.checked?`${firstName}${lastName}`:`${firstName} ${lastName}`;return nameOutput.value=fullName,fullName};
+        const copyName=async()=>{const nameToCopy=generateName();if(!nameToCopy)return void showToast("Gagal membuat nama.");try{await navigator.clipboard.writeText(nameToCopy),showToast(`Nama "${nameToCopy}" berhasil disalin!`),saveState()}catch(err){try{nameOutput.select(),document.execCommand("copy"),showToast(`Nama "${nameToCopy}" berhasil disalin!`),saveState()}catch(fallbackErr){showToast("Gagal menyalin nama.")}}};
+        window.addEventListener("load", loadState);
+        emailInput.addEventListener("input", () => localStorage.setItem('email', emailInput.value));
+        copyEmailButton.addEventListener("click",copyEmail);
+        previousButton.addEventListener("click",()=>updateEmailNumber(-1));
+        nextButton.addEventListener("click",()=>updateEmailNumber(1));
+        copyNameButton.addEventListener("click",copyName);
+        checkDigabung.addEventListener("change",()=>handleCheckbox(checkDigabung));
+        checkDipisah.addEventListener("change",()=>handleCheckbox(checkDipisah));
+        genderRadios.forEach(radio => radio.addEventListener('change', saveState));
+    })();
     </script>
-
 </body>
 </html>
