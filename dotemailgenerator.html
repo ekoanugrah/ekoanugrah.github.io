@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dot Email Generator</title>
+    <style>
+        :root {
+            --primary-color: #007AFF;
+            --primary-hover: #0056b3;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+            --secondary-color: #6c757d;
+            --light-blue-bg: #e0f2f7; /* Warna biru muda */
+            --border-color: #dee2e6;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light-blue-bg); /* Latar belakang biru muda */
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 15px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        ::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+            font-size: 14px;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        textarea {
+            height: 120px;
+            resize: vertical;
+            font-size: 13px; /* Ukuran font hasil generate diperkecil */
+        }
+
+        #count {
+            background-color: var(--light-blue-bg); /* Menggunakan warna background aplikasi */
+            cursor: not-allowed;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        #generateBtn {
+            flex: 4;
+            background-color: var(--primary-color);
+            color: white;
+        }
+        #generateBtn:hover { background-color: var(--primary-hover); }
+        #generateBtn:disabled {
+            background-color: #a0cffa;
+            cursor: not-allowed;
+        }
+
+        #resetBtn {
+            flex: 1;
+            background-color: #f1f3f5;
+            color: var(--danger-color);
+            border: 1px solid var(--border-color);
+        }
+        #resetBtn:hover { background-color: #e9ecef; }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #copyBtn, #saveBtn {
+            flex: 1;
+        }
+        
+        #copyBtn {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        #saveBtn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        #warning {
+            color: var(--danger-color);
+            font-size: 13px;
+            margin-top: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-box {
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal-box {
+            transform: scale(1);
+        }
+        .modal-box p {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+        }
+        #modal-close-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 9px 28px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Dot Email Generator</h1>
+
+        <div class="input-group">
+            <label for="originalEmail">Email Asli</label>
+            <input type="email" id="originalEmail" placeholder="contoh: budisetiawan@gmail.com">
+        </div>
+
+        <div class="input-group">
+            <label for="count">Total Kombinasi</label>
+            <input type="text" id="count" value="0" readonly>
+        </div>
+        
+        <div class="input-group">
+            <label for="limit">Jumlah yang Diinginkan</label>
+            <input type="number" id="limit" placeholder="Kosongkan untuk generate semua">
+            <p id="warning">Jumlah melebihi batas maksimal!</p>
+        </div>
+
+        <div class="action-buttons">
+             <button id="generateBtn">Generate</button>
+             <button id="resetBtn">Reset</button>
+        </div>
+
+        <div class="input-group" style="margin-top: 20px;">
+            <label for="result">Hasil Generate</label>
+            <textarea id="result" readonly></textarea>
+        </div>
+
+        <div class="button-group">
+            <button id="copyBtn">Salin</button>
+            <button id="saveBtn">Simpan</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="customAlert">
+        <div class="modal-box">
+            <p id="alertMessage"></p>
+            <button id="modal-close-btn">Kembali</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Deklarasi Elemen ---
+        const emailInput = document.getElementById('originalEmail');
+        const countBox = document.getElementById('count');
+        const limitInput = document.getElementById('limit');
+        const generateBtn = document.getElementById('generateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const warningMessage = document.getElementById('warning');
+        const resultBox = document.getElementById('result');
+        const customAlert = document.getElementById('customAlert');
+        const alertMessage = document.getElementById('alertMessage');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        let totalCombinations = 0;
+
+        // --- Event Listeners ---
+        emailInput.addEventListener('input', calculateTotalCombinations);
+        limitInput.addEventListener('input', validateLimit);
+        generateBtn.addEventListener('click', generateEmails);
+        resetBtn.addEventListener('click', resetAll);
+        document.getElementById('copyBtn').addEventListener('click', copyResults);
+        document.getElementById('saveBtn').addEventListener('click', saveResults);
+        modalCloseBtn.addEventListener('click', () => customAlert.classList.remove('show'));
+        customAlert.addEventListener('click', (e) => {
+            if (e.target === customAlert) customAlert.classList.remove('show');
+        });
+        
+        // --- Fungsi Utama ---
+        function showAlert(message) {
+            alertMessage.textContent = message;
+            customAlert.classList.add('show');
+        }
+
+        function calculateTotalCombinations() {
+            const email = emailInput.value.trim();
+            const username = email.split('@')[0];
+            totalCombinations = (!email || !email.includes('@') || username.length <= 1) ? (username.length || 0) : Math.pow(2, username.length - 1);
+            countBox.value = totalCombinations.toLocaleString('id-ID');
+            validateLimit();
+        }
+
+        function validateLimit() {
+            const limit = parseInt(limitInput.value, 10);
+            const isInvalid = !isNaN(limit) && limit > totalCombinations;
+            warningMessage.style.display = isInvalid ? 'block' : 'none';
+            generateBtn.disabled = isInvalid;
+        }
+
+        function generateEmails() {
+            const email = emailInput.value.trim();
+            if (!email || !email.includes('@')) {
+                showAlert("Masukkan alamat email yang valid.");
+                return;
+            }
+
+            const [username, domain] = email.split('@');
+            if (username.length <= 1) {
+                resultBox.value = email;
+                return;
+            }
+
+            const combinations = [];
+            let limit = parseInt(limitInput.value, 10) || totalCombinations;
+            if (limit > totalCombinations) limit = totalCombinations;
+
+            const n = username.length - 1;
+            for (let i = 0; i < Math.pow(2, n) && combinations.length < limit; i++) {
+                let newUsername = username[0];
+                for (let j = 0; j < n; j++) {
+                    if ((i >> j) & 1) newUsername += '.';
+                    newUsername += username[j + 1];
+                }
+                combinations.push(`${newUsername}@${domain}`);
+            }
+            resultBox.value = combinations.join('\n');
+        }
+        
+        // --- Fungsi Salin Universal ---
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "-9999px";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const emailCount = text.split('\n').filter(line => line.trim() !== '').length;
+                showAlert(`Berhasil menyalin ${emailCount} email!`);
+            } catch (err) {
+                showAlert("Gagal menyalin, coba salin manual.");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function copyResults() {
+            const text = resultBox.value;
+            if (!text) {
+                showAlert("Tidak ada hasil untuk disalin.");
+                return;
+            }
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                const emailCount = text.split('\n').filter(line => line.trim() !== '').length;
+                showAlert(`Berhasil menyalin ${emailCount} email!`);
+            }, () => {
+                fallbackCopyTextToClipboard(text);
+            });
+        }
+
+        function saveResults() {
+            const textToSave = resultBox.value;
+            if (!textToSave) {
+                showAlert("Tidak ada hasil untuk disimpan.");
+                return;
+            }
+            let filename = prompt("Masukkan nama file (tanpa .txt):", "hasil_email_kombinasi");
+            if (filename === null) return;
+            filename = filename || "hasil_email_kombinasi";
+
+            const blob = new Blob([textToSave], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${filename}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }
+
+        function resetAll() {
+            if (confirm("Yakin ingin mereset semua inputan?")) {
+                emailInput.value = "";
+                limitInput.value = "";
+                resultBox.value = "";
+                countBox.value = "0";
+                totalCombinations = 0;
+                validateLimit();
+            }
+        }
+    </script>
+
+</body>
+</html>
