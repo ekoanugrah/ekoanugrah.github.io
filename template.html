@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools To Spam - Menu</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --button-bg-color: #ffffff;
+            --text-color: #333;
+            --primary-color: #007bff;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px 15px 80px 15px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            box-sizing: border-box;
+            transition: background-color 0.3s ease;
+        }
+
+        .app-header { text-align: center; margin-bottom: 25px; color: var(--text-color); }
+        .app-logo { font-size: 3rem; font-weight: bold; color: var(--primary-color); margin-bottom: 2px; display: block; }
+        .app-title { font-size: 1.5rem; font-weight: 600; margin: 0; }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            transition: grid-template-columns 0.3s ease;
+        }
+
+        .nav-button {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 10px;
+            height: 110px;
+            text-decoration: none;
+            color: var(--text-color);
+            background-color: var(--button-bg-color);
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .nav-button:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12); }
+        .nav-button:active { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+
+        .button-icon { font-size: 2.2rem; margin-bottom: 10px; pointer-events: none; }
+        .button-text { width: 100%; font-size: 1rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+        
+        .ripple { position: absolute; border-radius: 50%; background-color: rgba(0, 0, 0, 0.15); transform: scale(0); animation: ripple-animation 0.6s linear; }
+        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+        
+        .settings-button {
+            position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px; background-color: var(--primary-color);
+            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25); z-index: 1000; cursor: pointer; transition: transform 0.2s ease;
+        }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
+        .modal-content {
+            background-color: #fff; padding: 25px; padding-bottom: 80px; border-radius: 15px; width: 85%; max-width: 320px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2); position: relative;
+        }
+        .close-button { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal h2 { margin-top: 0; font-size: 1.4rem; text-align: center; }
+        .setting-option { margin-bottom: 20px; }
+        .setting-option h3 { font-size: 1rem; margin-bottom: 10px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .layout-choices button { padding: 8px 16px; border: 1px solid #ccc; background-color: #f9f9f9; cursor: pointer; border-radius: 8px; margin-right: 10px; font-size: 0.9rem; }
+        .layout-choices button.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .color-picker-wrapper { display: flex; align-items: center; justify-content: space-between; }
+        .color-picker-wrapper input[type="color"] { -webkit-appearance: none; width: 50px; height: 50px; border: none; padding: 0; background-color: transparent; cursor: pointer; }
+        .color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-picker-wrapper input[type="color"]::-webkit-color-swatch { border: 1px solid #ccc; border-radius: 8px; }
+
+        #backBtn {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 30px; font-size: 1rem;
+            font-weight: 600; color: #fff; background-color: #6c757d; border: none; border-radius: 25px; cursor: pointer; transition: background-color 0.2s ease;
+        }
+        #backBtn:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <span class="app-logo">TTS</span>
+        <h1 class="app-title">Tools To Spam</h1>
+    </div>
+
+    <div class="button-container">
+        <a href="#" class="nav-button"><span class="button-icon"></span><span class="button-text">Copy Email</span></a>
+        <a href="#" class="nav-button"><span class="button-icon"></span><span class="button-text">Dot Email Generator</span></a>
+        <a href="#" class="nav-button"><span class="button-icon"></span><span class="button-text">COMING SOON</span></a>
+        <a href="#" class="nav-button"><span class="button-icon"></span><span class="button-text">COMING SOON</span></a>
+        <a href="#" class="nav-button"><span class="button-icon"></span><span class="button-text">COMING SOON</span></a>
+        <a href="#" class="nav-button"><span class="button-icon"></span><span class="button-text">COMING SOON</span></a>
+        <a href="#" class="nav-button"><span class="button-icon"></span><span class="button-text">COMING SOON</span></a>
+        <a href="#" class="nav-button"><span class="button-icon">⚙️</span><span class="button-text">Pengaturan Umum</span></a>
+    </div>
+
+    <div class="settings-button" id="settingsBtn">⚙️</div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeBtn">&times;</span>
+            <h2>Pengaturan Tampilan</h2>
+            <div class="setting-option">
+                <h3>Jumlah Kolom</h3>
+                <div class="layout-choices">
+                    <button id="set-2-cols" class="active">2</button>
+                    <button id="set-3-cols">3</button>
+                </div>
+            </div>
+            <div class="setting-option">
+                <h3>Warna Latar</h3>
+                <div class="color-picker-wrapper">
+                    <span>Pilih Warna Latar</span>
+                    <input type="color" id="bgColorPicker">
+                </div>
+            </div>
+            <div class="setting-option">
+                <h3>Warna Tombol</h3>
+                <div class="color-picker-wrapper">
+                    <span>Pilih Warna Tombol</span>
+                    <input type="color" id="btnColorPicker">
+                </div>
+            </div>
+            <button id="backBtn">Kembali</button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- Mendefinisikan semua elemen ---
+        const root = document.documentElement;
+        const settingsBtn = document.getElementById('settingsBtn');
+        const modal = document.getElementById('settingsModal');
+        const closeBtn = document.getElementById('closeBtn');
+        const backBtn = document.getElementById('backBtn');
+        const buttonContainer = document.querySelector('.button-container');
+        const set2ColsBtn = document.getElementById('set-2-cols');
+        const set3ColsBtn = document.getElementById('set-3-cols');
+        const bgColorPicker = document.getElementById('bgColorPicker');
+        const btnColorPicker = document.getElementById('btnColorPicker');
+
+        // --- Variabel default dan kunci penyimpanan ---
+        const BG_COLOR_KEY = 'tts-bgColor';
+        const BTN_COLOR_KEY = 'tts-btnColor';
+        const DEFAULT_BG_COLOR = '#f0f2f5';
+        const DEFAULT_BTN_COLOR = '#ffffff';
+
+        // --- Fungsi untuk menerapkan warna ---
+        const applyBgColor = (color) => root.style.setProperty('--bg-color', color);
+        const applyBtnColor = (color) => root.style.setProperty('--button-bg-color', color);
+
+        // --- Memuat pengaturan saat halaman pertama kali dibuka ---
+        const savedBgColor = localStorage.getItem(BG_COLOR_KEY) || DEFAULT_BG_COLOR;
+        const savedBtnColor = localStorage.getItem(BTN_COLOR_KEY) || DEFAULT_BTN_COLOR;
+        applyBgColor(savedBgColor);
+        applyBtnColor(savedBtnColor);
+        
+        // --- Fungsi Modal ---
+        const openModal = () => {
+            // Sinkronkan nilai picker dengan warna yang tersimpan SEBELUM modal ditampilkan
+            bgColorPicker.value = localStorage.getItem(BG_COLOR_KEY) || DEFAULT_BG_COLOR;
+            btnColorPicker.value = localStorage.getItem(BTN_COLOR_KEY) || DEFAULT_BTN_COLOR;
+            modal.style.display = "flex";
+        };
+        const closeModal = () => modal.style.display = "none";
+
+        // --- Event Listeners ---
+        settingsBtn.onclick = openModal;
+        closeBtn.onclick = closeModal;
+        backBtn.onclick = closeModal;
+        window.onclick = (event) => { if (event.target === modal) closeModal(); };
+        
+        // Pengaturan Kolom
+        set2ColsBtn.onclick = () => {
+            buttonContainer.style.gridTemplateColumns = "1fr 1fr";
+            set2ColsBtn.classList.add('active');
+            set3ColsBtn.classList.remove('active');
+        };
+        set3ColsBtn.onclick = () => {
+            buttonContainer.style.gridTemplateColumns = "1fr 1fr 1fr";
+            set3ColsBtn.classList.add('active');
+            set2ColsBtn.classList.remove('active');
+        };
+        
+        // Pengaturan Warna dengan penyimpanan real-time
+        bgColorPicker.addEventListener('input', (event) => {
+            const newColor = event.target.value;
+            applyBgColor(newColor);
+            localStorage.setItem(BG_COLOR_KEY, newColor);
+        });
+
+        btnColorPicker.addEventListener('input', (event) => {
+            const newColor = event.target.value;
+            applyBtnColor(newColor);
+            localStorage.setItem(BTN_COLOR_KEY, newColor);
+        });
+
+        // Efek Ripple pada Tombol
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const x = e.clientX - e.target.getBoundingClientRect().left;
+                const y = e.clientY - e.target.getBoundingClientRect().top;
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+    });
+    </script>
+</body>
+</html>
