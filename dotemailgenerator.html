@@ -341,8 +341,47 @@
         
         let totalCombinations = 0;
 
-        emailInput.addEventListener('input', calculateTotalCombinations);
-        limitInput.addEventListener('input', validateLimit);
+        // --- FUNGSI BARU UNTUK MENYIMPAN DATA KE MEMORI ---
+        function simpanDataKeMemori() {
+            localStorage.setItem('generatorEmail_emailAsli', emailInput.value);
+            localStorage.setItem('generatorEmail_limit', limitInput.value);
+            localStorage.setItem('generatorEmail_hasil', resultBox.value);
+        }
+
+        // --- FUNGSI BARU UNTUK MEMUAT DATA DARI MEMORI ---
+        function muatDataDariMemori() {
+            const emailTersimpan = localStorage.getItem('generatorEmail_emailAsli');
+            const limitTersimpan = localStorage.getItem('generatorEmail_limit');
+            const hasilTersimpan = localStorage.getItem('generatorEmail_hasil');
+
+            if (emailTersimpan) {
+                emailInput.value = emailTersimpan;
+            }
+            if (limitTersimpan) {
+                limitInput.value = limitTersimpan;
+            }
+            if (hasilTersimpan) {
+                resultBox.value = hasilTersimpan;
+            }
+            
+            // Hitung ulang total kombinasi berdasarkan data yang dimuat
+            calculateTotalCombinations();
+        }
+
+        // --- MEMUAT DATA SAAT APLIKASI DIBUKA ---
+        document.addEventListener('DOMContentLoaded', muatDataDariMemori);
+
+        // --- EVENT LISTENERS ---
+        emailInput.addEventListener('input', () => {
+            calculateTotalCombinations();
+            simpanDataKeMemori(); // Simpan setiap kali email diketik
+        });
+
+        limitInput.addEventListener('input', () => {
+            validateLimit();
+            simpanDataKeMemori(); // Simpan setiap kali limit diubah
+        });
+
         generateBtn.addEventListener('click', generateEmails);
         resetBtn.addEventListener('click', () => showConfirmation(
             "Yakin ingin mereset semua inputan?", 
@@ -430,6 +469,7 @@
             }
             resultBox.value = combinations.join('\n');
             showAlert(`Berhasil generate ${combinations.length} email!`);
+            simpanDataKeMemori(); // Simpan hasil generate ke memori
         }
         
         function fallbackCopyTextToClipboard(text, count) {
@@ -480,7 +520,7 @@
             filenameInput.select();
         }
 
-        // --- FUNGSI SIMPAN FINAL UNTUK PLATFORM MEDIAN.CO ---
+        // FUNGSI SIMPAN FINAL UNTUK PLATFORM MEDIAN.CO (TIDAK BERUBAH)
         function performSave() {
             const textToSave = resultBox.value;
             let filename = filenameInput.value.trim();
@@ -488,25 +528,15 @@
                 filename = "hasil_email_generator";
             }
 
-            // Cek apakah 'median' API tersedia
             if (window.median && median.file && median.file.save) {
-                // Median.co membutuhkan konten dalam format Base64.
-                // btoa() adalah fungsi JavaScript bawaan untuk mengubah teks menjadi Base64.
-                // Trik unescape(encodeURIComponent()) memastikan karakter non-ASCII aman untuk di-encode.
                 const contentBase64 = btoa(unescape(encodeURIComponent(textToSave)));
-
-                // Panggil fungsi simpan dari Median.co
                 median.file.save({
                     url: `data:text/plain;base64,${contentBase64}`,
                     fileName: `${filename}.txt`
                 });
-
                 closeModalOnClick(saveModal);
                 showAlert(`Mempersiapkan "${filename}.txt" untuk diunduh...`);
-
             } else {
-                // Tampilkan pesan error jika API tidak ditemukan
-                // Ini berguna jika Anda mencoba menjalankan di browser biasa
                 showAlert("Fungsi simpan hanya berfungsi di dalam aplikasi.");
                 console.log("Error: 'median.file.save' bridge not found.");
             }
@@ -519,6 +549,7 @@
             countBox.value = "0";
             totalCombinations = 0;
             validateLimit();
+            simpanDataKeMemori(); // Simpan state kosong setelah reset
         }
     </script>
 </body>
