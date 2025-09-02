@@ -80,6 +80,13 @@
             transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
         }
         
+        /* --- PERUBAHAN DI SINI --- */
+        /* Membuat textbox tidak bisa disentuh/scroll saat readonly */
+        textarea[readonly] {
+            pointer-events: none;
+            overflow-y: hidden;
+        }
+        
         textarea:not([readonly]) {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
@@ -322,8 +329,6 @@
                 }
             };
             
-            // --- FUNGSI BARU ---
-            // Menonaktifkan atau mengaktifkan tombol aksi selain tombol Edit/Simpan.
             const toggleActionButtons = (isDisabled) => {
                 salinBtn.disabled = isDisabled;
                 importBtn.disabled = isDisabled;
@@ -335,24 +340,16 @@
             editBtn.addEventListener('click', () => {
                 const isReadOnly = emailList.hasAttribute('readonly');
                 if (isReadOnly) {
-                    // Masuk ke mode Edit
                     emailList.removeAttribute('readonly');
                     editText.textContent = 'Simpan';
                     editBtn.classList.add('editing');
-
-                    // --- PERUBAHAN DI SINI ---
-                    // Nonaktifkan semua tombol lain saat mode edit
                     toggleActionButtons(true);
-
                     emailList.focus();
                 } else {
-                    // Keluar dari mode Edit (Menyimpan)
                     emailList.setAttribute('readonly', true);
                     editText.textContent = 'Edit';
                     editBtn.classList.remove('editing');
                     emailList.scrollTop = 0; 
-                    
-                    // updateUI akan mengaktifkan kembali tombol yang relevan secara otomatis
                     updateUI();
                     saveState(); 
                 }
@@ -366,8 +363,6 @@
                 undoBtn.disabled = undoStack.length === 0;
                 undoAllBtn.disabled = undoStack.length === 0;
                 resetBtn.disabled = count === 0 && undoStack.length === 0;
-
-                // Tombol import selalu aktif
                 importBtn.disabled = false;
 
                 emailCountSpan.textContent = count;
@@ -441,8 +436,6 @@
             kembaliBtn.addEventListener('click', () => notifikasi.style.display = 'none');
             
             emailList.addEventListener('input', () => {
-                // Saat mengetik, kita tidak memanggil updateUI agar tombol tetap nonaktif
-                // tetapi kita tetap menyimpan perubahan sementara
                 saveState();
             });
 
