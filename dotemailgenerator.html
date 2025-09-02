@@ -9,6 +9,7 @@
             --primary-color: #007AFF;
             --primary-hover: #0056b3;
             --danger-color: #dc3545;
+            --danger-hover: #c82333;
             --success-color: #28a745;
             --secondary-color: #6c757d;
             --light-blue-bg: #e0f2f7;
@@ -136,15 +137,9 @@
         }
         #resetBtn:hover { background-color: #e9ecef; }
         
-        #copyBtn, #saveBtn { flex: 1; }
-        
-        #copyBtn {
+        #copyBtn { 
+            flex: 1; 
             background-color: var(--success-color);
-            color: white;
-        }
-        
-        #saveBtn {
-            background-color: var(--secondary-color);
             color: white;
         }
         
@@ -156,6 +151,7 @@
             display: none;
         }
 
+        /* --- STYLING MODAL (ALERT, CONFIRM) --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -220,40 +216,10 @@
             color: var(--text-color);
         }
         .modal-btn-secondary:hover { background-color: #e9ecef; }
-
-        .filename-input-container {
-            display: flex;
-            align-items: center;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            margin-bottom: 20px;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .filename-input-container:focus-within {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-        #filenameInput {
-            border: none;
-            flex-grow: 1;
-            box-shadow: none !important;
-            padding-right: 5px;
-            font-size: 15px;
-        }
-        .file-extension {
-            padding: 0 12px;
-            color: var(--text-muted);
-            background-color: #f8f9fa;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            border-top-right-radius: 9px;
-            border-bottom-right-radius: 9px;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
+
     <div class="container">
         <h1>Dot Email Generator</h1>
         <div class="input-group">
@@ -279,7 +245,6 @@
         </div>
         <div class="button-group">
             <button id="copyBtn">Salin</button>
-            <button id="saveBtn">Simpan</button>
         </div>
     </div>
     
@@ -287,20 +252,6 @@
         <div class="modal-box">
             <p id="alertMessage"></p>
             <button id="modal-close-btn" class="modal-btn-primary">Kembali</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="saveModal">
-        <div class="modal-box">
-            <h3>Simpan sebagai...</h3>
-            <div class="filename-input-container">
-                <input type="text" id="filenameInput" placeholder="hasil_email_generator">
-                <span class="file-extension">.txt</span>
-            </div>
-            <div class="modal-buttons">
-                <button id="cancelSaveBtn" class="modal-btn-secondary">Batal</button>
-                <button id="confirmSaveBtn" class="modal-btn-primary">Simpan</button>
-            </div>
         </div>
     </div>
     
@@ -315,6 +266,7 @@
     </div>
 
     <script>
+        // --- Deklarasi Elemen UI ---
         const emailInput = document.getElementById('originalEmail');
         const countBox = document.getElementById('count');
         const limitInput = document.getElementById('limit');
@@ -323,16 +275,11 @@
         const warningMessage = document.getElementById('warning');
         const resultBox = document.getElementById('result');
         const copyBtn = document.getElementById('copyBtn');
-        const saveBtn = document.getElementById('saveBtn');
 
+        // --- Deklarasi Elemen Modal ---
         const customAlert = document.getElementById('customAlert');
         const alertMessage = document.getElementById('alertMessage');
         const modalCloseBtn = document.getElementById('modal-close-btn');
-
-        const saveModal = document.getElementById('saveModal');
-        const filenameInput = document.getElementById('filenameInput');
-        const cancelSaveBtn = document.getElementById('cancelSaveBtn');
-        const confirmSaveBtn = document.getElementById('confirmSaveBtn');
 
         const confirmModal = document.getElementById('confirmModal');
         const confirmMessage = document.getElementById('confirmMessage');
@@ -341,78 +288,35 @@
         
         let totalCombinations = 0;
 
-        // --- FUNGSI BARU UNTUK MENYIMPAN DATA KE MEMORI ---
-        function simpanDataKeMemori() {
-            localStorage.setItem('generatorEmail_emailAsli', emailInput.value);
-            localStorage.setItem('generatorEmail_limit', limitInput.value);
-            localStorage.setItem('generatorEmail_hasil', resultBox.value);
-        }
-
-        // --- FUNGSI BARU UNTUK MEMUAT DATA DARI MEMORI ---
-        function muatDataDariMemori() {
-            const emailTersimpan = localStorage.getItem('generatorEmail_emailAsli');
-            const limitTersimpan = localStorage.getItem('generatorEmail_limit');
-            const hasilTersimpan = localStorage.getItem('generatorEmail_hasil');
-
-            if (emailTersimpan) {
-                emailInput.value = emailTersimpan;
-            }
-            if (limitTersimpan) {
-                limitInput.value = limitTersimpan;
-            }
-            if (hasilTersimpan) {
-                resultBox.value = hasilTersimpan;
-            }
-            
-            // Hitung ulang total kombinasi berdasarkan data yang dimuat
-            calculateTotalCombinations();
-        }
-
-        // --- MEMUAT DATA SAAT APLIKASI DIBUKA ---
-        document.addEventListener('DOMContentLoaded', muatDataDariMemori);
-
-        // --- EVENT LISTENERS ---
-        emailInput.addEventListener('input', () => {
-            calculateTotalCombinations();
-            simpanDataKeMemori(); // Simpan setiap kali email diketik
-        });
-
-        limitInput.addEventListener('input', () => {
-            validateLimit();
-            simpanDataKeMemori(); // Simpan setiap kali limit diubah
-        });
-
+        // --- Event Listeners Utama ---
+        emailInput.addEventListener('input', calculateTotalCombinations);
+        limitInput.addEventListener('input', validateLimit);
         generateBtn.addEventListener('click', generateEmails);
         resetBtn.addEventListener('click', () => showConfirmation(
             "Yakin ingin mereset semua inputan?", 
             performReset
         ));
         copyBtn.addEventListener('click', copyResults);
-        saveBtn.addEventListener('click', showSaveDialog);
 
+        // --- Event Listeners untuk Modal ---
         function closeModalOnClick(modal) {
              modal.classList.remove('show');
         }
 
-        [modalCloseBtn, cancelSaveBtn, cancelConfirmBtn].forEach(btn => {
+        [modalCloseBtn, cancelConfirmBtn].forEach(btn => {
             btn.addEventListener('click', () => {
                 closeModalOnClick(customAlert);
-                closeModalOnClick(saveModal);
                 closeModalOnClick(confirmModal);
             });
         });
 
-        [customAlert, saveModal, confirmModal].forEach(modal => {
+        [customAlert, confirmModal].forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) closeModalOnClick(modal);
             });
         });
-
-        confirmSaveBtn.addEventListener('click', performSave);
-        filenameInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') performSave();
-        });
         
+        // --- Fungsi Notifikasi & Konfirmasi ---
         function showAlert(message) {
             alertMessage.textContent = message;
             customAlert.classList.add('show');
@@ -421,14 +325,17 @@
         function showConfirmation(message, callback) {
             confirmMessage.textContent = message;
             confirmModal.classList.add('show');
+            
             const newConfirmBtn = confirmActionBtn.cloneNode(true);
             confirmActionBtn.parentNode.replaceChild(newConfirmBtn, confirmActionBtn);
+            
             newConfirmBtn.addEventListener('click', () => {
                 callback();
                 closeModalOnClick(confirmModal);
             }, { once: true });
         }
 
+        // --- Fungsi Inti Aplikasi ---
         function calculateTotalCombinations() {
             const email = emailInput.value.trim();
             const username = email.split('@')[0];
@@ -450,14 +357,17 @@
                 showAlert("Masukkan alamat email yang valid.");
                 return;
             }
+
             const [username, domain] = email.split('@');
             if (username.length <= 1) {
                 resultBox.value = email;
                 return;
             }
+
             const combinations = [];
             let limit = parseInt(limitInput.value, 10) || totalCombinations;
             if (limit > totalCombinations) limit = totalCombinations;
+
             const n = username.length - 1;
             for (let i = 0; i < Math.pow(2, n) && combinations.length < limit; i++) {
                 let newUsername = username[0];
@@ -469,7 +379,6 @@
             }
             resultBox.value = combinations.join('\n');
             showAlert(`Berhasil generate ${combinations.length} email!`);
-            simpanDataKeMemori(); // Simpan hasil generate ke memori
         }
         
         function fallbackCopyTextToClipboard(text, count) {
@@ -477,6 +386,7 @@
             textArea.value = text;
             textArea.style.position = "fixed";
             textArea.style.top = "-9999px";
+            textArea.style.left = "-9999px";
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
@@ -496,6 +406,7 @@
                 return;
             }
             const emailCount = text.split('\n').filter(line => line.trim() !== '').length;
+
             if (!navigator.clipboard) {
                 fallbackCopyTextToClipboard(text, emailCount);
                 return;
@@ -507,41 +418,6 @@
             });
         }
 
-        function showSaveDialog() {
-            const textToSave = resultBox.value;
-            if (!textToSave) {
-                showAlert("Tidak ada hasil untuk disimpan.");
-                return;
-            }
-            const username = emailInput.value.split('@')[0] || 'hasil_email';
-            filenameInput.value = `emails_${username}`;
-            saveModal.classList.add('show');
-            filenameInput.focus();
-            filenameInput.select();
-        }
-
-        // FUNGSI SIMPAN FINAL UNTUK PLATFORM MEDIAN.CO (TIDAK BERUBAH)
-        function performSave() {
-            const textToSave = resultBox.value;
-            let filename = filenameInput.value.trim();
-            if (!filename) {
-                filename = "hasil_email_generator";
-            }
-
-            if (window.median && median.file && median.file.save) {
-                const contentBase64 = btoa(unescape(encodeURIComponent(textToSave)));
-                median.file.save({
-                    url: `data:text/plain;base64,${contentBase64}`,
-                    fileName: `${filename}.txt`
-                });
-                closeModalOnClick(saveModal);
-                showAlert(`Mempersiapkan "${filename}.txt" untuk diunduh...`);
-            } else {
-                showAlert("Fungsi simpan hanya berfungsi di dalam aplikasi.");
-                console.log("Error: 'median.file.save' bridge not found.");
-            }
-        }
-
         function performReset() {
             emailInput.value = "";
             limitInput.value = "";
@@ -549,7 +425,6 @@
             countBox.value = "0";
             totalCombinations = 0;
             validateLimit();
-            simpanDataKeMemori(); // Simpan state kosong setelah reset
         }
     </script>
 </body>
