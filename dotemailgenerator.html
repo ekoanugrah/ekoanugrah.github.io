@@ -9,7 +9,6 @@
             --primary-color: #007AFF;
             --primary-hover: #0056b3;
             --danger-color: #dc3545;
-            --danger-hover: #c82333;
             --success-color: #28a745;
             --secondary-color: #6c757d;
             --light-blue-bg: #e0f2f7;
@@ -157,7 +156,6 @@
             display: none;
         }
 
-        /* --- STYLING MODAL (ALERT, SAVE, CONFIRM) --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -256,7 +254,6 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>Dot Email Generator</h1>
         <div class="input-group">
@@ -318,7 +315,6 @@
     </div>
 
     <script>
-        // --- Deklarasi Elemen UI ---
         const emailInput = document.getElementById('originalEmail');
         const countBox = document.getElementById('count');
         const limitInput = document.getElementById('limit');
@@ -329,7 +325,6 @@
         const copyBtn = document.getElementById('copyBtn');
         const saveBtn = document.getElementById('saveBtn');
 
-        // --- Deklarasi Elemen Modal ---
         const customAlert = document.getElementById('customAlert');
         const alertMessage = document.getElementById('alertMessage');
         const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -346,7 +341,6 @@
         
         let totalCombinations = 0;
 
-        // --- Event Listeners Utama ---
         emailInput.addEventListener('input', calculateTotalCombinations);
         limitInput.addEventListener('input', validateLimit);
         generateBtn.addEventListener('click', generateEmails);
@@ -357,7 +351,6 @@
         copyBtn.addEventListener('click', copyResults);
         saveBtn.addEventListener('click', showSaveDialog);
 
-        // --- Event Listeners untuk Modal ---
         function closeModalOnClick(modal) {
              modal.classList.remove('show');
         }
@@ -381,7 +374,6 @@
             if (e.key === 'Enter') performSave();
         });
         
-        // --- Fungsi Notifikasi & Konfirmasi ---
         function showAlert(message) {
             alertMessage.textContent = message;
             customAlert.classList.add('show');
@@ -390,17 +382,14 @@
         function showConfirmation(message, callback) {
             confirmMessage.textContent = message;
             confirmModal.classList.add('show');
-            
             const newConfirmBtn = confirmActionBtn.cloneNode(true);
             confirmActionBtn.parentNode.replaceChild(newConfirmBtn, confirmActionBtn);
-            
             newConfirmBtn.addEventListener('click', () => {
                 callback();
                 closeModalOnClick(confirmModal);
             }, { once: true });
         }
 
-        // --- Fungsi Inti Aplikasi ---
         function calculateTotalCombinations() {
             const email = emailInput.value.trim();
             const username = email.split('@')[0];
@@ -422,17 +411,14 @@
                 showAlert("Masukkan alamat email yang valid.");
                 return;
             }
-
             const [username, domain] = email.split('@');
             if (username.length <= 1) {
                 resultBox.value = email;
                 return;
             }
-
             const combinations = [];
             let limit = parseInt(limitInput.value, 10) || totalCombinations;
             if (limit > totalCombinations) limit = totalCombinations;
-
             const n = username.length - 1;
             for (let i = 0; i < Math.pow(2, n) && combinations.length < limit; i++) {
                 let newUsername = username[0];
@@ -451,7 +437,6 @@
             textArea.value = text;
             textArea.style.position = "fixed";
             textArea.style.top = "-9999px";
-            textArea.style.left = "-9999px";
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
@@ -471,7 +456,6 @@
                 return;
             }
             const emailCount = text.split('\n').filter(line => line.trim() !== '').length;
-
             if (!navigator.clipboard) {
                 fallbackCopyTextToClipboard(text, emailCount);
                 return;
@@ -483,14 +467,12 @@
             });
         }
 
-        // --- FUNGSI SIMPAN YANG DIPERBARUI ---
         function showSaveDialog() {
             const textToSave = resultBox.value;
             if (!textToSave) {
                 showAlert("Tidak ada hasil untuk disimpan.");
                 return;
             }
-            
             const username = emailInput.value.split('@')[0] || 'hasil_email';
             filenameInput.value = `emails_${username}`;
             saveModal.classList.add('show');
@@ -498,29 +480,28 @@
             filenameInput.select();
         }
 
+        // --- FUNGSI SIMPAN FINAL UNTUK WEBVIEW ---
         function performSave() {
             const textToSave = resultBox.value;
             let filename = filenameInput.value.trim();
             if (!filename) {
                 filename = "hasil_email_generator";
             }
-
-            const blob = new Blob([textToSave], { type: 'text/plain;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `${filename}.txt`;
-            document.body.appendChild(a);
-            a.click();
             
-            // Tambahan: Beri jeda sebelum membersihkan elemen agar unduhan
-            // andal di perangkat mobile
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(a.href);
-            }, 100);
-            
-            closeModalOnClick(saveModal);
-            showAlert(`File "${filename}.txt" akan diunduh!`);
+            // Cek apakah jembatan 'AndroidInterface' yang kita buat di kode native tersedia
+            if (window.AndroidInterface && typeof window.AndroidInterface.saveTextToFile === 'function') {
+                // Panggil fungsi native melalui jembatan dengan format nama file .txt
+                window.AndroidInterface.saveTextToFile(`${filename}.txt`, textToSave);
+                
+                // Tutup modal dan tampilkan notifikasi di sisi web
+                closeModalOnClick(saveModal);
+                showAlert(`Meminta untuk menyimpan "${filename}.txt"...`);
+            } else {
+                // Tampilkan pesan error jika jembatan tidak ditemukan
+                // Ini membantu debugging jika Anda lupa melampirkan interface di kode native
+                showAlert("Fungsi simpan tidak tersedia di aplikasi ini.");
+                console.log("Error: 'AndroidInterface' bridge not found.");
+            }
         }
 
         function performReset() {
