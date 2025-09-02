@@ -184,21 +184,21 @@
             transform: scale(0.95);
             transition: transform 0.3s ease;
             width: 90%;
-            max-width: 300px; /* Lebar maksimum modal diperkecil */
-            box-sizing: border-box; /* Padding dihitung dalam lebar */
+            max-width: 300px;
+            box-sizing: border-box;
         }
         .modal-overlay.show .modal-box {
             transform: scale(1);
         }
         .modal-box p {
             margin: 0 0 20px 0;
-            font-size: 15px; /* Font pesan diperkecil */
+            font-size: 15px;
             line-height: 1.4;
         }
         .modal-box h3 {
             margin: 0 0 15px 0;
             font-weight: 600;
-            font-size: 18px; /* Font judul diperkecil */
+            font-size: 18px;
         }
         .modal-buttons {
             display: flex;
@@ -207,8 +207,8 @@
         }
         .modal-btn-primary, .modal-btn-secondary, #modal-close-btn {
             flex: 1;
-            padding: 9px 15px; /* Padding tombol diperkecil */
-            font-size: 14px; /* Font tombol diperkecil */
+            padding: 9px 15px;
+            font-size: 14px;
             min-width: 0;
         }
         .modal-btn-primary {
@@ -240,10 +240,10 @@
             flex-grow: 1;
             box-shadow: none !important;
             padding-right: 5px;
-            font-size: 15px; /* Font input diperkecil */
+            font-size: 15px;
         }
         .file-extension {
-            padding: 0 12px; /* Padding ekstensi diperkecil */
+            padding: 0 12px;
             color: var(--text-muted);
             background-color: #f8f9fa;
             height: 100%;
@@ -251,7 +251,7 @@
             align-items: center;
             border-top-right-radius: 9px;
             border-bottom-right-radius: 9px;
-            font-size: 14px; /* Font ekstensi diperkecil */
+            font-size: 14px;
         }
     </style>
 </head>
@@ -511,11 +511,16 @@
             a.download = `${filename}.txt`;
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
+            
+            // Tambahan: Beri jeda sebelum membersihkan elemen agar unduhan
+            // andal di perangkat mobile
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            }, 100);
             
             closeModalOnClick(saveModal);
-            showAlert(`File "${filename}.txt" berhasil diunduh!`);
+            showAlert(`File "${filename}.txt" akan diunduh!`);
         }
 
         function performReset() {
