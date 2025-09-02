@@ -480,27 +480,35 @@
             filenameInput.select();
         }
 
-        // --- FUNGSI SIMPAN FINAL UNTUK WEBVIEW ---
+        // --- FUNGSI SIMPAN FINAL UNTUK PLATFORM MEDIAN.CO ---
         function performSave() {
             const textToSave = resultBox.value;
             let filename = filenameInput.value.trim();
             if (!filename) {
                 filename = "hasil_email_generator";
             }
-            
-            // Cek apakah jembatan 'AndroidInterface' yang kita buat di kode native tersedia
-            if (window.AndroidInterface && typeof window.AndroidInterface.saveTextToFile === 'function') {
-                // Panggil fungsi native melalui jembatan dengan format nama file .txt
-                window.AndroidInterface.saveTextToFile(`${filename}.txt`, textToSave);
-                
-                // Tutup modal dan tampilkan notifikasi di sisi web
+
+            // Cek apakah 'median' API tersedia
+            if (window.median && median.file && median.file.save) {
+                // Median.co membutuhkan konten dalam format Base64.
+                // btoa() adalah fungsi JavaScript bawaan untuk mengubah teks menjadi Base64.
+                // Trik unescape(encodeURIComponent()) memastikan karakter non-ASCII aman untuk di-encode.
+                const contentBase64 = btoa(unescape(encodeURIComponent(textToSave)));
+
+                // Panggil fungsi simpan dari Median.co
+                median.file.save({
+                    url: `data:text/plain;base64,${contentBase64}`,
+                    fileName: `${filename}.txt`
+                });
+
                 closeModalOnClick(saveModal);
-                showAlert(`Meminta untuk menyimpan "${filename}.txt"...`);
+                showAlert(`Mempersiapkan "${filename}.txt" untuk diunduh...`);
+
             } else {
-                // Tampilkan pesan error jika jembatan tidak ditemukan
-                // Ini membantu debugging jika Anda lupa melampirkan interface di kode native
-                showAlert("Fungsi simpan tidak tersedia di aplikasi ini.");
-                console.log("Error: 'AndroidInterface' bridge not found.");
+                // Tampilkan pesan error jika API tidak ditemukan
+                // Ini berguna jika Anda mencoba menjalankan di browser biasa
+                showAlert("Fungsi simpan hanya berfungsi di dalam aplikasi.");
+                console.log("Error: 'median.file.save' bridge not found.");
             }
         }
 
