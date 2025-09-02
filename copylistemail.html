@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COPY LIST EMAIL</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #fb923c; 
+            --card-bg: #ffffff;
+            --primary-color: #22c55e;
+            --primary-hover: #16a34a;
+            --text-dark: #1f2937;
+            --text-light: #4b5563;
+            --border-color: #d1d5db;
+            --disabled-bg: #e5e7eb;
+            --disabled-text: #9ca3af;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --danger-color: #ef4444; 
+            --danger-hover: #dc2626;
+            --highlight-orange: rgba(249, 115, 22, 0.3);
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 1rem 2rem; 
+            box-sizing: border-box;
+            color: var(--text-dark);
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2rem 2.5rem 2.5rem; 
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem; 
+            text-transform: uppercase;
+        }
+
+        .textarea-wrapper {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            resize: vertical;
+            box-sizing: border-box;
+            background-color: #f9fafb;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        
+        textarea:not([readonly]) {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+            background-color: var(--card-bg);
+        }
+        
+        .copy-highlight-block {
+            position: absolute;
+            top: 0.75rem; 
+            left: 1rem;   
+            right: 1rem;  
+            z-index: 2;
+            height: calc(0.75rem * 1.4); 
+            background-color: var(--highlight-orange);
+            border-radius: 0.2rem;
+            opacity: 1;
+            transition: opacity 350ms ease-out;
+        }
+
+        .top-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            align-items: stretch;
+        }
+        
+        .count-box {
+            background-color: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.4rem 0.5rem;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: center;
+        }
+        .count-box span {
+            font-size: 1.2rem;
+            line-height: 1.2;
+        }
+        .count-box small {
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        
+        .main-actions {
+            margin-bottom: 1.25rem;
+        }
+        
+        .utility-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        #editBtn, #importBtn, #undoBtn, #undoAllBtn {
+            background-color: #f3f4f6;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        #editBtn:hover, #importBtn:hover, #undoBtn:hover, #undoAllBtn:hover {
+            background-color: #e5e7eb;
+        }
+        
+        #resetBtn {
+             background-color: var(--danger-color);
+             color: white;
+             border: 1px solid var(--danger-color);
+        }
+
+        #resetBtn:hover:not(:disabled) {
+             background-color: var(--danger-hover);
+             border-color: var(--danger-hover);
+        }
+        
+        #editBtn.editing {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        #salinBtn {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        #salinBtn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: var(--disabled-bg) !important;
+            color: var(--disabled-text) !important;
+            cursor: not-allowed;
+            transform: none;
+            border-color: var(--disabled-bg) !important;
+        }
+
+        .notifikasi-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); display: flex;
+            justify-content: center; align-items: center; z-index: 1000;
+        }
+        .notifikasi-content {
+            background-color: white; padding: 30px 40px; border-radius: 8px;
+            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .notifikasi-content p { margin: 0 0 20px 0; color: #d93025; font-weight: 500;}
+        #kembaliBtn { background-color: #1877f2; color: white; padding: 10px 30px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>COPY LIST EMAIL</h1>
+
+        <div class="textarea-wrapper">
+            <textarea id="emailList" rows="10" readonly></textarea>
+        </div>
+
+        <input type="file" id="fileInput" accept=".txt" style="display: none;">
+
+        <div class="top-actions">
+            <button id="editBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
+                <span id="editText">Edit</span>
+            </button>
+            
+            <div class="count-box">
+                <span id="emailCountSpan">0</span>
+                <small>Sisa Email</small>
+            </div>
+            
+            <button id="importBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z"/></svg>
+                <span>Import (.txt)</span>
+            </button>
+        </div>
+
+        <div class="main-actions">
+            <button id="salinBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM4 2a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1zm6 4a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5M4 1.5H3a.5.5 0 0 0-.5.5V14a1.5 1.5 0 0 0 1.5 1.5h7A1.5 1.5 0 0 0 13 14v-1.5a.5.5 0 0 0-1 0V14a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5z"/></svg>
+                <span>Salin Email Teratas</span>
+            </button>
+        </div>
+        
+        <div class="utility-actions">
+            <button id="undoBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466"/></svg>
+                <span>Undo</span>
+            </button>
+            <button id="undoAllBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z"/><path d="M7.854.146a.5.5 0 1 0-.708.708L9.293 3 7.146 5.146a.5.5 0 1 0 .708.708L10 3.707l2.146 2.147a.5.5 0 0 0 .708-.708L10.707 3l2.147-2.146a.5.5 0 0 0-.708-.708L10 2.293z"/></svg>
+                <span>Undo All</span>
+            </button>
+            <button id="resetBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg>
+                <span>Reset</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="notifikasi" class="notifikasi-container" style="display: none;">
+        <div class="notifikasi-content">
+            <p id="notifikasiPesan">File tidak berisi email yang benar.</p>
+            <button id="kembaliBtn">Kembali</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const emailList = document.getElementById('emailList');
+            const textareaWrapper = emailList.parentElement;
+            const emailCountSpan = document.getElementById('emailCountSpan'); 
+            const editBtn = document.getElementById('editBtn');
+            const editText = document.getElementById('editText');
+            const importBtn = document.getElementById('importBtn');
+            const fileInput = document.getElementById('fileInput');
+            const salinBtn = document.getElementById('salinBtn');
+            const undoBtn = document.getElementById('undoBtn');
+            const undoAllBtn = document.getElementById('undoAllBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const notifikasi = document.getElementById('notifikasi');
+            const kembaliBtn = document.getElementById('kembaliBtn');
+
+            // --- PERUBAHAN 1: Definisikan kunci untuk localStorage ---
+            const STORAGE_KEY_EMAILS = 'emailCopierApp_emails';
+            const STORAGE_KEY_UNDO_STACK = 'emailCopierApp_undoStack';
+
+            let undoStack = [];
+
+            // --- PERUBAHAN 2: Fungsi untuk menyimpan state ke localStorage ---
+            const saveState = () => {
+                localStorage.setItem(STORAGE_KEY_EMAILS, emailList.value);
+                localStorage.setItem(STORAGE_KEY_UNDO_STACK, JSON.stringify(undoStack));
+            };
+
+            // --- PERUBAHAN 3: Fungsi untuk memuat state dari localStorage ---
+            const loadState = () => {
+                const savedEmails = localStorage.getItem(STORAGE_KEY_EMAILS);
+                const savedUndoStack = localStorage.getItem(STORAGE_KEY_UNDO_STACK);
+
+                if (savedEmails) {
+                    emailList.value = savedEmails;
+                }
+                if (savedUndoStack) {
+                    try {
+                        const parsedStack = JSON.parse(savedUndoStack);
+                        if (Array.isArray(parsedStack)) {
+                            undoStack = parsedStack;
+                        }
+                    } catch (e) {
+                        console.error("Gagal memuat riwayat undo dari localStorage:", e);
+                        undoStack = [];
+                    }
+                }
+            };
+            
+            editBtn.addEventListener('click', () => {
+                const isReadOnly = emailList.hasAttribute('readonly');
+                if (isReadOnly) {
+                    emailList.removeAttribute('readonly');
+                    editText.textContent = 'Simpan';
+                    editBtn.classList.add('editing');
+                    emailList.focus();
+                } else {
+                    emailList.setAttribute('readonly', true);
+                    editText.textContent = 'Edit';
+                    editBtn.classList.remove('editing');
+                    // Simpan perubahan setelah mode edit selesai
+                    updateUI();
+                    saveState(); // Panggil saveState setelah menyimpan editan
+                }
+            });
+            
+            const updateUI = () => {
+                const emails = getEmailsAsArray();
+                const count = emails.length;
+
+                salinBtn.disabled = count === 0;
+                undoBtn.disabled = undoStack.length === 0;
+                undoAllBtn.disabled = undoStack.length === 0;
+                resetBtn.disabled = count === 0 && undoStack.length === 0;
+
+                emailCountSpan.textContent = count;
+            };
+
+            const getEmailsAsArray = () => emailList.value.trim().split('\n').filter(Boolean);
+
+            const isValidEmail = (email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim());
+            
+            const performCopyAction = (text) => {
+                return new Promise((resolve, reject) => {
+                    try {
+                        const textArea = document.createElement("textarea");
+                        textArea.value = text;
+                        textArea.style.position = 'fixed'; 
+                        textArea.style.top = '-9999px';
+                        textArea.style.left = '-9999px';
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        const success = document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        if (!success) throw new Error('execCommand mengembalikan false');
+                        resolve();
+                    } catch (error) {
+                        console.warn("Metode salin klasik gagal, mencoba metode modern...");
+                        if (navigator.clipboard) {
+                            navigator.clipboard.writeText(text).then(resolve).catch(reject);
+                        } else {
+                            reject(error);
+                        }
+                    }
+                });
+            };
+
+            salinBtn.addEventListener('click', () => {
+                const emails = getEmailsAsArray();
+                if (emails.length > 0) {
+                    const emailToCopy = emails[0];
+
+                    performCopyAction(emailToCopy)
+                        .then(() => {
+                            const highlightBlock = document.createElement('div');
+                            highlightBlock.className = 'copy-highlight-block';
+                            textareaWrapper.appendChild(highlightBlock);
+
+                            setTimeout(() => {
+                                let currentEmails = getEmailsAsArray();
+                                currentEmails.shift();
+                                undoStack.push(emailToCopy);
+                                emailList.value = currentEmails.join('\n');
+                                updateUI();
+                                saveState(); // Panggil saveState setelah menyalin
+
+                                highlightBlock.style.opacity = '0';
+                                setTimeout(() => {
+                                    if (highlightBlock.parentElement) {
+                                        textareaWrapper.removeChild(highlightBlock);
+                                    }
+                                }, 350);
+                            }, 150);
+                        })
+                        .catch(err => {
+                            console.error("Semua metode salin gagal:", err);
+                            alert("Gagal menyalin ke clipboard.");
+                        });
+                }
+            });
+
+            importBtn.addEventListener('click', () => fileInput.click());
+            kembaliBtn.addEventListener('click', () => notifikasi.style.display = 'none');
+            
+            // Simpan setiap kali ada ketikan di textarea
+            emailList.addEventListener('input', () => {
+                updateUI();
+                saveState();
+            });
+
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0]; if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const lines = e.target.result.trim().split('\n').filter(Boolean);
+                    if (lines.every(isValidEmail)) {
+                        emailList.value = lines.join('\n');
+                        undoStack = [];
+                    } 
+                    else { 
+                        notifikasi.style.display = 'flex'; 
+                    }
+                    updateUI();
+                    saveState(); // Panggil saveState setelah import
+                };
+                reader.readAsText(file); fileInput.value = '';
+            });
+
+            undoBtn.addEventListener('click', () => {
+                if (undoStack.length > 0) {
+                    const last = undoStack.pop();
+                    let emails = getEmailsAsArray();
+                    emails.unshift(last);
+                    emailList.value = emails.join('\n');
+                    updateUI();
+                    saveState(); // Panggil saveState setelah undo
+                }
+            });
+
+            undoAllBtn.addEventListener('click', () => {
+                if (undoStack.length > 0 && confirm("Kembalikan semua email yang telah disalin?")) {
+                    let emails = getEmailsAsArray();
+                    const restored = undoStack.reverse();
+                    emailList.value = [...restored, ...emails].join('\n');
+                    undoStack = []; 
+                    updateUI();
+                    saveState(); // Panggil saveState setelah undo all
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                if (confirm("Apakah Anda yakin ingin menghapus semua email dari daftar?")) {
+                    emailList.value = '';
+                    undoStack = [];
+                    updateUI();
+                    saveState(); // Panggil saveState setelah reset
+                }
+            });
+
+            // --- PERUBAHAN 4: Panggil loadState di awal dan update UI ---
+            loadState();
+            updateUI();
+        });
+    </script>
+</body>
+</html>
