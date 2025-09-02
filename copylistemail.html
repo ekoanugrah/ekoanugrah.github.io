@@ -292,19 +292,16 @@
             const notifikasi = document.getElementById('notifikasi');
             const kembaliBtn = document.getElementById('kembaliBtn');
 
-            // --- PERUBAHAN 1: Definisikan kunci untuk localStorage ---
             const STORAGE_KEY_EMAILS = 'emailCopierApp_emails';
             const STORAGE_KEY_UNDO_STACK = 'emailCopierApp_undoStack';
 
             let undoStack = [];
 
-            // --- PERUBAHAN 2: Fungsi untuk menyimpan state ke localStorage ---
             const saveState = () => {
                 localStorage.setItem(STORAGE_KEY_EMAILS, emailList.value);
                 localStorage.setItem(STORAGE_KEY_UNDO_STACK, JSON.stringify(undoStack));
             };
 
-            // --- PERUBAHAN 3: Fungsi untuk memuat state dari localStorage ---
             const loadState = () => {
                 const savedEmails = localStorage.getItem(STORAGE_KEY_EMAILS);
                 const savedUndoStack = localStorage.getItem(STORAGE_KEY_UNDO_STACK);
@@ -325,20 +322,39 @@
                 }
             };
             
+            // --- FUNGSI BARU ---
+            // Menonaktifkan atau mengaktifkan tombol aksi selain tombol Edit/Simpan.
+            const toggleActionButtons = (isDisabled) => {
+                salinBtn.disabled = isDisabled;
+                importBtn.disabled = isDisabled;
+                undoBtn.disabled = isDisabled;
+                undoAllBtn.disabled = isDisabled;
+                resetBtn.disabled = isDisabled;
+            };
+
             editBtn.addEventListener('click', () => {
                 const isReadOnly = emailList.hasAttribute('readonly');
                 if (isReadOnly) {
+                    // Masuk ke mode Edit
                     emailList.removeAttribute('readonly');
                     editText.textContent = 'Simpan';
                     editBtn.classList.add('editing');
+
+                    // --- PERUBAHAN DI SINI ---
+                    // Nonaktifkan semua tombol lain saat mode edit
+                    toggleActionButtons(true);
+
                     emailList.focus();
                 } else {
+                    // Keluar dari mode Edit (Menyimpan)
                     emailList.setAttribute('readonly', true);
                     editText.textContent = 'Edit';
                     editBtn.classList.remove('editing');
-                    // Simpan perubahan setelah mode edit selesai
+                    emailList.scrollTop = 0; 
+                    
+                    // updateUI akan mengaktifkan kembali tombol yang relevan secara otomatis
                     updateUI();
-                    saveState(); // Panggil saveState setelah menyimpan editan
+                    saveState(); 
                 }
             });
             
@@ -350,6 +366,9 @@
                 undoBtn.disabled = undoStack.length === 0;
                 undoAllBtn.disabled = undoStack.length === 0;
                 resetBtn.disabled = count === 0 && undoStack.length === 0;
+
+                // Tombol import selalu aktif
+                importBtn.disabled = false;
 
                 emailCountSpan.textContent = count;
             };
@@ -401,7 +420,7 @@
                                 undoStack.push(emailToCopy);
                                 emailList.value = currentEmails.join('\n');
                                 updateUI();
-                                saveState(); // Panggil saveState setelah menyalin
+                                saveState();
 
                                 highlightBlock.style.opacity = '0';
                                 setTimeout(() => {
@@ -421,9 +440,9 @@
             importBtn.addEventListener('click', () => fileInput.click());
             kembaliBtn.addEventListener('click', () => notifikasi.style.display = 'none');
             
-            // Simpan setiap kali ada ketikan di textarea
             emailList.addEventListener('input', () => {
-                updateUI();
+                // Saat mengetik, kita tidak memanggil updateUI agar tombol tetap nonaktif
+                // tetapi kita tetap menyimpan perubahan sementara
                 saveState();
             });
 
@@ -440,7 +459,7 @@
                         notifikasi.style.display = 'flex'; 
                     }
                     updateUI();
-                    saveState(); // Panggil saveState setelah import
+                    saveState();
                 };
                 reader.readAsText(file); fileInput.value = '';
             });
@@ -452,7 +471,7 @@
                     emails.unshift(last);
                     emailList.value = emails.join('\n');
                     updateUI();
-                    saveState(); // Panggil saveState setelah undo
+                    saveState();
                 }
             });
 
@@ -463,7 +482,7 @@
                     emailList.value = [...restored, ...emails].join('\n');
                     undoStack = []; 
                     updateUI();
-                    saveState(); // Panggil saveState setelah undo all
+                    saveState();
                 }
             });
 
@@ -472,11 +491,10 @@
                     emailList.value = '';
                     undoStack = [];
                     updateUI();
-                    saveState(); // Panggil saveState setelah reset
+                    saveState();
                 }
             });
-
-            // --- PERUBAHAN 4: Panggil loadState di awal dan update UI ---
+            
             loadState();
             updateUI();
         });
