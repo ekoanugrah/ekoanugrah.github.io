@@ -80,8 +80,6 @@
             transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
         }
         
-        /* --- PERUBAHAN DI SINI --- */
-        /* Membuat textbox tidak bisa disentuh/scroll saat readonly */
         textarea[readonly] {
             pointer-events: none;
             overflow-y: hidden;
@@ -199,9 +197,10 @@
             color: #ffffff;
             font-size: 1rem;
         }
-
-        #salinBtn:hover {
-            background-color: var(--primary-hover);
+        
+        /* === PERUBAHAN 1: Membuat warna tombol Salin tidak berubah === */
+        #salinBtn:hover:not(:disabled) {
+            background-color: var(--primary-color);
         }
 
         button:disabled {
@@ -358,12 +357,15 @@
             const updateUI = () => {
                 const emails = getEmailsAsArray();
                 const count = emails.length;
+                const hasEmails = count > 0;
 
-                salinBtn.disabled = count === 0;
+                // === PERUBAHAN 2 & 3: Logika penonaktifan tombol ===
+                salinBtn.disabled = !hasEmails; // Nonaktif jika tidak ada email
+                importBtn.disabled = hasEmails; // Nonaktif jika ADA email
+                
                 undoBtn.disabled = undoStack.length === 0;
                 undoAllBtn.disabled = undoStack.length === 0;
-                resetBtn.disabled = count === 0 && undoStack.length === 0;
-                importBtn.disabled = false;
+                resetBtn.disabled = !hasEmails && undoStack.length === 0;
 
                 emailCountSpan.textContent = count;
             };
@@ -436,7 +438,11 @@
             kembaliBtn.addEventListener('click', () => notifikasi.style.display = 'none');
             
             emailList.addEventListener('input', () => {
-                saveState();
+                // Saat dalam mode edit, panggil updateUI agar tombol bisa di-enable/disable secara live
+                // Meskipun saat ini semua tombol dinonaktifkan oleh 'toggleActionButtons', 
+                // ini untuk masa depan jika logika berubah
+                // updateUI(); 
+                // Tidak perlu save state di sini, save hanya saat klik 'Simpan'
             });
 
             fileInput.addEventListener('change', (event) => {
