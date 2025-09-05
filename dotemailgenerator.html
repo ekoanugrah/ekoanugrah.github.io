@@ -105,6 +105,14 @@
             gap: 10px;
             margin-top: 20px;
         }
+        
+        .limit-inputs {
+            display: flex;
+            gap: 10px;
+        }
+        .limit-inputs input {
+            width: 100%;
+        }
 
         button {
             padding: 12px;
@@ -231,9 +239,12 @@
             <input type="text" id="count" value="0" readonly>
         </div>
         <div class="input-group">
-            <label for="limit">Jumlah yang Diinginkan</label>
-            <input type="number" id="limit" placeholder="Kosongkan untuk generate semua">
-            <p id="warning">Jumlah melebihi batas maksimal!</p>
+            <label for="limitStart">Jumlah yang Diinginkan (Mulai - Akhir)</label>
+            <div class="limit-inputs">
+                <input type="number" id="limitStart" placeholder="Mulai (cth: 10)">
+                <input type="number" id="limitEnd" placeholder="Akhir (cth: 20)">
+            </div>
+            <p id="warning">Input jumlah tidak valid atau melebihi batas!</p>
         </div>
         <div class="action-buttons">
              <button id="generateBtn">Generate</button>
@@ -269,7 +280,8 @@
         // --- Deklarasi Elemen UI ---
         const emailInput = document.getElementById('originalEmail');
         const countBox = document.getElementById('count');
-        const limitInput = document.getElementById('limit');
+        const limitStartInput = document.getElementById('limitStart');
+        const limitEndInput = document.getElementById('limitEnd');
         const generateBtn = document.getElementById('generateBtn');
         const resetBtn = document.getElementById('resetBtn');
         const warningMessage = document.getElementById('warning');
@@ -287,16 +299,62 @@
         const confirmActionBtn = document.getElementById('confirmActionBtn');
         
         let totalCombinations = 0;
+        
+        // [BARU] Kunci untuk menyimpan data di localStorage
+        const STORAGE_KEY = 'dotEmailGeneratorState';
+
+        // [BARU] Fungsi untuk menyimpan state ke localStorage
+        function saveState() {
+            const state = {
+                email: emailInput.value,
+                limitStart: limitStartInput.value,
+                limitEnd: limitEndInput.value,
+                result: resultBox.value
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        // [BARU] Fungsi untuk memuat state dari localStorage saat halaman dibuka
+        function loadState() {
+            const savedState = localStorage.getItem(STORAGE_KEY);
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                emailInput.value = state.email || '';
+                limitStartInput.value = state.limitStart || '';
+                limitEndInput.value = state.limitEnd || '';
+                resultBox.value = state.result || '';
+
+                if (emailInput.value) {
+                    calculateTotalCombinations();
+                }
+                validateLimit();
+            }
+        }
 
         // --- Event Listeners Utama ---
-        emailInput.addEventListener('input', calculateTotalCombinations);
-        limitInput.addEventListener('input', validateLimit);
+        emailInput.addEventListener('input', () => {
+            calculateTotalCombinations();
+            saveState(); // Simpan setiap kali ada perubahan
+        });
+        limitStartInput.addEventListener('input', () => {
+            validateLimit();
+            saveState(); // Simpan setiap kali ada perubahan
+        });
+        limitEndInput.addEventListener('input', () => {
+            validateLimit();
+            saveState(); // Simpan setiap kali ada perubahan
+        });
+
         generateBtn.addEventListener('click', generateEmails);
         resetBtn.addEventListener('click', () => showConfirmation(
-            "Yakin ingin mereset semua inputan?", 
+            "Yakin ingin mereset semua inputan dan data tersimpan?", 
             performReset
         ));
         copyBtn.addEventListener('click', copyResults);
+        
+        // [BARU] Panggil fungsi loadState saat halaman selesai dimuat
+        document.addEventListener('DOMContentLoaded', loadState);
+
 
         // --- Event Listeners untuk Modal ---
         function closeModalOnClick(modal) {
@@ -345,8 +403,20 @@
         }
 
         function validateLimit() {
-            const limit = parseInt(limitInput.value, 10);
-            const isInvalid = !isNaN(limit) && limit > totalCombinations;
+            const start = parseInt(limitStartInput.value, 10);
+            const end = parseInt(limitEndInput.value, 10);
+            let isInvalid = false;
+
+            if ((!isNaN(start) && start > totalCombinations) || (!isNaN(end) && end > totalCombinations)) {
+                isInvalid = true;
+            }
+            if (!isNaN(start) && !isNaN(end) && start > end) {
+                isInvalid = true;
+            }
+            if ((!isNaN(start) && start <= 0) || (!isNaN(end) && end <= 0)) {
+                isInvalid = true;
+            }
+
             warningMessage.style.display = isInvalid ? 'block' : 'none';
             generateBtn.disabled = isInvalid;
         }
@@ -361,15 +431,33 @@
             const [username, domain] = email.split('@');
             if (username.length <= 1) {
                 resultBox.value = email;
+                saveState(); // Simpan hasil
                 return;
             }
 
             const combinations = [];
-            let limit = parseInt(limitInput.value, 10) || totalCombinations;
-            if (limit > totalCombinations) limit = totalCombinations;
+            const startVal = parseInt(limitStartInput.value, 10);
+            const endVal = parseInt(limitEndInput.value, 10);
+
+            let loopStart = 0;
+            let loopEnd = totalCombinations;
+
+            if (!isNaN(startVal) && !isNaN(endVal)) {
+                loopStart = startVal - 1;
+                loopEnd = endVal;
+            } 
+            else if (!isNaN(startVal) && isNaN(endVal)) {
+                loopStart = 0;
+                loopEnd = startVal;
+            }
+
+            if (loopStart < 0 || loopEnd > totalCombinations || loopStart >= loopEnd) {
+                 showAlert("Rentang jumlah tidak valid. Pastikan 'Mulai' <= 'Akhir' dan tidak melebihi total.");
+                 return;
+            }
 
             const n = username.length - 1;
-            for (let i = 0; i < Math.pow(2, n) && combinations.length < limit; i++) {
+            for (let i = loopStart; i < loopEnd; i++) {
                 let newUsername = username[0];
                 for (let j = 0; j < n; j++) {
                     if ((i >> j) & 1) newUsername += '.';
@@ -379,6 +467,7 @@
             }
             resultBox.value = combinations.join('\n');
             showAlert(`Berhasil generate ${combinations.length} email!`);
+            saveState(); // Simpan hasil generate
         }
         
         function fallbackCopyTextToClipboard(text, count) {
@@ -418,13 +507,17 @@
             });
         }
 
+        // [MODIFIKASI] Fungsi reset sekarang juga menghapus data dari localStorage
         function performReset() {
             emailInput.value = "";
-            limitInput.value = "";
+            limitStartInput.value = "";
+            limitEndInput.value = "";
             resultBox.value = "";
             countBox.value = "0";
             totalCombinations = 0;
             validateLimit();
+            localStorage.removeItem(STORAGE_KEY); // Hapus data tersimpan
+            showAlert("Semua inputan dan data tersimpan telah direset.");
         }
     </script>
 </body>
