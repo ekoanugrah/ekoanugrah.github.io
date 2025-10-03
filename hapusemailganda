@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hapus Email Ganda</title>
+    <style>
+        /* Gaya Umum */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Ubah ke flex-start untuk scroll */
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px 15px;
+            color: #343a40;
+            box-sizing: border-box;
+        }
+        /* Kontainer Utama */
+        .container {
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+        /* Judul */
+        h1 {
+            color: #212529;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        /* Label untuk Textbox */
+        label {
+            display: block;
+            text-align: left;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        /* Textarea */
+        textarea {
+            width: 100%;
+            height: 160px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+            resize: vertical;
+            margin-bottom: 20px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+            outline: none;
+        }
+        /* Kontainer untuk semua tombol aksi */
+        .master-button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        /* Tombol */
+        button {
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            color: white;
+            min-width: 150px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        #startButton {
+            background-color: #007bff;
+        }
+        #resetButton {
+            background-color: #dc3545; /* Merah */
+        }
+        #copyButton {
+            background-color: #28a745; /* Hijau */
+        }
+        #exportButton {
+            background-color: #17a2b8; /* Biru-cyan */
+        }
+        #resultActions {
+            display: none; /* Sembunyikan secara default */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📮 Alat Sortir Email</h1>
+    
+    <label for="emailList1">Semua Email</label>
+    <textarea id="emailList1" placeholder="Tempel semua email di sini..."></textarea>
+    
+    <div class="master-button-container">
+        <div class="button-group">
+            <button id="startButton">🚀 START</button>
+            <button id="resetButton">🔄 Reset</button>
+        </div>
+        <div class="button-group" id="resultActions">
+            <button id="copyButton">📋 Salin</button>
+            <button id="exportButton">💾 Ekspor .TXT</button>
+        </div>
+    </div>
+    
+    <label for="emailList2">Email untuk Dihapus</label>
+    <textarea id="emailList2" placeholder="Tempel email yang ingin dihapus"></textarea>
+</div>
+
+<script>
+    // --- Elemen DOM ---
+    const emailList1Area = document.getElementById('emailList1');
+    const emailList2Area = document.getElementById('emailList2');
+    const startButton = document.getElementById('startButton');
+    const resetButton = document.getElementById('resetButton');
+    const copyButton = document.getElementById('copyButton');
+    const exportButton = document.getElementById('exportButton');
+    const resultActions = document.getElementById('resultActions');
+
+    // --- FUNGSI PENYIMPANAN & PEMUATAN DATA (localStorage) ---
+    // Saat halaman dimuat, coba ambil data tersimpan
+    window.addEventListener('load', () => {
+        const savedList1 = localStorage.getItem('emailList1Data');
+        const savedList2 = localStorage.getItem('emailList2Data');
+        if (savedList1) {
+            emailList1Area.value = savedList1;
+        }
+        if (savedList2) {
+            emailList2Area.value = savedList2;
+        }
+    });
+
+    // Setiap kali ada ketikan di textarea, simpan isinya
+    emailList1Area.addEventListener('input', () => {
+        localStorage.setItem('emailList1Data', emailList1Area.value);
+    });
+    emailList2Area.addEventListener('input', () => {
+        localStorage.setItem('emailList2Data', emailList2Area.value);
+    });
+
+    // --- FUNGSI UTAMA PROSES EMAIL ---
+    startButton.addEventListener('click', () => {
+        const getCleanEmails = (text) => text.trim().split('\n').map(email => email.trim()).filter(Boolean);
+        const emailList1 = getCleanEmails(emailList1Area.value);
+        const emailList2 = getCleanEmails(emailList2Area.value);
+        const initialCount = emailList1.length;
+        const emailsToRemove = new Set(emailList2);
+        const filteredEmails = emailList1.filter(email => !emailsToRemove.has(email));
+        const finalCount = filteredEmails.length;
+        const removedCount = initialCount - finalCount;
+        const resultText = filteredEmails.join('\n');
+        
+        emailList1Area.value = resultText;
+        // Setelah hasil diproses, simpan juga hasilnya
+        localStorage.setItem('emailList1Data', resultText);
+
+        alert(`Proses Selesai!\n\nJumlah Awal: ${initialCount}\nEmail Dihapus: ${removedCount}\n--------------------\nSisa Email: ${finalCount}`);
+        
+        resultActions.style.display = resultText ? 'flex' : 'none';
+    });
+
+    // --- FUNGSI TOMBOL RESET ---
+    resetButton.addEventListener('click', () => {
+        if (confirm('Yakin hapus?')) {
+            emailList1Area.value = '';
+            emailList2Area.value = '';
+            // Hapus juga data dari localStorage
+            localStorage.removeItem('emailList1Data');
+            localStorage.removeItem('emailList2Data');
+            resultActions.style.display = 'none';
+        }
+    });
+
+    // --- FUNGSI TOMBOL SALIN UNIVERSAL ---
+    copyButton.addEventListener('click', () => {
+        const textToCopy = emailList1Area.value;
+        if (!textToCopy) {
+            alert('Tidak ada hasil untuk disalin.');
+            return;
+        }
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(textToCopy).then(() => alert('Hasil berhasil disalin!'))
+            .catch(() => fallbackCopy(textToCopy));
+        } else {
+            fallbackCopy(textToCopy);
+        }
+    });
+
+    function fallbackCopy(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.top = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy') ? alert('Berhasil disalin!') : alert('Gagal menyalin.');
+        } catch (err) {
+            alert('Gagal menyalin.');
+        }
+        document.body.removeChild(textArea);
+    }
+
+    // --- FUNGSI TOMBOL EKSPOR ---
+    exportButton.addEventListener('click', () => {
+        const resultText = emailList1Area.value;
+        if (resultText) {
+            const blob = new Blob([resultText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'hasil-sortir-email.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } else {
+            alert('Tidak ada hasil untuk diekspor.');
+        }
+    });
+</script>
+
+</body>
+</html>
