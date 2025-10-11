@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NAMA E-MAIL ACAK</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #6c757d;
+            --background-color: #f0f2f5;
+            --surface-color: #ffffff;
+            --text-color: #333;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; 
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.5em;
+        }
+        
+        .result-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #resultUsername {
+            flex-grow: 1;
+            padding: 10px 12px;
+            font-size: 1em;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: #e9ecef;
+            color: var(--text-color);
+            font-weight: 500;
+            outline: none;
+            min-width: 0;
+        }
+
+        #domainSelector {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--surface-color);
+            font-size: 1em;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-item label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--secondary-color);
+            font-size: 0.85em;
+        }
+
+        .option-item input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+        }
+        
+        input[type="number"]:focus, #domainSelector:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #generateBtn {
+            background-color: var(--primary-color);
+            color: white;
+            margin-bottom: 12px;
+        }
+        #copyBtn {
+            background-color: var(--success-color);
+            color: white;
+        }
+        .btn:hover { filter: brightness(90%); }
+        .btn:active { transform: scale(0.98); }
+        
+        .toast {
+            position: fixed;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.75);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 1000;
+            transition: bottom 0.5s ease;
+        }
+        .toast.show { bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>NAMA E-MAIL ACAK</h1>
+        <div class="result-container">
+            <input type="text" id="resultUsername" placeholder="Hasil email..." readonly>
+            <select id="domainSelector">
+                <option value="@gmail.com">@gmail.com</option>
+                <option value="@yahoo.com">@yahoo.com</option>
+                <option value="@outlook.com">@outlook.com</option>
+                <option value="@protonmail.com">@protonmail.com</option>
+                <option value="@aol.com">@aol.com</option>
+            </select>
+        </div>
+        <div class="options-grid">
+            <div class="option-item">
+                <label for="charLength">Jumlah Karakter</label>
+                <input type="number" id="charLength" value="12" min="5" max="25">
+            </div>
+            <div class="option-item">
+                <label for="numCount">Jumlah Angka</label>
+                <input type="number" id="numCount" value="3" min="0" max="10">
+            </div>
+        </div>
+        <button id="generateBtn" class="btn">Generate</button>
+        <button id="copyBtn" class="btn">Copy</button>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const resultUsernameEl = document.getElementById('resultUsername');
+        const domainSelectorEl = document.getElementById('domainSelector');
+        const charLengthEl = document.getElementById('charLength');
+        const numCountEl = document.getElementById('numCount');
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const toastEl = document.getElementById('toast');
+
+        const chars = 'abcdefghijklmnopqrstuvwxyz';
+        const nums = '0123456789';
+
+        function generateRandomUsername() {
+            let length = parseInt(charLengthEl.value);
+            let numCount = parseInt(numCountEl.value);
+            if (numCount > length) {
+                numCount = length;
+                numCountEl.value = length;
+            }
+            let charCount = length - numCount;
+            let result = [];
+            for (let i = 0; i < charCount; i++) { result.push(chars.charAt(Math.floor(Math.random() * chars.length))); }
+            for (let i = 0; i < numCount; i++) { result.push(nums.charAt(Math.floor(Math.random() * nums.length))); }
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+            resultUsernameEl.value = result.join('');
+        }
+
+        function showToast(message) {
+            toastEl.textContent = message;
+            toastEl.classList.add('show');
+            setTimeout(() => { toastEl.classList.remove('show'); }, 2000);
+        }
+        
+        generateBtn.addEventListener('click', generateRandomUsername);
+
+        // PERBAIKAN FINAL: Fungsi copy yang dijamin berfungsi
+        copyBtn.addEventListener('click', () => {
+            const username = resultUsernameEl.value;
+            if (!username) {
+                showToast('Generate email terlebih dahulu!');
+                return;
+            }
+            const domain = domainSelectorEl.value;
+            const fullEmail = username + domain;
+
+            // Membuat elemen textarea sementara untuk proses copy
+            const textArea = document.createElement("textarea");
+            textArea.value = fullEmail;
+            
+            // Pastikan textarea tidak terlihat di layar
+            textArea.style.position = "fixed";
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.width = "2em";
+            textArea.style.height = "2em";
+            textArea.style.padding = "0";
+            textArea.style.border = "none";
+            textArea.style.outline = "none";
+            textArea.style.boxShadow = "none";
+            textArea.style.background = "transparent";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('Email berhasil disalin!');
+                    generateRandomUsername(); // Generate yang baru setelah berhasil
+                } else {
+                    showToast('Gagal menyalin.');
+                }
+            } catch (err) {
+                showToast('Gagal menyalin karena error.');
+            }
+
+            document.body.removeChild(textArea);
+        });
+
+        window.addEventListener('load', generateRandomUsername);
+    </script>
+</body>
+</html>
