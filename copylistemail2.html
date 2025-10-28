@@ -473,8 +473,29 @@
                     saveState();
                 }
             });
-
-            undoAllBtn.addEventListener('click', () => {
+                       undoAllBtn.addEventListener('click', () => {
                 if (undoStack.length > 0 && confirm("Kembalikan semua email yang telah disalin?")) {
                     let emails = getEmailsAsArray();
-                    const restored = un
+                    const restored = undoStack.reverse();
+                    emailList.value = [...restored, ...emails].join('\n');
+                    undoStack = []; 
+                    updateUI();
+                    saveState();
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                if (confirm("Apakah Anda yakin ingin menghapus semua email dari daftar?")) {
+                    emailList.value = '';
+                    undoStack = [];
+                    updateUI();
+                    saveState();
+                }
+            });
+
+            loadState();
+            updateUI();
+        });
+    </script>
+</body>
+</html>
