@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>COPY LIST EMAIL</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,6 +23,7 @@
             --shadow-color: rgba(0, 0, 0, 0.08);
             --danger-color: #ef4444; 
             --danger-hover: #dc2626;
+            --info-color: #3b82f6;
             --highlight-orange: rgba(249, 115, 22, 0.3);
         }
 
@@ -79,18 +80,18 @@
             background-color: #f9fafb;
             transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
         }
-        
+
         textarea[readonly] {
             pointer-events: none;
             overflow-y: hidden;
         }
-        
+
         textarea:not([readonly]) {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
             background-color: var(--card-bg);
         }
-        
+
         .copy-highlight-block {
             position: absolute;
             top: 0.75rem; 
@@ -111,7 +112,7 @@
             margin-bottom: 1.25rem;
             align-items: stretch;
         }
-        
+
         .count-box {
             background-color: #f9fafb;
             border: 1px solid var(--border-color);
@@ -135,11 +136,11 @@
             font-weight: 500;
             color: var(--text-light);
         }
-        
+
         .main-actions {
             margin-bottom: 1.25rem;
         }
-        
+
         .utility-actions {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -174,7 +175,7 @@
         #editBtn:hover, #importBtn:hover, #undoBtn:hover, #undoAllBtn:hover {
             background-color: #e5e7eb;
         }
-        
+
         #resetBtn {
              background-color: var(--danger-color);
              color: white;
@@ -185,7 +186,7 @@
              background-color: var(--danger-hover);
              border-color: var(--danger-hover);
         }
-        
+
         #editBtn.editing {
             background-color: var(--primary-color);
             color: white;
@@ -198,7 +199,6 @@
             font-size: 1rem;
         }
         
-        /* === PERUBAHAN 1: Membuat warna tombol Salin tidak berubah === */
         #salinBtn:hover:not(:disabled) {
             background-color: var(--primary-color);
         }
@@ -211,17 +211,102 @@
             border-color: var(--disabled-bg) !important;
         }
 
-        .notifikasi-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); display: flex;
-            justify-content: center; align-items: center; z-index: 1000;
+        /* --- GAYA TOAST --- */
+        
+        /* Backdrop (lapisan gelap) untuk toast tengah */
+        .toast-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none; /* Sembunyikan secara default */
         }
-        .notifikasi-content {
-            background-color: white; padding: 30px 40px; border-radius: 8px;
-            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        .toast-backdrop.show {
+            opacity: 1;
+            pointer-events: auto; /* Aktifkan saat tampil */
         }
-        .notifikasi-content p { margin: 0 0 20px 0; color: #d93025; font-weight: 500;}
-        #kembaliBtn { background-color: #1877f2; color: white; padding: 10px 30px; }
+
+        /* Gaya Toast Default (di atas) */
+        .toast {
+            position: fixed;
+            top: 2rem; 
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px); /* Mulai dari atas */
+            background-color: var(--text-dark);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            z-index: 1001;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* PERUBAHAN: Modifikasi untuk Toast Tengah (Konfirmasi) */
+        .toast.toast-center {
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.9); /* Mulai dari tengah, sedikit kecil */
+        }
+        .toast.toast-center.show {
+            transform: translate(-50%, -50%) scale(1); /* Tampil ke ukuran normal */
+            opacity: 1;
+        }
+
+
+        /* Warna toast berdasarkan tipe */
+        .toast.toast-success { background-color: var(--primary-color); }
+        .toast.toast-error { background-color: var(--danger-color); }
+        .toast.toast-confirm { background-color: var(--info-color); }
+
+        .toast-actions {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .toast-btn {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* PERUBAHAN: Gaya tombol ditukar */
+        
+        /* Tombol "Ya" (Konfirmasi) - Gaya Sekunder */
+        .toast-btn-confirm {
+            background-color: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Tombol "Tidak" (Batal) - Gaya Utama/Fokus */
+        .toast-btn-cancel {
+            background-color: #ffffff;
+            color: var(--info-color);
+        }
+        /* --- AKHIR GAYA TOAST --- */
+
     </style>
 </head>
 <body>
@@ -240,12 +325,12 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
                 <span id="editText">Edit</span>
             </button>
-            
+
             <div class="count-box">
                 <span id="emailCountSpan">0</span>
                 <small>Sisa Email</small>
             </div>
-            
+
             <button id="importBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z"/></svg>
                 <span>Import (.txt)</span>
@@ -258,7 +343,7 @@
                 <span>Salin Email Teratas</span>
             </button>
         </div>
-        
+
         <div class="utility-actions">
             <button id="undoBtn" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466"/></svg>
@@ -275,10 +360,13 @@
         </div>
     </div>
 
-    <div id="notifikasi" class="notifikasi-container" style="display: none;">
-        <div class="notifikasi-content">
-            <p id="notifikasiPesan">File tidak berisi email yang benar.</p>
-            <button id="kembaliBtn">Kembali</button>
+    <div id="toastBackdrop" class="toast-backdrop"></div>
+
+    <div id="toast" class="toast">
+        <span id="toastMessage"></span>
+        <div id="toastActions" class="toast-actions" style="display: none;">
+            <button id="toastConfirmBtn" class="toast-btn toast-btn-confirm">Ya</button>
+            <button id="toastCancelBtn" class="toast-btn toast-btn-cancel">Tidak</button>
         </div>
     </div>
 
@@ -295,39 +383,128 @@
             const undoBtn = document.getElementById('undoBtn');
             const undoAllBtn = document.getElementById('undoAllBtn');
             const resetBtn = document.getElementById('resetBtn');
-            const notifikasi = document.getElementById('notifikasi');
-            const kembaliBtn = document.getElementById('kembaliBtn');
+            
+            // --- VARIABEL TOAST BARU ---
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastActions = document.getElementById('toastActions');
+            const toastConfirmBtn = document.getElementById('toastConfirmBtn');
+            const toastCancelBtn = document.getElementById('toastCancelBtn');
+            
+            // PERUBAHAN: Tambahkan variabel backdrop
+            const toastBackdrop = document.getElementById('toastBackdrop');
+            
+            let toastTimer;
+            let confirmResolve = null;
 
             const STORAGE_KEY_EMAILS = 'emailCopierApp_emails';
             const STORAGE_KEY_UNDO_STACK = 'emailCopierApp_undoStack';
+            const STORAGE_KEY_ORIGINAL_EMAILS = 'emailCopierApp_originalEmails';
 
             let undoStack = [];
+            let originalEmailList = "";
+
+            // --- FUNGSI TOAST BARU ---
+            /**
+             * Menampilkan notifikasi toast.
+             * @param {string} message - Pesan yang akan ditampilkan.
+             * @param {'success' | 'error' | 'confirm'} type - Tipe toast (mempengaruhi warna).
+             * @param {number} [duration=3000] - Durasi (ms) untuk auto-hide. Tidak berlaku untuk 'confirm'.
+             * @param {boolean} [isCentered=false] - PERUBAHAN: Parameter baru untuk posisi tengah
+             * @returns {Promise<boolean>} - Resolves true/false untuk tipe 'confirm', resolves void untuk tipe lain.
+             */
+            const showToast = (message, type = 'success', duration = 3000, isCentered = false) => {
+                clearTimeout(toastTimer);
+                if (confirmResolve) {
+                    confirmResolve(false); 
+                    confirmResolve = null;
+                }
+
+                toastMessage.textContent = message;
+                toast.className = 'toast'; 
+                toast.classList.add(`toast-${type}`);
+
+                // PERUBAHAN: Logika untuk backdrop dan posisi tengah
+                if (isCentered) {
+                    toast.classList.add('toast-center');
+                    toastBackdrop.classList.add('show');
+                } else {
+                    toast.classList.remove('toast-center');
+                }
+
+                if (type === 'confirm') {
+                    toastActions.style.display = 'flex';
+                    toast.classList.add('show');
+
+                    return new Promise((resolve) => {
+                        confirmResolve = resolve; 
+                    });
+
+                } else {
+                    toastActions.style.display = 'none';
+                    toast.classList.add('show');
+
+                    toastTimer = setTimeout(() => {
+                        hideToast(); // Panggil fungsi hideToast terpusat
+                    }, duration);
+
+                    return Promise.resolve(); 
+                }
+            };
+
+            // PERUBAHAN: Fungsi terpusat untuk menyembunyikan
+            const hideToast = () => {
+                toast.classList.remove('show');
+                toastBackdrop.classList.remove('show'); // Sembunyikan backdrop juga
+            }
+
+            toastConfirmBtn.addEventListener('click', () => {
+                if (confirmResolve) {
+                    confirmResolve(true); 
+                    confirmResolve = null;
+                }
+                hideToast();
+            });
+
+            toastCancelBtn.addEventListener('click', () => {
+                if (confirmResolve) {
+                    confirmResolve(false); 
+                    confirmResolve = null;
+                }
+                hideToast();
+            });
+            // --- AKHIR FUNGSI TOAST ---
 
             const saveState = () => {
                 localStorage.setItem(STORAGE_KEY_EMAILS, emailList.value);
                 localStorage.setItem(STORAGE_KEY_UNDO_STACK, JSON.stringify(undoStack));
+                localStorage.setItem(STORAGE_KEY_ORIGINAL_EMAILS, originalEmailList);
             };
 
             const loadState = () => {
                 const savedEmails = localStorage.getItem(STORAGE_KEY_EMAILS);
                 const savedUndoStack = localStorage.getItem(STORAGE_KEY_UNDO_STACK);
+                const savedOriginalEmails = localStorage.getItem(STORAGE_KEY_ORIGINAL_EMAILS);
 
                 if (savedEmails) {
                     emailList.value = savedEmails;
                 }
+                if (savedOriginalEmails) {
+                    originalEmailList = savedOriginalEmails;
+                }
                 if (savedUndoStack) {
                     try {
-                        const parsedStack = JSON.parse(savedUndoStack);
+                        const parsedStack = JSON.parse(JSON.parse(savedUndoStack));
                         if (Array.isArray(parsedStack)) {
                             undoStack = parsedStack;
                         }
                     } catch (e) {
-                        console.error("Gagal memuat riwayat undo dari localStorage:", e);
+                        // Gagal memuat riwayat, biarkan kosong
                         undoStack = [];
                     }
                 }
             };
-            
+
             const toggleActionButtons = (isDisabled) => {
                 salinBtn.disabled = isDisabled;
                 importBtn.disabled = isDisabled;
@@ -342,7 +519,7 @@
                     emailList.removeAttribute('readonly');
                     editText.textContent = 'Simpan';
                     editBtn.classList.add('editing');
-                    toggleActionButtons(true);
+         toggleActionButtons(true);
                     emailList.focus();
                 } else {
                     emailList.setAttribute('readonly', true);
@@ -353,18 +530,17 @@
                     saveState(); 
                 }
             });
-            
+
             const updateUI = () => {
                 const emails = getEmailsAsArray();
                 const count = emails.length;
                 const hasEmails = count > 0;
 
-                // === PERUBAHAN 2 & 3: Logika penonaktifan tombol ===
-                salinBtn.disabled = !hasEmails; // Nonaktif jika tidak ada email
-                importBtn.disabled = hasEmails; // Nonaktif jika ADA email
-                
+                salinBtn.disabled = !hasEmails; 
+                importBtn.disabled = hasEmails; 
+
                 undoBtn.disabled = undoStack.length === 0;
-                undoAllBtn.disabled = undoStack.length === 0;
+                undoAllBtn.disabled = !(undoStack.length > 0 && originalEmailList);
                 resetBtn.disabled = !hasEmails && undoStack.length === 0;
 
                 emailCountSpan.textContent = count;
@@ -373,7 +549,7 @@
             const getEmailsAsArray = () => emailList.value.trim().split('\n').filter(Boolean);
 
             const isValidEmail = (email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim());
-            
+
             const performCopyAction = (text) => {
                 return new Promise((resolve, reject) => {
                     try {
@@ -407,6 +583,8 @@
 
                     performCopyAction(emailToCopy)
                         .then(() => {
+                            showToast(`Email "${emailToCopy}" berhasil disalin.`, 'success');
+
                             const highlightBlock = document.createElement('div');
                             highlightBlock.className = 'copy-highlight-block';
                             textareaWrapper.appendChild(highlightBlock);
@@ -429,19 +607,14 @@
                         })
                         .catch(err => {
                             console.error("Semua metode salin gagal:", err);
-                            alert("Gagal menyalin ke clipboard.");
+                            showToast("Gagal menyalin ke clipboard.", 'error');
                         });
                 }
             });
 
             importBtn.addEventListener('click', () => fileInput.click());
-            kembaliBtn.addEventListener('click', () => notifikasi.style.display = 'none');
-            
+
             emailList.addEventListener('input', () => {
-                // Saat dalam mode edit, panggil updateUI agar tombol bisa di-enable/disable secara live
-                // Meskipun saat ini semua tombol dinonaktifkan oleh 'toggleActionButtons', 
-                // ini untuk masa depan jika logika berubah
-                // updateUI(); 
                 // Tidak perlu save state di sini, save hanya saat klik 'Simpan'
             });
 
@@ -450,15 +623,18 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const lines = e.target.result.trim().split('\n').filter(Boolean);
-                    if (lines.every(isValidEmail)) {
-                        emailList.value = lines.join('\n');
+                    if (lines.length > 0 && lines.every(isValidEmail)) {
+                        const importedList = lines.join('\n');
+                        emailList.value = importedList;
+                        originalEmailList = importedList; 
                         undoStack = [];
+                        showToast(`Berhasil mengimpor ${lines.length} email.`, 'success');
                     } 
                     else { 
-                        notifikasi.style.display = 'flex'; 
+                        showToast("File tidak valid atau tidak berisi email.", 'error');
                     }
                     updateUI();
-                    saveState();
+                    saveState(); 
                 };
                 reader.readAsText(file); fileInput.value = '';
             });
@@ -474,26 +650,35 @@
                 }
             });
 
-            undoAllBtn.addEventListener('click', () => {
-                if (undoStack.length > 0 && confirm("Kembalikan semua email yang telah disalin?")) {
-                    let emails = getEmailsAsArray();
-                    const restored = undoStack.reverse();
-                    emailList.value = [...restored, ...emails].join('\n');
-                    undoStack = []; 
-                    updateUI();
-                    saveState();
+            undoAllBtn.addEventListener('click', async () => {
+                if (undoStack.length > 0 && originalEmailList) {
+                    // PERUBAHAN: Panggil dengan parameter isCentered = true
+                    const confirmed = await showToast("Kembalikan daftar email ke kondisi awal import?", 'confirm', 0, true);
+                    
+                    if (confirmed) {
+                        emailList.value = originalEmailList;
+                        undoStack = []; 
+                        updateUI();
+                        saveState();
+                        showToast('Daftar email berhasil dikembalikan.', 'success');
+                    }
                 }
             });
 
-            resetBtn.addEventListener('click', () => {
-                if (confirm("Apakah Anda yakin ingin menghapus semua email dari daftar?")) {
+            resetBtn.addEventListener('click', async () => {
+                // PERUBAHAN: Panggil dengan parameter isCentered = true
+                const confirmed = await showToast("Apakah Anda yakin ingin menghapus semua email?", 'confirm', 0, true);
+
+                if (confirmed) {
                     emailList.value = '';
                     undoStack = [];
+                    originalEmailList = '';
                     updateUI();
                     saveState();
+                    showToast('Daftar email telah direset.', 'success');
                 }
             });
-            
+
             loadState();
             updateUI();
         });
