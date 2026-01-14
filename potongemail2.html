@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Email Collector Tool (Disimpan Otomatis)</title>
+    <style>
+        /* ... CSS Anda yang lain tidak berubah ... */
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            height: 95vh;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 0;
+            color: #333;
+        }
+
+        #emailList {
+            width: 100%;
+            flex-grow: 1; 
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow: hidden;
+            resize: none;
+            background-color: #f9f9f9;
+        }
+
+        #emailList:not([readonly]) {
+            background-color: #fff;
+            overflow: auto; 
+            border-color: #007bff;
+        }
+
+        .controls {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .input-group input {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .input-group input[readonly] {
+            background-color: #eee;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .buttons {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        #editButton { background-color: #007bff; color: white; }
+        #editButton:hover { background-color: #0056b3; }
+        #editButton.saving { background-color: #28a745; }
+        #editButton.saving:hover { background-color: #218838; }
+        #cutButton { background-color: #ffc107; color: #333; }
+        #cutButton:hover { background-color: #e0a800; }
+        #importButton { background-color: #17a2b8; color: white; }
+        #importButton:hover { background-color: #117a8b; }
+        
+        /* --- PERUBAHAN CSS TOMBOL RESET --- */
+        #resetButton { 
+            background-color: #dc3545; 
+            color: white; 
+        }
+        #resetButton:hover { background-color: #c82333; }
+
+        /* Style BARU saat tombol meminta konfirmasi */
+        #resetButton.confirm-danger {
+            background-color: #ff4d4d; /* Merah lebih cerah */
+            transform: scale(1.03); /* Sedikit lebih besar */
+            font-weight: bold;
+        }
+        /* --- AKHIR PERUBAHAN CSS --- */
+
+
+        /* --- CSS UNTUK NOTIFIKASI (DI ATAS) --- */
+        #notification {
+            visibility: hidden; 
+            opacity: 0;
+            position: fixed;
+            top: 30px; 
+            left: 50%;
+            transform: translateX(-50%) translateY(-50px); 
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 16px;
+            z-index: 1000;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+        }
+        #notification.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0); 
+        }
+        #notification.success { background-color: #28a745; }
+        #notification.error { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3>Manajer Daftar Email</h3>
+        <textarea id="emailList" readonly placeholder="Salin-tempel email di sini setelah menekan 'Edit', atau impor dari file .txt..."></textarea>
+        <div class="controls">
+            <div class="input-group">
+                <label for="cutAmount">Potong dari Atas</label>
+                <input type="number" id="cutAmount" placeholder="Jumlah..." min="1">
+            </div>
+            <div class="input-group">
+                <label for="emailCount">Jumlah Email Saat Ini</label>
+                <input type="text" id="emailCount" value="0" readonly>
+            </div>
+        </div>
+        <div class="buttons">
+            <button id="editButton">Edit</button>
+            <button id="cutButton">Potong</button>
+            <button id="importButton">Impor .txt</button>
+            <button id="resetButton">Reset</button>
+        </div>
+    </div>
+    <input type="file" id="fileInput" accept=".txt" style="display: none;">
+    <textarea id="clipboardHelper" style="position: absolute; left: -9999px; top: 0; opacity: 0;"></textarea>
+    <div id="notification">Pesan notifikasi</div>
+
+
+    <script>
+        // --- 1. Referensi Elemen DOM ---
+        const emailList = document.getElementById('emailList');
+        const cutAmountInput = document.getElementById('cutAmount');
+        const emailCountInput = document.getElementById('emailCount');
+        const editButton = document.getElementById('editButton');
+        const cutButton = document.getElementById('cutButton');
+        const importButton = document.getElementById('importButton');
+        const resetButton = document.getElementById('resetButton');
+        const fileInput = document.getElementById('fileInput');
+        const clipboardHelper = document.getElementById('clipboardHelper');
+        const notification = document.getElementById('notification');
+        let notificationTimer; 
+        let resetTimer; // Timer untuk konfirmasi reset
+        const STORAGE_KEY = 'emailCollectorData';
+
+        // --- 2. Fungsi Inti ---
+        
+        function showNotification(message, type = '') {
+            clearTimeout(notificationTimer);
+            notification.textContent = message;
+            notification.className = 'show'; 
+            if (type === 'success' || type === 'error') {
+                notification.classList.add(type);
+            }
+            notificationTimer = setTimeout(() => {
+                notification.className = notification.className.replace('show', '');
+            }, 3000);
+        }
+
+        function loadData() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                emailList.value = savedData;
+                getCleanEmails(); 
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, emailList.value);
+        }
+
+        function getCleanEmails() {
+            const text = emailList.value;
+            const lines = text.split('\n');
+            const cleanEmails = lines
+                .map(line => line.trim()) 
+                .filter(line => line.length > 0); 
+            emailList.value = cleanEmails.join('\n');
+            emailCountInput.value = cleanEmails.length;
+            saveData(); 
+            return cleanEmails;
+        }
+
+        function isValidEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
+
+        function universalCopyToClipboard(textToCopy) {
+            try {
+                clipboardHelper.value = textToCopy;
+                clipboardHelper.select();
+                clipboardHelper.setSelectionRange(0, 99999); 
+                document.execCommand('copy');
+                return true;
+            } catch (err) {
+                console.error("Gagal menyalin dengan execCommand: ", err);
+                return false;
+            } finally {
+                clipboardHelper.value = '';
+            }
+        }
+
+        // --- 3. Event Listeners untuk Tombol ---
+
+        editButton.addEventListener('click', () => {
+            if (emailList.hasAttribute('readonly')) {
+                emailList.removeAttribute('readonly');
+                editButton.textContent = 'Simpan';
+                editButton.classList.add('saving');
+                emailList.focus();
+                const textLength = emailList.value.length;
+                emailList.selectionStart = textLength;
+                emailList.selectionEnd = textLength;
+                emailList.scrollTop = emailList.scrollHeight;
+            } else {
+                emailList.setAttribute('readonly', true);
+                editButton.textContent = 'Edit';
+                editButton.classList.remove('saving');
+                getCleanEmails(); 
+            }
+        });
+
+        cutButton.addEventListener('click', () => {
+            let currentEmails = getCleanEmails(); 
+            const totalEmails = currentEmails.length;
+            const amountToCut = parseInt(cutAmountInput.value, 10);
+
+            if (isNaN(amountToCut) || amountToCut <= 0) {
+                showNotification("Masukkan jumlah yang valid.", "error"); 
+                return;
+            }
+            if (amountToCut > totalEmails) {
+                showNotification("Jumlah potong melebihi total.", "error"); 
+                return;
+            }
+
+            const emailsToCut = currentEmails.slice(0, amountToCut);
+            const remainingEmails = currentEmails.slice(amountToCut);
+            const cutText = emailsToCut.join('\n');
+            const copySuccess = universalCopyToClipboard(cutText);
+
+            if (copySuccess) {
+                showNotification(`${amountToCut} email disalin ke clipboard.`, "success"); 
+            } else {
+                showNotification("Gagal menyalin ke clipboard.", "error"); 
+            }
+
+            emailList.value = remainingEmails.join('\n');
+            cutAmountInput.value = ''; 
+            getCleanEmails(); 
+            
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+        });
+
+        /**
+         * Tombol RESET (Logika BARU dengan konfirmasi 2-klik)
+         * <<< FUNGSI INI SUDAH DIUBAH TOTAL >>>
+         */
+        resetButton.addEventListener('click', () => {
+            // Hapus timer pembatal otomatis sebelumnya (jika ada)
+            clearTimeout(resetTimer);
+
+            if (resetButton.classList.contains('confirm-danger')) {
+                // --- Aksi RESET Sebenarnya (Klik Kedua) ---
+                emailList.value = '';
+                cutAmountInput.value = '';
+                
+                if (!emailList.hasAttribute('readonly')) {
+                    emailList.setAttribute('readonly', true);
+                    editButton.textContent = 'Edit';
+                    editButton.classList.remove('saving');
+                }
+                getCleanEmails(); 
+                showNotification("Data telah di-reset.", "success");
+
+                // --- Kembalikan tombol ke normal ---
+                resetButton.classList.remove('confirm-danger');
+                resetButton.textContent = 'Reset';
+
+            } else {
+                // --- Klik Pertama (Minta Konfirmasi) ---
+                resetButton.classList.add('confirm-danger');
+                resetButton.textContent = 'OKE';
+                
+                // Atur timer untuk membatalkan konfirmasi setelah 3 detik
+                resetTimer = setTimeout(() => {
+                    if (resetButton.classList.contains('confirm-danger')) {
+                        resetButton.classList.remove('confirm-danger');
+                        resetButton.textContent = 'Reset';
+                    }
+                }, 3000); // Batal setelah 3 detik
+            }
+        });
+
+        importButton.addEventListener('click', () => {
+            fileInput.click(); 
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) { return; }
+            if (file.type !== 'text/plain') {
+                showNotification("File harus berekstensi .txt", "error");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+                if (lines.length === 0) {
+                    showNotification("File yang diimpor kosong.", "error");
+                    return;
+                }
+                let allValid = true;
+                for (const line of lines) {
+                    if (!isValidEmail(line)) {
+                        allValid = false;
+                        break;
+                    }
+                }
+                if (!allValid) {
+                    showNotification("Impor batal: File berisi data non-email.", "error");
+                } else {
+                    const existingContent = emailList.value.trim();
+                    if (existingContent.length > 0) {
+                        emailList.value = existingContent + '\n' + lines.join('\n');
+                    } else {
+                        emailList.value = lines.join('\n');
+                    }
+                    getCleanEmails(); 
+                    showNotification(`${lines.length} email berhasil diimpor.`, "success");
+                }
+                fileInput.value = null;
+            };
+            reader.onerror = () => {
+                showNotification("Gagal membaca file.", "error");
+            };
+            reader.readAsText(file);
+        });
+
+        emailList.addEventListener('input', () => {
+            const lines = emailList.value.split('\n').filter(line => line.trim().length > 0);
+            emailCountInput.value = lines.length;
+            saveData();
+        });
+
+        /**
+         * FUNGSI BARU: Membatalkan konfirmasi reset jika klik di luar tombol.
+         */
+        document.addEventListener('click', (event) => {
+            // Cek apakah tombol reset sedang menunggu konfirmasi
+            // DAN cek apakah yang diklik BUKAN tombol reset itu sendiri
+            if (resetButton.classList.contains('confirm-danger') && event.target !== resetButton) {
+                clearTimeout(resetTimer); // Hapus timer
+                resetButton.classList.remove('confirm-danger');
+                resetButton.textContent = 'Reset';
+            }
+        });
+
+
+        // --- 4. Inisialisasi ---
+        loadData();
+
+    </script>
+</body>
+</html>
