@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TikTok Direct Opener</title>
     <style>
-        /* CSS: Tampilan (Sama seperti sebelumnya) */
+        /* CSS: Tampilan tetap sama */
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #000000;
@@ -30,11 +30,7 @@
 
         h2 { margin-bottom: 5px; }
         
-        p {
-            color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
+        p { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
 
         input[type="text"] {
             width: 90%;
@@ -67,14 +63,13 @@
         .btn-direct:active { transform: scale(0.98); }
         .logo { font-size: 3rem; margin-bottom: 10px; }
         
-        /* Tambahan kecil: Indikator tersimpan */
         .status-save {
             font-size: 0.7rem;
             color: #28a745;
             height: 15px;
             margin-top: -15px;
             margin-bottom: 15px;
-            opacity: 0; /* Sembunyi dulu */
+            opacity: 0;
             transition: opacity 0.5s;
         }
     </style>
@@ -84,55 +79,37 @@
     <div class="card">
         <div class="logo">🎵</div>
         <h2>TikTok Direct</h2>
-        <p>Link terakhir akan tersimpan otomatis</p>
+        <p>Paste link di bawah & tekan tombol</p>
 
         <input type="text" id="linkInput" placeholder="Paste link di sini..." autocomplete="off">
-        
         <div id="statusMsg" class="status-save">Tersimpan otomatis ✓</div>
 
         <button class="btn-direct" onclick="bukaAplikasi()">Buka di Aplikasi 🚀</button>
     </div>
 
     <script>
-        // 1. Definisikan elemen input
         var inputField = document.getElementById("linkInput");
         var statusMsg = document.getElementById("statusMsg");
 
-        // --- BAGIAN 1: SAAT APLIKASI DIBUKA (LOAD) ---
-        // Cek apakah ada data tersimpan di "Memori Browser" (localStorage)
+        // --- 1. LOAD DATA ---
         var linkTersimpan = localStorage.getItem("lastTikTokLink");
-        
         if (linkTersimpan) {
-            // Jika ada, masukkan kembali ke dalam textbox
             inputField.value = linkTersimpan;
         }
 
-        // --- BAGIAN 2: SAAT MENGETIK (SAVE) ---
-        // Kita pasang 'pendengar' (listener). Setiap input berubah, jalankan fungsi ini
+        // --- 2. AUTO SAVE ---
         inputField.addEventListener("input", function() {
-            var isiSekarang = inputField.value;
-
-            // Simpan ke memori browser dengan nama kunci "lastTikTokLink"
-            localStorage.setItem("lastTikTokLink", isiSekarang);
-
-            // Tampilkan efek tulisan "Tersimpan otomatis"
-            tampilkanStatus();
+            localStorage.setItem("lastTikTokLink", inputField.value);
+            statusMsg.style.opacity = "1";
+            setTimeout(function() { statusMsg.style.opacity = "0"; }, 1000);
         });
 
-        // Fungsi kecil untuk animasi teks "Tersimpan"
-        function tampilkanStatus() {
-            statusMsg.style.opacity = "1";
-            setTimeout(function() {
-                statusMsg.style.opacity = "0";
-            }, 1000); // Hilang lagi setelah 1 detik
-        }
-
-        // --- BAGIAN 3: TOMBOL BUKA (Sama seperti sebelumnya) ---
+        // --- 3. FUNGSI BUKA APLIKASI (DIPERBAIKI) ---
         function bukaAplikasi() {
             var url = inputField.value;
 
             if (url.trim() === "") {
-                alert("Harap masukkan link TikTok terlebih dahulu!");
+                alert("Masukkan link dulu!");
                 return;
             }
 
@@ -140,7 +117,19 @@
                 url = "https://" + url;
             }
 
-            window.location.href = url;
+            // PERBAIKAN UTAMA DI SINI:
+            // Kita tidak pakai window.location.href lagi karena sering macet (layar putih).
+            // Kita buat elemen link 'bayangan', lalu kita klik secara otomatis.
+            // target="_blank" memastikan dia membuka "jendela" baru, memicu Android/iOS membuka App.
+            
+            var linkBayangan = document.createElement('a');
+            linkBayangan.href = url;
+            linkBayangan.target = "_blank"; // Kunci agar tidak blank screen di app kita
+            linkBayangan.rel = "noopener noreferrer"; // Keamanan tambahan
+            
+            document.body.appendChild(linkBayangan);
+            linkBayangan.click(); // Klik otomatis
+            document.body.removeChild(linkBayangan); // Bersihkan sampah elemen
         }
     </script>
 
