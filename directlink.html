@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Direct Opener</title>
+    <style>
+        /* CSS: Tampilan (Sama seperti sebelumnya) */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #000000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background-color: #121212;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 242, 234, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+
+        h2 { margin-bottom: 5px; }
+        
+        p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 2px solid #333;
+            background-color: #222;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus { border-color: #fe2c55; }
+
+        .btn-direct {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #00f2ea, #fe2c55);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-direct:active { transform: scale(0.98); }
+        .logo { font-size: 3rem; margin-bottom: 10px; }
+        
+        /* Tambahan kecil: Indikator tersimpan */
+        .status-save {
+            font-size: 0.7rem;
+            color: #28a745;
+            height: 15px;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            opacity: 0; /* Sembunyi dulu */
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="logo">🎵</div>
+        <h2>TikTok Direct</h2>
+        <p>Link terakhir akan tersimpan otomatis</p>
+
+        <input type="text" id="linkInput" placeholder="Paste link di sini..." autocomplete="off">
+        
+        <div id="statusMsg" class="status-save">Tersimpan otomatis ✓</div>
+
+        <button class="btn-direct" onclick="bukaAplikasi()">Buka di Aplikasi 🚀</button>
+    </div>
+
+    <script>
+        // 1. Definisikan elemen input
+        var inputField = document.getElementById("linkInput");
+        var statusMsg = document.getElementById("statusMsg");
+
+        // --- BAGIAN 1: SAAT APLIKASI DIBUKA (LOAD) ---
+        // Cek apakah ada data tersimpan di "Memori Browser" (localStorage)
+        var linkTersimpan = localStorage.getItem("lastTikTokLink");
+        
+        if (linkTersimpan) {
+            // Jika ada, masukkan kembali ke dalam textbox
+            inputField.value = linkTersimpan;
+        }
+
+        // --- BAGIAN 2: SAAT MENGETIK (SAVE) ---
+        // Kita pasang 'pendengar' (listener). Setiap input berubah, jalankan fungsi ini
+        inputField.addEventListener("input", function() {
+            var isiSekarang = inputField.value;
+
+            // Simpan ke memori browser dengan nama kunci "lastTikTokLink"
+            localStorage.setItem("lastTikTokLink", isiSekarang);
+
+            // Tampilkan efek tulisan "Tersimpan otomatis"
+            tampilkanStatus();
+        });
+
+        // Fungsi kecil untuk animasi teks "Tersimpan"
+        function tampilkanStatus() {
+            statusMsg.style.opacity = "1";
+            setTimeout(function() {
+                statusMsg.style.opacity = "0";
+            }, 1000); // Hilang lagi setelah 1 detik
+        }
+
+        // --- BAGIAN 3: TOMBOL BUKA (Sama seperti sebelumnya) ---
+        function bukaAplikasi() {
+            var url = inputField.value;
+
+            if (url.trim() === "") {
+                alert("Harap masukkan link TikTok terlebih dahulu!");
+                return;
+            }
+
+            if (!url.startsWith("http")) {
+                url = "https://" + url;
+            }
+
+            window.location.href = url;
+        }
+    </script>
+
+</body>
+</html>
