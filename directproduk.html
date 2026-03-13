@@ -56,7 +56,7 @@
     </div>
 
     <script>
-        // GANTI TEKS DI DALAM TANDA KUTIP DENGAN LINK RAW DARI GITHUB GIST ANDA
+        // PASTIKAN MENGGANTI INI DENGAN LINK RAW GITHUB GIST ANDA
         const jsonUrl = 'https://gist.githubusercontent.com/ekoanugrah/742c882ead1556d00b1a060026749a5e/raw/bae63de25f860c2a6a14b93566ed5108d891e9df/produk.json'; 
 
         const selectElemen = document.getElementById('daftarProduk');
@@ -88,16 +88,24 @@
 
         muatData();
 
-        // LOGIKA TOMBOL PROSES YANG SUDAH DIPERBARUI
+        // LOGIKA TOMBOL PROSES KHUSUS MEDIAN.CO
         tombolProses.addEventListener('click', function() {
             const linkTerpilih = selectElemen.value;
             
             if (linkTerpilih === "") {
                 alert("Silakan pilih produk terlebih dahulu!");
             } else {
-                // Mengganti halaman web saat ini langsung dengan link Shopee
-                // Di HP, ini biasanya akan otomatis "melempar" pengguna ke aplikasi Shopee
-                window.location.href = linkTerpilih;
+                
+                // 1. Memerintahkan Median untuk membuka link ke aplikasi eksternal (Shopee)
+                // Ini memastikan link tidak terbuka di dalam aplikasi Anda
+                window.location.href = 'median://open/external?url=' + encodeURIComponent(linkTerpilih);
+
+                // 2. Memberikan jeda 800 milidetik (agar link di atas sempat tereksekusi), 
+                // lalu memerintahkan Median untuk MENUTUP PAKSA aplikasi ini.
+                setTimeout(function() {
+                    window.location.href = 'median://app/exit';
+                }, 800);
+                
             }
         });
     </script>
