@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Link Shopee</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        select, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #ee4d2d;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #d73a1e;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Pilih Produk Shopee</h2>
+        
+        <select id="daftarProduk">
+            <option value="">Memuat data produk...</option>
+        </select>
+
+        <button id="tombolProses">Proses & Buka Shopee</button>
+    </div>
+
+    <script>
+        // GANTI TEKS DI DALAM TANDA KUTIP DENGAN LINK RAW DARI GITHUB GIST ANDA
+        const jsonUrl = 'https://gist.githubusercontent.com/ekoanugrah/742c882ead1556d00b1a060026749a5e/raw/dfe29801c25abeca95f0f5dd87832f5ba736fcb2/produk.json'; 
+
+        const selectElemen = document.getElementById('daftarProduk');
+        const tombolProses = document.getElementById('tombolProses');
+
+        // Fungsi asynchronous untuk memuat data JSON dari GitHub
+        async function muatData() {
+            try {
+                // Mengambil data dari internet
+                const response = await fetch(jsonUrl);
+                
+                // Mengecek apakah responnya berhasil
+                if (!response.ok) {
+                    throw new Error('Jaringan bermasalah atau link salah');
+                }
+
+                // Mengubah respon menjadi format JSON
+                const dataProduk = await response.json();
+                
+                // Mengosongkan opsi "Memuat..." dan mengganti dengan opsi default
+                selectElemen.innerHTML = '<option value="">-- Pilih Produk --</option>';
+
+                // Memasukkan data ke dalam dropdown
+                dataProduk.forEach(produk => {
+                    const option = document.createElement('option');
+                    option.value = produk.link;
+                    option.textContent = produk.nama;
+                    selectElemen.appendChild(option);
+                });
+            } catch (error) {
+                // Jika terjadi error (misal salah link), tampilkan pesan error
+                selectElemen.innerHTML = '<option value="">Gagal memuat data produk</option>';
+                console.error("Terjadi kesalahan:", error);
+            }
+        }
+
+        // Menjalankan fungsi saat halaman dibuka
+        muatData();
+
+        // Logika saat tombol proses ditekan
+        tombolProses.addEventListener('click', function() {
+            const linkTerpilih = selectElemen.value;
+            
+            if (linkTerpilih === "") {
+                alert("Silakan pilih produk terlebih dahulu!");
+            } else {
+                // Membuka link di tab baru
+                window.open(linkTerpilih, '_blank');
+            }
+        });
+    </script>
+</body>
+</html>
