@@ -60,6 +60,7 @@
             color: #0056b3;
             text-decoration: underline;
             word-break: break-all;
+            cursor: pointer; /* Menandakan ini bisa diklik */
         }
         .product-link:hover {
             color: #003d82;
@@ -90,6 +91,22 @@
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
 
+        // Fungsi baru untuk menangani klik, buka Shopee, dan tutup aplikasi Median
+        function bukaDanTutup(url) {
+            // 1. Membuka link Shopee. Gunakan _blank agar Median mendeteksinya sebagai eksternal
+            window.open(url, '_blank');
+            
+            // 2. Beri jeda 800ms agar sistem OS sempat meluncurkan Shopee
+            // lalu jalankan perintah Median untuk menutup window/aplikasi
+            setTimeout(() => {
+                // Memanggil protokol Median untuk menutup window saat ini
+                window.location.href = 'median://window/close';
+                
+                // Fallback jika dibuka di browser biasa (bukan di dalam Median app)
+                window.close();
+            }, 800);
+        }
+
         async function fetchProducts() {
             try {
                 const response = await fetch(GIST_URL);
@@ -104,10 +121,10 @@
                     const li = document.createElement('li');
                     li.className = 'note-item';
                     
-                    // target="_blank" dan rel="..." Dihapus di sini
+                    // Kita ubah tag <a> agar memanggil fungsi javascript bukaDanTutup()
                     li.innerHTML = `
                         <span class="product-name">${product.nama}</span>
-                        <a href="${product.link}" class="product-link">
+                        <a onclick="bukaDanTutup('${product.link}')" class="product-link">
                             ${product.link}
                         </a>
                     `;
