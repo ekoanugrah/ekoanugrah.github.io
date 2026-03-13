@@ -6,7 +6,7 @@
     <title>My Shopee Affiliate Notes</title>
     <style>
         :root {
-            --primary-color: #ee4d2d; /* Warna khas Shopee */
+            --primary-color: #ee4d2d; 
             --bg-color: #f5f5f5;
             --card-bg: #ffffff;
         }
@@ -14,7 +14,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             margin: 0;
-            padding: 20px;
+            padding: 15px; /* Padding luar diperkecil */
             display: flex;
             justify-content: center;
         }
@@ -22,17 +22,17 @@
             width: 100%;
             max-width: 500px;
             background-color: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 20px;
+            border-radius: 8px; /* Sudut lebih kotak untuk kesan rapi */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px; /* Padding dalam kotak dirapatkan */
         }
         h1 {
             color: var(--primary-color);
             text-align: center;
-            font-size: 24px;
-            margin-top: 0;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 15px;
+            font-size: 20px; /* Ukuran judul sedikit dikecilkan */
+            margin: 0 0 10px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
         }
         .note-list {
             list-style-type: none;
@@ -40,47 +40,36 @@
             margin: 0;
         }
         .note-item {
-            padding: 15px;
+            padding: 8px 0; /* Jarak atas-bawah tiap produk sangat dirapatkan */
             border-bottom: 1px solid #f0f0f0;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 2px; /* Jarak antara nama dan link dirapatkan */
         }
+        /* Menghilangkan garis bawah pada item terakhir */
         .note-item:last-child {
             border-bottom: none;
+            padding-bottom: 0; 
         }
         .product-name {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             color: #333;
         }
-        .product-category {
-            font-size: 12px;
-            color: #888;
-            background-color: #f0f0f0;
-            padding: 3px 8px;
-            border-radius: 12px;
-            align-self: flex-start;
+        .product-link {
+            font-size: 13px; /* Ukuran font link dikecilkan sedikit */
+            color: #0056b3;
+            text-decoration: underline;
+            word-break: break-all;
         }
-        .shopee-btn {
-            background-color: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            text-align: center;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 14px;
-            transition: background-color 0.2s;
-            margin-top: 5px;
-        }
-        .shopee-btn:hover {
-            background-color: #d73d20;
+        .product-link:hover {
+            color: #003d82;
         }
         .loading, .error {
             text-align: center;
             color: #666;
-            padding: 20px;
+            padding: 15px;
+            font-size: 14px;
         }
         .error {
             color: red;
@@ -90,14 +79,14 @@
 <body>
 
     <div class="app-container">
-        <h1>Buku Catatan Affiliate</h1>
+        <h1>Catatan Affiliate</h1>
         <div id="status" class="loading">Memuat produk...</div>
         <ul class="note-list" id="productList"></ul>
     </div>
 
     <script>
         // GANTI URL DI BAWAH DENGAN URL RAW GIST GITHUB ANDA
-        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/6bb24a5a80822c9287893708efbfe1c8/raw/06a34931ceabbbbcb28a5e8fdfeb3b1852492d86/produkaffiliate.json';
+        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/6bb24a5a80822c9287893708efbfe1c8/raw/bfaaa04d649599a47254eed53f3d61c30bdee402/produkaffiliate.json';
 
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
@@ -110,19 +99,17 @@
                 }
                 const data = await response.json();
                 
-                // Menghapus teks loading
                 statusDiv.style.display = 'none';
 
-                // Render produk ke HTML
                 data.forEach(product => {
                     const li = document.createElement('li');
                     li.className = 'note-item';
                     
+                    // Kategori dihapus, hanya menampilkan nama dan link
                     li.innerHTML = `
-                        <span class="product-category">${product.kategori}</span>
                         <span class="product-name">${product.nama}</span>
-                        <a href="${product.link}" class="shopee-btn" target="_blank" rel="noopener noreferrer">
-                            Buka di Shopee
+                        <a href="${product.link}" class="product-link" target="_blank" rel="noopener noreferrer">
+                            ${product.link}
                         </a>
                     `;
                     
@@ -136,7 +123,6 @@
             }
         }
 
-        // Panggil fungsi saat halaman dimuat
         fetchProducts();
     </script>
 </body>
