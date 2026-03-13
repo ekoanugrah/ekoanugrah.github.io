@@ -57,29 +57,23 @@
 
     <script>
         // GANTI TEKS DI DALAM TANDA KUTIP DENGAN LINK RAW DARI GITHUB GIST ANDA
-        const jsonUrl = 'https://gist.githubusercontent.com/ekoanugrah/742c882ead1556d00b1a060026749a5e/raw/dfe29801c25abeca95f0f5dd87832f5ba736fcb2/produk.json'; 
+        const jsonUrl = 'https://gist.githubusercontent.com/ekoanugrah/742c882ead1556d00b1a060026749a5e/raw/bae63de25f860c2a6a14b93566ed5108d891e9df/produk.json'; 
 
         const selectElemen = document.getElementById('daftarProduk');
         const tombolProses = document.getElementById('tombolProses');
 
-        // Fungsi asynchronous untuk memuat data JSON dari GitHub
         async function muatData() {
             try {
-                // Mengambil data dari internet
                 const response = await fetch(jsonUrl);
                 
-                // Mengecek apakah responnya berhasil
                 if (!response.ok) {
                     throw new Error('Jaringan bermasalah atau link salah');
                 }
 
-                // Mengubah respon menjadi format JSON
                 const dataProduk = await response.json();
                 
-                // Mengosongkan opsi "Memuat..." dan mengganti dengan opsi default
                 selectElemen.innerHTML = '<option value="">-- Pilih Produk --</option>';
 
-                // Memasukkan data ke dalam dropdown
                 dataProduk.forEach(produk => {
                     const option = document.createElement('option');
                     option.value = produk.link;
@@ -87,24 +81,23 @@
                     selectElemen.appendChild(option);
                 });
             } catch (error) {
-                // Jika terjadi error (misal salah link), tampilkan pesan error
                 selectElemen.innerHTML = '<option value="">Gagal memuat data produk</option>';
                 console.error("Terjadi kesalahan:", error);
             }
         }
 
-        // Menjalankan fungsi saat halaman dibuka
         muatData();
 
-        // Logika saat tombol proses ditekan
+        // LOGIKA TOMBOL PROSES YANG SUDAH DIPERBARUI
         tombolProses.addEventListener('click', function() {
             const linkTerpilih = selectElemen.value;
             
             if (linkTerpilih === "") {
                 alert("Silakan pilih produk terlebih dahulu!");
             } else {
-                // Membuka link di tab baru
-                window.open(linkTerpilih, '_blank');
+                // Mengganti halaman web saat ini langsung dengan link Shopee
+                // Di HP, ini biasanya akan otomatis "melempar" pengguna ke aplikasi Shopee
+                window.location.href = linkTerpilih;
             }
         });
     </script>
