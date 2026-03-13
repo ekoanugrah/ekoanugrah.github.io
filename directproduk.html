@@ -3,111 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Link Shopee</title>
+    <title>My Shopee Affiliate Notes</title>
     <style>
+        :root {
+            --primary-color: #ee4d2d; /* Warna khas Shopee */
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 24px;
+            margin-top: 0;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+        .note-list {
+            list-style-type: none;
+            padding: 0;
             margin: 0;
         }
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
+        .note-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        select, button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        .note-item:last-child {
+            border-bottom: none;
+        }
+        .product-name {
             font-size: 16px;
+            font-weight: 600;
+            color: #333;
         }
-        button {
-            background-color: #ee4d2d;
+        .product-category {
+            font-size: 12px;
+            color: #888;
+            background-color: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 12px;
+            align-self: flex-start;
+        }
+        .shopee-btn {
+            background-color: var(--primary-color);
             color: white;
-            border: none;
-            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
             font-weight: bold;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            margin-top: 5px;
         }
-        button:hover {
-            background-color: #d73a1e;
+        .shopee-btn:hover {
+            background-color: #d73d20;
+        }
+        .loading, .error {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .error {
+            color: red;
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>Pilih Produk Shopee</h2>
-        
-        <select id="daftarProduk">
-            <option value="">Memuat data produk...</option>
-        </select>
-
-        <button id="tombolProses">Proses & Buka Shopee</button>
+    <div class="app-container">
+        <h1>Buku Catatan Affiliate</h1>
+        <div id="status" class="loading">Memuat produk...</div>
+        <ul class="note-list" id="productList"></ul>
     </div>
 
     <script>
-        // PASTIKAN MENGGANTI INI DENGAN LINK RAW GITHUB GIST ANDA
-        const jsonUrl = 'https://gist.githubusercontent.com/ekoanugrah/742c882ead1556d00b1a060026749a5e/raw/bae63de25f860c2a6a14b93566ed5108d891e9df/produk.json'; 
+        // GANTI URL DI BAWAH DENGAN URL RAW GIST GITHUB ANDA
+        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/6bb24a5a80822c9287893708efbfe1c8/raw/06a34931ceabbbbcb28a5e8fdfeb3b1852492d86/produkaffiliate.json';
 
-        const selectElemen = document.getElementById('daftarProduk');
-        const tombolProses = document.getElementById('tombolProses');
+        const productList = document.getElementById('productList');
+        const statusDiv = document.getElementById('status');
 
-        async function muatData() {
+        async function fetchProducts() {
             try {
-                const response = await fetch(jsonUrl);
-                
+                const response = await fetch(GIST_URL);
                 if (!response.ok) {
-                    throw new Error('Jaringan bermasalah atau link salah');
+                    throw new Error('Gagal mengambil data jaringan');
                 }
-
-                const dataProduk = await response.json();
+                const data = await response.json();
                 
-                selectElemen.innerHTML = '<option value="">-- Pilih Produk --</option>';
+                // Menghapus teks loading
+                statusDiv.style.display = 'none';
 
-                dataProduk.forEach(produk => {
-                    const option = document.createElement('option');
-                    option.value = produk.link;
-                    option.textContent = produk.nama;
-                    selectElemen.appendChild(option);
+                // Render produk ke HTML
+                data.forEach(product => {
+                    const li = document.createElement('li');
+                    li.className = 'note-item';
+                    
+                    li.innerHTML = `
+                        <span class="product-category">${product.kategori}</span>
+                        <span class="product-name">${product.nama}</span>
+                        <a href="${product.link}" class="shopee-btn" target="_blank" rel="noopener noreferrer">
+                            Buka di Shopee
+                        </a>
+                    `;
+                    
+                    productList.appendChild(li);
                 });
+
             } catch (error) {
-                selectElemen.innerHTML = '<option value="">Gagal memuat data produk</option>';
-                console.error("Terjadi kesalahan:", error);
+                statusDiv.className = 'error';
+                statusDiv.innerText = 'Gagal memuat catatan produk. Pastikan URL Gist benar.';
+                console.error('Error fetching data:', error);
             }
         }
 
-        muatData();
-
-        // LOGIKA TOMBOL PROSES KHUSUS MEDIAN.CO
-        tombolProses.addEventListener('click', function() {
-            const linkTerpilih = selectElemen.value;
-            
-            if (linkTerpilih === "") {
-                alert("Silakan pilih produk terlebih dahulu!");
-            } else {
-                
-                // 1. Memerintahkan Median untuk membuka link ke aplikasi eksternal (Shopee)
-                // Ini memastikan link tidak terbuka di dalam aplikasi Anda
-                window.location.href = 'median://open/external?url=' + encodeURIComponent(linkTerpilih);
-
-                // 2. Memberikan jeda 800 milidetik (agar link di atas sempat tereksekusi), 
-                // lalu memerintahkan Median untuk MENUTUP PAKSA aplikasi ini.
-                setTimeout(function() {
-                    window.location.href = 'median://app/exit';
-                }, 800);
-                
-            }
-        });
+        // Panggil fungsi saat halaman dimuat
+        fetchProducts();
     </script>
 </body>
 </html>
