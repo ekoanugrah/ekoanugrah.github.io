@@ -135,34 +135,27 @@
     </div>
 
     <script>
-        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/6bb24a5a80822c9287893708efbfe1c8/raw/e61803c998083781b85e8af658da1a1df80b7876/produkaffiliate.json';
+        // GANTI URL INI DENGAN URL RAW GIST BARU ANDA YANG BERFORMAT TEKS (.txt)
+        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/fbc4a41e63117b1427135ec3f1836f4c619a87ab/produkaffiliate.txt';
 
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
 
         function salinAlamat() {
-            const alamat = "Desa Kawistolegi, RT 03/02, Dusun Klagen (Rumah Kembar Ijo)";
+            const alamat = "Desa Kawistolegi l, RT 03/02, Klagen (Rumah Kembar Ijo)";
             
-            // Cara universal menggunakan textarea tersembunyi
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = alamat;
-            
-            // Memastikan elemen ini tidak terlihat
             tempTextArea.style.position = "absolute";
             tempTextArea.style.left = "-9999px";
             tempTextArea.style.top = "-9999px";
-            
-            // Atribut 'readonly' mencegah munculnya keyboard di HP saat disalin
             tempTextArea.setAttribute("readonly", "");
             
             document.body.appendChild(tempTextArea);
-            
-            // Memilih teks di dalam textarea
             tempTextArea.select();
-            tempTextArea.setSelectionRange(0, 99999); // Untuk dukungan di perangkat mobile
+            tempTextArea.setSelectionRange(0, 99999);
             
             try {
-                // Mengeksekusi perintah salin
                 const berhasil = document.execCommand('copy');
                 if (berhasil) {
                     tampilkanToast("Alamat disalin");
@@ -174,7 +167,6 @@
                 tampilkanToast("Gagal menyalin alamat");
             }
             
-            // Menghapus elemen sementara agar bersih
             document.body.removeChild(tempTextArea);
         }
 
@@ -202,22 +194,39 @@
                 if (!response.ok) {
                     throw new Error('Gagal mengambil data jaringan');
                 }
-                const data = await response.json();
+                
+                // Membaca data sebagai teks biasa, bukan JSON
+                const textData = await response.text();
                 
                 statusDiv.style.display = 'none';
 
-                data.forEach(product => {
-                    const li = document.createElement('li');
-                    li.className = 'note-item';
+                // Memecah teks berdasarkan baris baru (enter)
+                const lines = textData.split('\n');
+
+                lines.forEach(line => {
+                    // Abaikan jika baris kosong
+                    if (line.trim() === '') return;
+
+                    // Memecah nama dan link berdasarkan tanda |
+                    const parts = line.split('|');
                     
-                    li.innerHTML = `
-                        <span class="product-name">${product.nama}</span>
-                        <a onclick="bukaDanTutup('${product.link}')" class="product-link">
-                            ${product.link}
-                        </a>
-                    `;
-                    
-                    productList.appendChild(li);
+                    // Pastikan formatnya benar (ada nama dan link)
+                    if (parts.length >= 2) {
+                        const nama = parts[0].trim();
+                        const link = parts[1].trim();
+
+                        const li = document.createElement('li');
+                        li.className = 'note-item';
+                        
+                        li.innerHTML = `
+                            <span class="product-name">${nama}</span>
+                            <a onclick="bukaDanTutup('${link}')" class="product-link">
+                                ${link}
+                            </a>
+                        `;
+                        
+                        productList.appendChild(li);
+                    }
                 });
 
             } catch (error) {
