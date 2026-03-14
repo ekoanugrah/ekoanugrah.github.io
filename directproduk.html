@@ -36,7 +36,6 @@
             padding-bottom: 10px;
         }
         
-        /* Gaya untuk tombol Salin Alamat */
         .copy-btn {
             background-color: var(--primary-color);
             color: white;
@@ -55,7 +54,6 @@
             background-color: #d73a1e;
         }
 
-        /* Gaya untuk Notifikasi Toast (Modern, Simpel, Posisi Atas) */
         #toast {
             visibility: hidden;
             min-width: 200px;
@@ -125,7 +123,7 @@
 </head>
 <body>
 
-    <div id="toast">Alamat disalin!</div>
+    <div id="toast">Alamat disalin</div>
 
     <div class="app-container">
         <h1>Catatan Affiliate</h1>
@@ -142,25 +140,49 @@
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
 
-        // Fungsi menyalin alamat dan menampilkan notifikasi
         function salinAlamat() {
             const alamat = "Desa Kawistolegi l, RT 03/02, Klagen (Rumah Kembar Ijo)";
             
-            navigator.clipboard.writeText(alamat).then(() => {
-                tampilkanToast("Alamat berhasil disalin");
-            }).catch(err => {
-                console.error('Gagal menyalin:', err);
+            // Cara universal menggunakan textarea tersembunyi
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = alamat;
+            
+            // Memastikan elemen ini tidak terlihat
+            tempTextArea.style.position = "absolute";
+            tempTextArea.style.left = "-9999px";
+            tempTextArea.style.top = "-9999px";
+            
+            // Atribut 'readonly' mencegah munculnya keyboard di HP saat disalin
+            tempTextArea.setAttribute("readonly", "");
+            
+            document.body.appendChild(tempTextArea);
+            
+            // Memilih teks di dalam textarea
+            tempTextArea.select();
+            tempTextArea.setSelectionRange(0, 99999); // Untuk dukungan di perangkat mobile
+            
+            try {
+                // Mengeksekusi perintah salin
+                const berhasil = document.execCommand('copy');
+                if (berhasil) {
+                    tampilkanToast("Alamat disalin");
+                } else {
+                    tampilkanToast("Gagal menyalin alamat");
+                }
+            } catch (err) {
+                console.error("Gagal menyalin:", err);
                 tampilkanToast("Gagal menyalin alamat");
-            });
+            }
+            
+            // Menghapus elemen sementara agar bersih
+            document.body.removeChild(tempTextArea);
         }
 
-        // Fungsi menampilkan toast modern di bagian atas
         function tampilkanToast(pesan) {
             const toast = document.getElementById("toast");
             toast.innerText = pesan;
             toast.className = "show";
             
-            // Sembunyikan setelah 2 detik agar ringkas
             setTimeout(() => { 
                 toast.className = toast.className.replace("show", ""); 
             }, 2000);
