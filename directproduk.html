@@ -46,12 +46,15 @@
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             transition: background-color 0.2s ease;
             box-shadow: 0 2px 4px rgba(238, 77, 45, 0.2);
         }
         .copy-btn:hover {
             background-color: #d73a1e;
+        }
+        .btn-spacer {
+            margin-bottom: 20px;
         }
 
         #toast {
@@ -128,7 +131,10 @@
     <div class="app-container">
         <h1>Catatan Affiliate</h1>
         
-        <button class="copy-btn" onclick="salinAlamat()">Salin Alamat Rumah</button>
+        <button class="copy-btn" onclick="salinAlamat('Desa Kawistolegi, RT 03/02, Klagen (Rumah Kembar Ijo)')">Salin Alamat 1</button>
+        <button class="copy-btn" onclick="salinAlamat('Jl. Cendana No 3, Desa Kawistolegi RT 02/05 (Rumah Kembar Ijo)')">Salin Alamat 2</button>
+        <button class="copy-btn" onclick="salinAlamat('Jl. Dharma Husada No 15, Desa Kawistolegi RW 10/03 (Rumah Kembar Ijo)')">Salin Alamat 3</button>
+        <button class="copy-btn btn-spacer" onclick="salinAlamat('Jl. Kembang Wangi 2, Desa Kawistolegi RW 05/01 (Rumah Kembar Ijo)')">Salin Alamat 4</button>
 
         <div id="status" class="loading">Memuat produk...</div>
         <ul class="note-list" id="productList"></ul>
@@ -141,9 +147,7 @@
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
 
-        function salinAlamat() {
-            const alamat = "Desa Kawistolegi l, RT 03/02, Klagen (Rumah Kembar Ijo)";
-            
+        function salinAlamat(alamat) {
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = alamat;
             tempTextArea.style.position = "absolute";
@@ -160,13 +164,14 @@
                 if (berhasil) {
                     tampilkanToast("Alamat disalin");
                 } else {
-                    tampilkanToast("Gagal menyalin alamat");
+                    tampilkanToast("Gagal menyalin");
                 }
             } catch (err) {
                 console.error("Gagal menyalin:", err);
-                tampilkanToast("Gagal menyalin alamat");
+                tampilkanToast("Gagal menyalin");
             }
             
+            tempTextArea.blur(); // Mencegah keyboard muncul di perangkat mobile
             document.body.removeChild(tempTextArea);
         }
 
