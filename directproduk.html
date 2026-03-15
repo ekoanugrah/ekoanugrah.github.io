@@ -36,25 +36,29 @@
             padding-bottom: 10px;
         }
         
+        /* Layout Grid untuk Tombol Alamat */
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Membagi menjadi 2 kolom */
+            gap: 10px; /* Jarak antar tombol */
+            margin-bottom: 20px;
+        }
+
         .copy-btn {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 10px 10px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px; /* Ukuran font sedikit disesuaikan agar pas di grid */
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            margin-bottom: 10px;
             transition: background-color 0.2s ease;
             box-shadow: 0 2px 4px rgba(238, 77, 45, 0.2);
         }
         .copy-btn:hover {
             background-color: #d73a1e;
-        }
-        .btn-spacer {
-            margin-bottom: 20px;
         }
 
         #toast {
@@ -131,17 +135,25 @@
     <div class="app-container">
         <h1>Catatan Affiliate</h1>
         
-        <button class="copy-btn" onclick="salinAlamat('Desa Kawistolegi, RT 03/02, Klagen (Rumah Kembar Ijo)')">Salin Alamat 1</button>
-        <button class="copy-btn" onclick="salinAlamat('Jl. Cendana No 3, Desa Kawistolegi RT 02/05 (Rumah Kembar Ijo)')">Salin Alamat 2</button>
-        <button class="copy-btn" onclick="salinAlamat('Jl. Dharma Husada No 15, Desa Kawistolegi RW 10/03 (Rumah Kembar Ijo)')">Salin Alamat 3</button>
-        <button class="copy-btn btn-spacer" onclick="salinAlamat('Jl. Kembang Wangi 2, Desa Kawistolegi RW 05/01 (Rumah Kembar Ijo)')">Salin Alamat 4</button>
+        <div class="button-grid">
+            <button class="copy-btn" onclick="salinAlamat('Desa Kawistolegi, RT 03/02, Klagen (Rumah Kembar Ijo)')">Salin Alamat 1</button>
+            <button class="copy-btn" onclick="salinAlamat('Jl. Cendana No 3, Desa Kawistolegi RT 02/05 (Rumah Kembar Ijo)')">Salin Alamat 2</button>
+            <button class="copy-btn" onclick="salinAlamat('Jl. Dharma Husada No 15, Desa Kawistolegi RW 10/03 (Rumah Kembar Ijo)')">Salin Alamat 3</button>
+            <button class="copy-btn" onclick="salinAlamat('Jl. Kembang Wangi 2, Desa Kawistolegi RW 05/01 (Rumah Kembar Ijo)')">Salin Alamat 4</button>
+            <button class="copy-btn" onclick="salinAlamat('Ds. Kawistolegi RT 04/02, Dsn. Klagen (Rumah Kembar Ijo)')">Salin Alamat 5</button>
+            <button class="copy-btn" onclick="salinAlamat('Jl. Sumpah Pemuda, Desa Kawistolegi RT 01/05 (Rumah Kembar Ijo)')">Salin Alamat 6</button>
+            <button class="copy-btn" onclick="salinAlamat('Jl. Dr. Sahid, Ds. Kawistolegi RT 07/03 (Rumah Kembar Ijo)')">Salin Alamat 7</button>
+            <button class="copy-btn" onclick="salinAlamat('Jl. Sampang Timur, Desa Kawistolegi, RT 03/03 (Rumah Kembar Ijo)')">Salin Alamat 8</button>
+            <button class="copy-btn" onclick="salinAlamat('Jl. Tambah Udang I, Ds. Kawistolegi, Klagen, RT 04/01 (Rumah Kembar Ijo)')">Salin Alamat 9</button>
+            <button class="copy-btn" onclick="salinAlamat('Jl. Anggrek Putih II, Desa Kawistolegi, Klagen, RW 07/01 (Rumah Kembar Ijo)')">Salin Alamat 10</button>
+        </div>
 
         <div id="status" class="loading">Memuat produk...</div>
         <ul class="note-list" id="productList"></ul>
     </div>
 
     <script>
-        // GANTI URL INI DENGAN URL RAW GIST BARU ANDA YANG BERFORMAT TEKS (.txt)
+        // Menggunakan Link Permanen (tanpa kode versi) agar otomatis update
         const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
 
         const productList = document.getElementById('productList');
@@ -171,7 +183,7 @@
                 tampilkanToast("Gagal menyalin");
             }
             
-            tempTextArea.blur(); // Mencegah keyboard muncul di perangkat mobile
+            tempTextArea.blur(); // Mencegah keyboard muncul
             document.body.removeChild(tempTextArea);
         }
 
@@ -200,22 +212,17 @@
                     throw new Error('Gagal mengambil data jaringan');
                 }
                 
-                // Membaca data sebagai teks biasa, bukan JSON
                 const textData = await response.text();
                 
                 statusDiv.style.display = 'none';
 
-                // Memecah teks berdasarkan baris baru (enter)
                 const lines = textData.split('\n');
 
                 lines.forEach(line => {
-                    // Abaikan jika baris kosong
                     if (line.trim() === '') return;
 
-                    // Memecah nama dan link berdasarkan tanda |
                     const parts = line.split('|');
                     
-                    // Pastikan formatnya benar (ada nama dan link)
                     if (parts.length >= 2) {
                         const nama = parts[0].trim();
                         const link = parts[1].trim();
