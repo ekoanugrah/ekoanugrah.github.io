@@ -50,7 +50,7 @@
             border: none;
             padding: 10px 10px;
             border-radius: 6px;
-            font-size: 13px; /* Ukuran font sedikit disesuaikan agar pas di grid */
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
@@ -96,7 +96,7 @@
             border-bottom: 1px solid #f0f0f0;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
         .note-item:last-child {
             border-bottom: none;
@@ -107,16 +107,45 @@
             font-weight: 600;
             color: #333;
         }
+        
+        /* Wadah untuk menata link dan tombol agar sejajar */
+        .link-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
         .product-link {
             font-size: 13px;
             color: #0056b3;
             text-decoration: underline;
             word-break: break-all;
             cursor: pointer;
+            flex-grow: 1; /* Agar link mengambil ruang yang tersisa */
         }
         .product-link:hover {
             color: #003d82;
         }
+
+        /* Tombol Salin Link */
+        .copy-link-btn {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap; /* Mencegah tombol terpotong ke bawah */
+            transition: all 0.2s ease;
+        }
+        .copy-link-btn:hover {
+            background-color: var(--primary-color);
+            color: #ffffff;
+        }
+
         .loading, .error {
             text-align: center;
             color: #666;
@@ -130,22 +159,22 @@
 </head>
 <body>
 
-    <div id="toast">Alamat disalin</div>
+    <div id="toast">Disalin</div>
 
     <div class="app-container">
         <h1>Catatan Affiliate</h1>
         
         <div class="button-grid">
-            <button class="copy-btn" onclick="salinAlamat('Desa Kawistolegi, RT 03/02, Klagen (Rumah Kembar Ijo)')">Salin Alamat 1</button>
-            <button class="copy-btn" onclick="salinAlamat('Jl. Cendana No 3, Desa Kawistolegi RT 02/05 (Rumah Kembar Ijo)')">Salin Alamat 2</button>
-            <button class="copy-btn" onclick="salinAlamat('Jl. Dharma Husada No 15, Desa Kawistolegi RW 10/03 (Rumah Kembar Ijo)')">Salin Alamat 3</button>
-            <button class="copy-btn" onclick="salinAlamat('Jl. Kembang Wangi 2, Desa Kawistolegi RW 05/01 (Rumah Kembar Ijo)')">Salin Alamat 4</button>
-            <button class="copy-btn" onclick="salinAlamat('Ds. Kawistolegi RT 04/02, Dsn. Klagen (Rumah Kembar Ijo)')">Salin Alamat 5</button>
-            <button class="copy-btn" onclick="salinAlamat('Jl. Sumpah Pemuda, Desa Kawistolegi RT 01/05 (Rumah Kembar Ijo)')">Salin Alamat 6</button>
-            <button class="copy-btn" onclick="salinAlamat('Jl. Dr. Sahid, Ds. Kawistolegi RT 07/03 (Rumah Kembar Ijo)')">Salin Alamat 7</button>
-            <button class="copy-btn" onclick="salinAlamat('Jl. Sampang Timur, Desa Kawistolegi, RT 03/03 (Rumah Kembar Ijo)')">Salin Alamat 8</button>
-            <button class="copy-btn" onclick="salinAlamat('Jl. Tambah Udang I, Ds. Kawistolegi, Klagen, RT 04/01 (Rumah Kembar Ijo)')">Salin Alamat 9</button>
-            <button class="copy-btn" onclick="salinAlamat('Jl. Anggrek Putih II, Desa Kawistolegi, Klagen, RW 07/01 (Rumah Kembar Ijo)')">Salin Alamat 10</button>
+            <button class="copy-btn" onclick="salinTeks('Desa Kawistolegi, RT 03/02, Klagen (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 1</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Cendana No 3, Desa Kawistolegi RT 02/05 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 2</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Dharma Husada No 15, Desa Kawistolegi RW 10/03 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 3</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Kembang Wangi 2, Desa Kawistolegi RW 05/01 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 4</button>
+            <button class="copy-btn" onclick="salinTeks('Ds. Kawistolegi RT 04/02, Dsn. Klagen (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 5</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Sumpah Pemuda, Desa Kawistolegi RT 01/05 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 6</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Dr. Sahid, Ds. Kawistolegi RT 07/03 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 7</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Sampang Timur, Desa Kawistolegi, RT 03/03 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 8</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Tambah Udang I, Ds. Kawistolegi, Klagen, RT 04/01 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 9</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Anggrek Putih II, Desa Kawistolegi, Klagen, RW 07/01 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 10</button>
         </div>
 
         <div id="status" class="loading">Memuat produk...</div>
@@ -153,15 +182,15 @@
     </div>
 
     <script>
-        // Menggunakan Link Permanen (tanpa kode versi) agar otomatis update
         const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
 
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
 
-        function salinAlamat(alamat) {
+        // Fungsi disatukan agar bisa menerima teks dan pesan notifikasi kustom
+        function salinTeks(teks, pesanSukses) {
             const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = alamat;
+            tempTextArea.value = teks;
             tempTextArea.style.position = "absolute";
             tempTextArea.style.left = "-9999px";
             tempTextArea.style.top = "-9999px";
@@ -174,7 +203,7 @@
             try {
                 const berhasil = document.execCommand('copy');
                 if (berhasil) {
-                    tampilkanToast("Alamat disalin");
+                    tampilkanToast(pesanSukses);
                 } else {
                     tampilkanToast("Gagal menyalin");
                 }
@@ -183,7 +212,7 @@
                 tampilkanToast("Gagal menyalin");
             }
             
-            tempTextArea.blur(); // Mencegah keyboard muncul
+            tempTextArea.blur(); 
             document.body.removeChild(tempTextArea);
         }
 
@@ -230,11 +259,15 @@
                         const li = document.createElement('li');
                         li.className = 'note-item';
                         
+                        // Menambahkan struktur flexbox untuk menata link dan tombol salin secara sejajar
                         li.innerHTML = `
                             <span class="product-name">${nama}</span>
-                            <a onclick="bukaDanTutup('${link}')" class="product-link">
-                                ${link}
-                            </a>
+                            <div class="link-container">
+                                <a onclick="bukaDanTutup('${link}')" class="product-link">
+                                    ${link}
+                                </a>
+                                <button class="copy-link-btn" onclick="salinTeks('${link}', 'Link disalin')">Salin</button>
+                            </div>
                         `;
                         
                         productList.appendChild(li);
