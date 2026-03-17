@@ -155,6 +155,12 @@
         .error {
             color: red;
         }
+        
+        /* Class tambahan untuk memberikan jarak setiap 20 produk */
+        .spacer-item {
+            height: 30px;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -187,7 +193,6 @@
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
 
-        // Fungsi disatukan agar bisa menerima teks dan pesan notifikasi kustom
         function salinTeks(teks, pesanSukses) {
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = teks;
@@ -246,6 +251,7 @@
                 statusDiv.style.display = 'none';
 
                 const lines = textData.split('\n');
+                let productCount = 0; // Variabel untuk menghitung nomor produk
 
                 lines.forEach(line => {
                     if (line.trim() === '') return;
@@ -253,15 +259,16 @@
                     const parts = line.split('|');
                     
                     if (parts.length >= 2) {
+                        productCount++; // Tambah 1 ke nomor urut
                         const nama = parts[0].trim();
                         const link = parts[1].trim();
 
                         const li = document.createElement('li');
                         li.className = 'note-item';
                         
-                        // Menambahkan struktur flexbox untuk menata link dan tombol salin secara sejajar
+                        // Memasukkan nomor (productCount) sebelum nama produk
                         li.innerHTML = `
-                            <span class="product-name">${nama}</span>
+                            <span class="product-name">${productCount}. ${nama}</span>
                             <div class="link-container">
                                 <a onclick="bukaDanTutup('${link}')" class="product-link">
                                     ${link}
@@ -271,6 +278,13 @@
                         `;
                         
                         productList.appendChild(li);
+
+                        // Cek apakah ini kelipatan 20, jika ya tambahkan space enter
+                        if (productCount % 20 === 0) {
+                            const spacer = document.createElement('li');
+                            spacer.className = 'spacer-item';
+                            productList.appendChild(spacer);
+                        }
                     }
                 });
 
