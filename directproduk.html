@@ -388,11 +388,15 @@
                         const nama = parts[0].trim();
                         const link = parts[1].trim();
 
+                        // ---- LOGIKA PERUBAHAN NOMOR ----
+                        // Menghitung nomor tampil agar kembali ke 1 setelah kelipatan 6
+                        let displayCount = ((productCount - 1) % 6) + 1;
+
                         const li = document.createElement('li');
                         li.className = 'note-item';
                         
                         li.innerHTML = `
-                            <span class="product-name">${productCount}. ${nama}</span>
+                            <span class="product-name">${displayCount}. ${nama}</span>
                             <div class="link-container">
                                 <a onclick="bukaDanTutup('${link}')" class="product-link">
                                     ${link}
