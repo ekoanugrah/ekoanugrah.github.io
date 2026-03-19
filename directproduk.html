@@ -39,8 +39,8 @@
         /* Layout Grid untuk Tombol Alamat */
         .button-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Membagi menjadi 2 kolom */
-            gap: 10px; /* Jarak antar tombol */
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
@@ -60,6 +60,63 @@
         .copy-btn:hover {
             background-color: #d73a1e;
         }
+
+        /* --- CSS TAMBAHAN UNTUK GENERATOR NAMA --- */
+        .name-generator-section {
+            background-color: #f8f9fa;
+            border: 1px solid #e6e9ec;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .name-generator-section h2 {
+            color: #333;
+            text-align: center;
+            font-size: 16px;
+            margin: 0 0 10px 0;
+        }
+        .textbox {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            background-color: #fff;
+            color: #333;
+            font-weight: bold;
+        }
+        .form-group {
+            text-align: left;
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            background-color: #ffffff;
+            border: 1px solid #eee;
+        }
+        .form-group-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+            color: #555;
+            font-size: 13px;
+        }
+        .radio-group, .checkbox-group {
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+        }
+        .radio-group label, .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #444;
+        }
+        /* ----------------------------------------- */
 
         #toast {
             visibility: hidden;
@@ -108,7 +165,6 @@
             color: #333;
         }
         
-        /* Wadah untuk menata link dan tombol agar sejajar */
         .link-container {
             display: flex;
             justify-content: space-between;
@@ -122,13 +178,12 @@
             text-decoration: underline;
             word-break: break-all;
             cursor: pointer;
-            flex-grow: 1; /* Agar link mengambil ruang yang tersisa */
+            flex-grow: 1;
         }
         .product-link:hover {
             color: #003d82;
         }
 
-        /* Tombol Salin Link */
         .copy-link-btn {
             background-color: #ffffff;
             color: var(--primary-color);
@@ -138,7 +193,7 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            white-space: nowrap; /* Mencegah tombol terpotong ke bawah */
+            white-space: nowrap;
             transition: all 0.2s ease;
         }
         .copy-link-btn:hover {
@@ -156,7 +211,6 @@
             color: red;
         }
         
-        /* Class tambahan untuk memberikan jarak setiap 20 produk */
         .spacer-item {
             height: 30px;
             border: none;
@@ -171,25 +225,96 @@
         <h1>Catatan Affiliate</h1>
         
         <div class="button-grid">
-            <button class="copy-btn" onclick="salinTeks('Desa Kawistolegi, RT 03/02, Klagen (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 1</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Cendana No 3, Desa Kawistolegi RT 02/05 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 2</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Dharma Husada No 15, Desa Kawistolegi RW 10/03 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 3</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Kembang Wangi 2, Desa Kawistolegi RW 05/01 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 4</button>
-            <button class="copy-btn" onclick="salinTeks('Ds. Kawistolegi RT 04/02, Dsn. Klagen (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 5</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Sumpah Pemuda, Desa Kawistolegi RT 01/05 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 6</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Dr. Sahid, Ds. Kawistolegi RT 07/03 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 7</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Sampang Timur, Desa Kawistolegi, RT 03/03 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 8</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Tambah Udang I, Ds. Kawistolegi, Klagen, RT 04/01 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 9</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Anggrek Putih II, Desa Kawistolegi, Klagen, RW 07/01 (Rumah Kembar Ijo)', 'Alamat disalin')">Salin Alamat 10</button>
+            <button class="copy-btn" onclick="salinTeks('Desa Kawistolegi, RT 03/02, Klagen (Rumah Kembar Ijo)', 'Alamat 1 disalin')">Salin Alamat 1</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Cendana No 3, Desa Kawistolegi RT 02/05 (Rumah Kembar Ijo)', 'Alamat 2 disalin')">Salin Alamat 2</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Dharma Husada No 15, Desa Kawistolegi RW 10/03 (Rumah Kembar Ijo)', 'Alamat 3 disalin')">Salin Alamat 3</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Kembang Wangi 2, Desa Kawistolegi RW 05/01 (Rumah Kembar Ijo)', 'Alamat 4 disalin')">Salin Alamat 4</button>
+            <button class="copy-btn" onclick="salinTeks('Ds. Kawistolegi RT 04/02, Dsn. Klagen (Rumah Kembar Ijo)', 'Alamat 5 disalin')">Salin Alamat 5</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Sumpah Pemuda, Desa Kawistolegi RT 01/05 (Rumah Kembar Ijo)', 'Alamat 6 disalin')">Salin Alamat 6</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Dr. Sahid, Ds. Kawistolegi RT 07/03 (Rumah Kembar Ijo)', 'Alamat 7 disalin')">Salin Alamat 7</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Sampang Timur, Desa Kawistolegi, RT 03/03 (Rumah Kembar Ijo)', 'Alamat 8 disalin')">Salin Alamat 8</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Tambah Udang I, Ds. Kawistolegi, Klagen, RT 04/01 (Rumah Kembar Ijo)', 'Alamat 9 disalin')">Salin Alamat 9</button>
+            <button class="copy-btn" onclick="salinTeks('Jl. Anggrek Putih II, Desa Kawistolegi, Klagen, RW 07/01 (Rumah Kembar Ijo)', 'Alamat 10 disalin')">Salin Alamat 10</button>
         </div>
 
+        <div class="name-generator-section">
+            <h2>Buat Nama Acak</h2>
+            <input type="text" class="textbox" id="nameOutput" placeholder="Klik tombol di bawah untuk membuat nama" readonly />
+            
+            <div class="form-group">
+                <span class="form-group-title">Jenis Kelamin</span>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="cowok" checked> Cowok</label>
+                    <label><input type="radio" name="gender" value="cewek"> Cewek</label>
+                    <label><input type="radio" name="gender" value="acak"> Acak</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <span class="form-group-title">Format Nama</span>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="checkDigabung" value="digabung"> Digabung</label>
+                    <label><input type="checkbox" id="checkDipisah" value="dipisah" checked> Dipisah</label>
+                </div>
+            </div>
+            
+            <button class="copy-btn" id="copyNameButton" style="margin-top: 15px; background-color: #28a745;">Buat & Salin Nama</button>
+        </div>
+        <h1 style="font-size: 16px; margin-top: 25px;">Daftar Produk Affiliate</h1>
         <div id="status" class="loading">Memuat produk...</div>
         <ul class="note-list" id="productList"></ul>
     </div>
 
     <script>
-        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
+        // ================= DATABASE NAMA & LOGIKA GENERATOR =================
+        const maleNames=["Adi","Aditya","Agung","Agus","Ahmad","Ali","Amin","Amir","Andi","Andre","Angga","Anwar","Ardi","Ari","Arif","Bagas","Bagus","Bambang","Bayu","Bima","Budi","Cahya","Candra","Cecep","Dadang","Dadan","Dani","Dedi","Deni","Dian","Dimas","Dodi","Doni","Dwi","Edi","Eka","Eko","Endra","Fajar","Fahmi","Farhan","Feri","Gagah","Galih","Gilang","Gunawan","Hadi","Hasan","Hendri","Heri","Heru","Ibrahim","Ilham","Imam","Indra","Irfan","Iwan","Jajang","Jamal","Joko","Joni","Junaidi","Krisna","Kurniawan","Kusuma","Lutfi","Mahmud","Maman","Muhammad","Mukhlis","Mulya","Nana","Nugroho","Nur","Prasetyo","Purnama","Putra","Rahmat","Rangga","Reza","Rian","Rico","Ridwan","Rizki","Roni","Rudi","Samsul","Slamet","Sofyan","Sugeng","Suharto","Sujono","Supri","Surya","Sutrisno","Taufik","Tegar","Toni","Tri","Ujang","Wahyudi","Widodo","Yogi","Yoga","Yusuf","Zainal"];
+        const femaleNames=["Ade","Agnes","Aisyah","Amelia","Ana","Andini","Angel","Ani","Anisa","Anita","Aprilia","Ariani","Astuti","Ayu","Bella","Cahaya","Cici","Cindy","Citra","Dewi","Diah","Diana","Dian","Dinda","Eka","Eka","Eli","Elisa","Elsa","Endah","Evi","Fani","Farah","Fatimah","Febri","Fitri","Fitria","Hani","Hasanah","Indah","Indri","Intan","Irma","Jessica","Jihan","Julia","Kartika","Khairunnisa","Kiki","Krisna","Laila","Lestari","Lia","Lina","Linda","Lisa","Lusi","Maria","Maya","Mega","Melati","Mia","Mila","Mita","Mutia","Nadia","Nana","Nia","Nida","Niken","Nina","Nisa","Nita","Novi","Novita","Nur","Nurul","Putri","Rahma","Rani","Ratih","Ratna","Restu","Ria","Rina","Rini","Riska","Rita","Sari","Sarah","Sinta","Siska","Siti","Sri","Susanti","Tiara","Tina","Tuti","Ulfah","Wahyuni","Wulan","Yani","Yanti","Yulia","Yuni","Zahra"];
+        
+        const nameOutput = document.getElementById("nameOutput");
+        const checkDigabung = document.getElementById("checkDigabung");
+        const checkDipisah = document.getElementById("checkDipisah");
+        const copyNameButton = document.getElementById("copyNameButton");
 
+        // Logika untuk checkbox format (memastikan hanya salah satu yang aktif)
+        function handleCheckbox(checkbox) {
+            if (checkbox.id === "checkDigabung" && checkbox.checked) {
+                checkDipisah.checked = false;
+            } else if (checkbox.id === "checkDipisah" && checkbox.checked) {
+                checkDigabung.checked = false;
+            }
+        }
+        checkDigabung.addEventListener("change", () => handleCheckbox(checkDigabung));
+        checkDipisah.addEventListener("change", () => handleCheckbox(checkDipisah));
+
+        // Fungsi membuat nama acak
+        function generateName() {
+            const genderSelected = document.querySelector('input[name="gender"]:checked').value;
+            let namePool = genderSelected === "cowok" ? maleNames : genderSelected === "cewek" ? femaleNames : (Math.random() < 0.5 ? maleNames : femaleNames);
+            
+            let firstName = namePool[Math.floor(Math.random() * namePool.length)];
+            let lastName = namePool[Math.floor(Math.random() * namePool.length)];
+            
+            // Cegah nama depan dan belakang sama (contoh: Agus Agus)
+            while (firstName === lastName) {
+                lastName = namePool[Math.floor(Math.random() * namePool.length)];
+            }
+            
+            let fullName = checkDigabung.checked ? `${firstName}${lastName}` : `${firstName} ${lastName}`;
+            nameOutput.value = fullName;
+            return fullName;
+        }
+
+        // Event saat tombol Buat & Salin Nama ditekan
+        copyNameButton.addEventListener("click", () => {
+            const generatedName = generateName();
+            // Menggunakan fungsi salinTeks bawaan di bawah untuk menyalin nama
+            salinTeks(generatedName, `Nama disalin: ${generatedName}`);
+        });
+        // ================= AKHIR LOGIKA GENERATOR NAMA =================
+
+
+        // ================= LOGIKA CATATAN AFFILIATE BAWAAN =================
+        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
 
@@ -251,7 +376,7 @@
                 statusDiv.style.display = 'none';
 
                 const lines = textData.split('\n');
-                let productCount = 0; // Variabel untuk menghitung nomor produk
+                let productCount = 0; 
 
                 lines.forEach(line => {
                     if (line.trim() === '') return;
@@ -259,14 +384,13 @@
                     const parts = line.split('|');
                     
                     if (parts.length >= 2) {
-                        productCount++; // Tambah 1 ke nomor urut
+                        productCount++; 
                         const nama = parts[0].trim();
                         const link = parts[1].trim();
 
                         const li = document.createElement('li');
                         li.className = 'note-item';
                         
-                        // Memasukkan nomor (productCount) sebelum nama produk
                         li.innerHTML = `
                             <span class="product-name">${productCount}. ${nama}</span>
                             <div class="link-container">
@@ -279,7 +403,6 @@
                         
                         productList.appendChild(li);
 
-                        // Cek apakah ini kelipatan 20, jika ya tambahkan space enter
                         if (productCount % 20 === 0) {
                             const spacer = document.createElement('li');
                             spacer.className = 'spacer-item';
