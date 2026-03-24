@@ -7,11 +7,11 @@
     <style>
         :root {
             --shopee-orange: #ee4d2d; 
-            --shopee-orange-hover: #d73a1e;
             --bg-color: #f5f5f5;
             --card-bg: #ffffff;
             --text-main: rgba(0,0,0,.8);
             --text-muted: rgba(0,0,0,.54);
+            --border-color: #e0e0e0;
         }
         
         body {
@@ -56,7 +56,7 @@
             background-color: var(--card-bg);
             margin: 12px;
             padding: 16px;
-            border-radius: 4px;
+            border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
@@ -76,8 +76,8 @@
             box-sizing: border-box;
             padding: 12px;
             margin-bottom: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             font-size: 14px;
             text-align: center;
             background-color: #fafafa;
@@ -117,15 +117,10 @@
             color: white;
             border: none;
             padding: 12px;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-action:hover {
-            background-color: var(--shopee-orange-hover);
         }
 
         /* DAFTAR PRODUK AFFILIATE - GRID 3 KOLOM */
@@ -134,8 +129,8 @@
             padding: 0;
             margin: 0;
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Membuat 3 kolom sama rata */
-            gap: 10px; /* Jarak antar tombol */
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
         }
 
         .product-item {
@@ -146,46 +141,62 @@
 
         /* Tombol Link Produk Utama (Bentuk Kotak) */
         .btn-product-link {
+            position: relative; /* Penting untuk menempatkan nomor di pojok */
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            aspect-ratio: 1 / 1; /* Memaksa bentuk menjadi kotak sempurna */
-            background-color: #fffaf9; 
-            border: 1px solid var(--shopee-orange);
-            color: var(--shopee-orange);
-            padding: 8px;
+            aspect-ratio: 1 / 1; 
+            background-color: #ffffff; 
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 12px 6px; /* Memberi ruang agar teks tidak terlalu mepet */
             border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            text-align: center;
             cursor: pointer;
-            line-height: 1.3;
-            transition: all 0.2s ease;
-            overflow: hidden; /* Menyembunyikan teks yang terlalu panjang */
-            word-break: break-word;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            -webkit-tap-highlight-color: transparent; /* Menghilangkan highlight biru/abu di HP */
         }
 
-        .btn-product-link:hover, .btn-product-link:active {
+        /* Gaya untuk teks nama produk di dalam tombol */
+        .product-title {
+            font-size: 11px;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.3;
+            /* Memotong teks yang terlalu panjang agar rapi (maks 4 baris) */
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
+            margin-top: 10px; /* Jarak agar tidak bertabrakan dengan nomor */
+        }
+
+        /* Badge Nomor di Pojok Kiri Atas */
+        .product-number {
+            position: absolute;
+            top: 6px;
+            left: 6px;
             background-color: var(--shopee-orange);
             color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
+        /* Tombol Salin Link di Bawah Kotak */
         .btn-copy-small {
-            width: 100%; /* Dibuat selebar kotak di atasnya */
+            width: 100%; 
             background-color: transparent;
             color: var(--text-muted);
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--border-color);
             padding: 6px 0;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 11px;
             cursor: pointer;
             text-align: center;
-        }
-
-        .btn-copy-small:hover {
-            border-color: var(--shopee-orange);
-            color: var(--shopee-orange);
+            -webkit-tap-highlight-color: transparent;
         }
 
         .loading, .error {
@@ -196,10 +207,10 @@
         }
         .error { color: var(--shopee-orange); }
         
-        /* Spacer untuk memberikan jeda setiap 6 produk, membentang 3 kolom */
+        /* Spacer untuk memberikan jeda/enter setiap 6 produk */
         .spacer-item { 
-            grid-column: span 3; 
-            height: 12px; 
+            grid-column: 1 / -1; /* Membentang penuh dari kiri ke kanan */
+            height: 24px; /* Tinggi jeda ditingkatkan agar jarak lebih jelas */
             border: none; 
             background: transparent; 
         }
@@ -211,14 +222,14 @@
             background-color: rgba(0, 0, 0, 0.8);
             color: #fff;
             text-align: center;
-            border-radius: 4px;
-            padding: 14px;
+            border-radius: 8px;
+            padding: 12px;
             position: fixed;
             z-index: 1000;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 14px;
+            font-size: 13px;
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -382,16 +393,18 @@
                         const li = document.createElement('li');
                         li.className = 'product-item';
                         
+                        // Layout tombol yang telah disesuaikan
                         li.innerHTML = `
                             <button class="btn-product-link" onclick="bukaTautanAffiliate('${link}')">
-                                ${displayCount}.<br>${nama}
+                                <span class="product-number">${displayCount}</span>
+                                <span class="product-title">${nama}</span>
                             </button>
                             <button class="btn-copy-small" onclick="salinTeks('${link}', 'Link berhasil disalin')">Salin Link</button>
                         `;
                         
                         productList.appendChild(li);
 
-                        // Spacer (jeda antar baris kelompok) 
+                        // Spacer (jeda antar baris kelompok diperlebar)
                         if (productCount % 6 === 0) {
                             const spacer = document.createElement('li');
                             spacer.className = 'spacer-item';
