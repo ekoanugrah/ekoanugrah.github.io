@@ -150,11 +150,11 @@
             background-color: #ffffff; 
             border: 1px solid var(--border-color);
             color: var(--text-main);
-            padding: 12px 6px; /* Memberi ruang agar teks tidak terlalu mepet */
+            padding: 12px 6px; 
             border-radius: 8px;
             cursor: pointer;
             box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-            -webkit-tap-highlight-color: transparent; /* Menghilangkan highlight biru/abu di HP */
+            -webkit-tap-highlight-color: transparent; 
         }
 
         /* Gaya untuk teks nama produk di dalam tombol */
@@ -163,13 +163,12 @@
             font-weight: 500;
             text-align: center;
             line-height: 1.3;
-            /* Memotong teks yang terlalu panjang agar rapi (maks 4 baris) */
             display: -webkit-box;
             -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-break: break-word;
-            margin-top: 10px; /* Jarak agar tidak bertabrakan dengan nomor */
+            margin-top: 10px; 
         }
 
         /* Badge Nomor di Pojok Kiri Atas */
@@ -209,8 +208,8 @@
         
         /* Spacer untuk memberikan jeda/enter setiap 6 produk */
         .spacer-item { 
-            grid-column: 1 / -1; /* Membentang penuh dari kiri ke kanan */
-            height: 24px; /* Tinggi jeda ditingkatkan agar jarak lebih jelas */
+            grid-column: 1 / -1; 
+            height: 24px; 
             border: none; 
             background: transparent; 
         }
@@ -271,6 +270,12 @@
             </div>
             
             <button class="btn-action" id="copyNameButton" style="margin-top: 8px;">Buat & Salin Nama</button>
+        </div>
+
+        <div class="section-card" style="padding: 12px 16px;">
+            <button class="btn-action" style="background-color: #00bfa5;" onclick="salinTeks('https://ekoanugrah.github.io/directproduk.html', 'Link Direct Produk disalin')">
+                Salin Link Direct Produk
+            </button>
         </div>
 
         <div class="section-card">
@@ -393,7 +398,6 @@
                         const li = document.createElement('li');
                         li.className = 'product-item';
                         
-                        // Layout tombol yang telah disesuaikan
                         li.innerHTML = `
                             <button class="btn-product-link" onclick="bukaTautanAffiliate('${link}')">
                                 <span class="product-number">${displayCount}</span>
@@ -404,7 +408,6 @@
                         
                         productList.appendChild(li);
 
-                        // Spacer (jeda antar baris kelompok diperlebar)
                         if (productCount % 6 === 0) {
                             const spacer = document.createElement('li');
                             spacer.className = 'spacer-item';
