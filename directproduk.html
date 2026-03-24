@@ -6,240 +6,232 @@
     <title>My Shopee Affiliate Notes</title>
     <style>
         :root {
-            --primary-color: #ee4d2d; 
+            --shopee-orange: #ee4d2d; 
+            --shopee-orange-hover: #d73a1e;
             --bg-color: #f5f5f5;
             --card-bg: #ffffff;
+            --text-main: rgba(0,0,0,.8);
+            --text-muted: rgba(0,0,0,.54);
         }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             margin: 0;
-            padding: 15px;
+            padding: 0;
             display: flex;
             justify-content: center;
         }
+
         .app-container {
             width: 100%;
             max-width: 500px;
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 15px;
+            background-color: var(--bg-color);
+            min-height: 100vh;
             position: relative;
+            padding-bottom: 20px;
         }
-        h1 {
-            color: var(--primary-color);
+
+        /* Header Tema Shopee */
+        .shopee-header {
+            background-color: var(--shopee-orange);
+            color: white;
+            padding: 16px;
             text-align: center;
-            font-size: 20px;
-            margin: 0 0 15px 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
-        /* Layout Grid untuk Tombol Alamat */
-        .button-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+        .shopee-header h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
-        .copy-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 10px;
-            border-radius: 6px;
-            font-size: 13px;
+        /* Card Section Umum */
+        .section-card {
+            background-color: var(--card-bg);
+            margin: 12px;
+            padding: 16px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 15px;
+            color: var(--text-main);
+            margin: 0 0 12px 0;
             font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.2s ease;
-            box-shadow: 0 2px 4px rgba(238, 77, 45, 0.2);
-        }
-        .copy-btn:hover {
-            background-color: #d73a1e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* --- CSS TAMBAHAN UNTUK GENERATOR NAMA --- */
-        .name-generator-section {
-            background-color: #f8f9fa;
-            border: 1px solid #e6e9ec;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        .name-generator-section h2 {
-            color: #333;
-            text-align: center;
-            font-size: 16px;
-            margin: 0 0 10px 0;
-        }
+        /* Generator Nama */
         .textbox {
             width: 100%;
             box-sizing: border-box;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
             font-size: 14px;
             text-align: center;
-            background-color: #fff;
-            color: #333;
+            background-color: #fafafa;
+            color: var(--shopee-orange);
             font-weight: bold;
+            outline: none;
         }
+
         .form-group {
-            text-align: left;
-            margin-top: 10px;
-            padding: 8px;
-            border-radius: 6px;
-            background-color: #ffffff;
-            border: 1px solid #eee;
+            margin-bottom: 12px;
         }
+
         .form-group-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: block;
-            color: #555;
             font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
         }
+
         .radio-group, .checkbox-group {
             display: flex;
-            justify-content: flex-start;
-            gap: 15px;
+            gap: 16px;
         }
+
         .radio-group label, .checkbox-group label {
+            font-size: 13px;
+            color: var(--text-main);
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             cursor: pointer;
-            font-size: 13px;
-            color: #444;
         }
-        /* ----------------------------------------- */
 
-        #toast {
-            visibility: hidden;
-            min-width: 200px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 12px 20px;
-            position: fixed;
-            z-index: 1000;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        .btn-action {
+            width: 100%;
+            background-color: var(--shopee-orange);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
             font-size: 14px;
             font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            opacity: 0;
-            transition: opacity 0.3s, top 0.3s;
-        }
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            top: 40px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
+        .btn-action:hover {
+            background-color: var(--shopee-orange-hover);
+        }
+
+        /* Daftar Produk Affiliate */
         .note-list {
             list-style-type: none;
             padding: 0;
             margin: 0;
         }
-        .note-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
+
+        .product-item {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
-        .note-item:last-child {
+
+        .product-item:last-child {
             border-bottom: none;
-            padding-bottom: 0; 
         }
-        .product-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .link-container {
+
+        /* Tombol Link Produk Utama */
+        .btn-product-link {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 10px;
-        }
-
-        .product-link {
-            font-size: 13px;
-            color: #0056b3;
-            text-decoration: underline;
-            word-break: break-all;
-            cursor: pointer;
-            flex-grow: 1;
-        }
-        .product-link:hover {
-            color: #003d82;
-        }
-
-        .copy-link-btn {
-            background-color: #ffffff;
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            padding: 5px 10px;
+            width: 100%;
+            background-color: #fffaf9; /* Oranye sangat muda */
+            border: 1px solid var(--shopee-orange);
+            color: var(--shopee-orange);
+            padding: 12px 16px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
+            text-align: left;
             cursor: pointer;
-            white-space: nowrap;
+            line-height: 1.4;
             transition: all 0.2s ease;
         }
-        .copy-link-btn:hover {
-            background-color: var(--primary-color);
-            color: #ffffff;
+
+        .btn-product-link:hover, .btn-product-link:active {
+            background-color: var(--shopee-orange);
+            color: white;
+        }
+
+        .btn-copy-small {
+            align-self: flex-end;
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid #e0e0e0;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-copy-small:hover {
+            border-color: var(--shopee-orange);
+            color: var(--shopee-orange);
         }
 
         .loading, .error {
             text-align: center;
-            color: #666;
-            padding: 15px;
+            color: var(--text-muted);
+            padding: 20px;
             font-size: 14px;
         }
-        .error {
-            color: red;
+        .error { color: var(--shopee-orange); }
+        .spacer-item { height: 16px; border: none; background: var(--bg-color); margin: 0 -16px; }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 14px;
+            position: fixed;
+            z-index: 1000;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        
-        .spacer-item {
-            height: 30px;
-            border: none;
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
         }
     </style>
 </head>
 <body>
 
-    <div id="toast">Disalin</div>
+    <div id="toast">Berhasil disalin</div>
 
     <div class="app-container">
-        <h1>Catatan Affiliate</h1>
-        
-        <div class="button-grid">
-            <button class="copy-btn" onclick="salinTeks('Desa Kawistolegi, RT 03/02, Klagen (Rumah Kembar Ijo)', 'Alamat 1 disalin')">Salin Alamat 1</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Cendana No 3, Desa Kawistolegi RT 02/05 (Rumah Kembar Ijo)', 'Alamat 2 disalin')">Salin Alamat 2</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Dharma Husada No 15, Desa Kawistolegi RW 10/03 (Rumah Kembar Ijo)', 'Alamat 3 disalin')">Salin Alamat 3</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Kembang Wangi 2, Desa Kawistolegi RW 05/01 (Rumah Kembar Ijo)', 'Alamat 4 disalin')">Salin Alamat 4</button>
-            <button class="copy-btn" onclick="salinTeks('Ds. Kawistolegi RT 04/02, Dsn. Klagen (Rumah Kembar Ijo)', 'Alamat 5 disalin')">Salin Alamat 5</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Sumpah Pemuda, Desa Kawistolegi RT 01/05 (Rumah Kembar Ijo)', 'Alamat 6 disalin')">Salin Alamat 6</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Dr. Sahid, Ds. Kawistolegi RT 07/03 (Rumah Kembar Ijo)', 'Alamat 7 disalin')">Salin Alamat 7</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Sampang Timur, Desa Kawistolegi, RT 03/03 (Rumah Kembar Ijo)', 'Alamat 8 disalin')">Salin Alamat 8</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Tambah Udang I, Ds. Kawistolegi, Klagen, RT 04/01 (Rumah Kembar Ijo)', 'Alamat 9 disalin')">Salin Alamat 9</button>
-            <button class="copy-btn" onclick="salinTeks('Jl. Anggrek Putih II, Desa Kawistolegi, Klagen, RW 07/01 (Rumah Kembar Ijo)', 'Alamat 10 disalin')">Salin Alamat 10</button>
+        <div class="shopee-header">
+            <h1>Catatan Affiliate</h1>
         </div>
 
-        <div class="name-generator-section">
-            <h2>Buat Nama Acak</h2>
-            <input type="text" class="textbox" id="nameOutput" placeholder="Klik tombol di bawah untuk membuat nama" readonly />
+        <div class="section-card">
+            <h2 class="section-title">Buat Nama Acak</h2>
+            <input type="text" class="textbox" id="nameOutput" placeholder="Klik tombol di bawah" readonly />
             
             <div class="form-group">
                 <span class="form-group-title">Jenis Kelamin</span>
@@ -258,11 +250,14 @@
                 </div>
             </div>
             
-            <button class="copy-btn" id="copyNameButton" style="margin-top: 15px; background-color: #28a745;">Buat & Salin Nama</button>
+            <button class="btn-action" id="copyNameButton" style="margin-top: 8px;">Buat & Salin Nama</button>
         </div>
-        <h1 style="font-size: 16px; margin-top: 25px;">Daftar Produk Affiliate</h1>
-        <div id="status" class="loading">Memuat produk...</div>
-        <ul class="note-list" id="productList"></ul>
+
+        <div class="section-card">
+            <h2 class="section-title">Daftar Produk Affiliate</h2>
+            <div id="status" class="loading">Memuat produk...</div>
+            <ul class="note-list" id="productList"></ul>
+        </div>
     </div>
 
     <script>
@@ -275,7 +270,6 @@
         const checkDipisah = document.getElementById("checkDipisah");
         const copyNameButton = document.getElementById("copyNameButton");
 
-        // Logika untuk checkbox format (memastikan hanya salah satu yang aktif)
         function handleCheckbox(checkbox) {
             if (checkbox.id === "checkDigabung" && checkbox.checked) {
                 checkDipisah.checked = false;
@@ -286,7 +280,6 @@
         checkDigabung.addEventListener("change", () => handleCheckbox(checkDigabung));
         checkDipisah.addEventListener("change", () => handleCheckbox(checkDipisah));
 
-        // Fungsi membuat nama acak
         function generateName() {
             const genderSelected = document.querySelector('input[name="gender"]:checked').value;
             let namePool = genderSelected === "cowok" ? maleNames : genderSelected === "cewek" ? femaleNames : (Math.random() < 0.5 ? maleNames : femaleNames);
@@ -294,7 +287,6 @@
             let firstName = namePool[Math.floor(Math.random() * namePool.length)];
             let lastName = namePool[Math.floor(Math.random() * namePool.length)];
             
-            // Cegah nama depan dan belakang sama (contoh: Agus Agus)
             while (firstName === lastName) {
                 lastName = namePool[Math.floor(Math.random() * namePool.length)];
             }
@@ -304,16 +296,12 @@
             return fullName;
         }
 
-        // Event saat tombol Buat & Salin Nama ditekan
         copyNameButton.addEventListener("click", () => {
             const generatedName = generateName();
-            // Menggunakan fungsi salinTeks bawaan di bawah untuk menyalin nama
             salinTeks(generatedName, `Nama disalin: ${generatedName}`);
         });
-        // ================= AKHIR LOGIKA GENERATOR NAMA =================
 
-
-        // ================= LOGIKA CATATAN AFFILIATE BAWAAN =================
+        // ================= LOGIKA CATATAN AFFILIATE & KLIK LINK =================
         const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
@@ -332,16 +320,10 @@
             
             try {
                 const berhasil = document.execCommand('copy');
-                if (berhasil) {
-                    tampilkanToast(pesanSukses);
-                } else {
-                    tampilkanToast("Gagal menyalin");
-                }
+                if (berhasil) tampilkanToast(pesanSukses);
             } catch (err) {
-                console.error("Gagal menyalin:", err);
                 tampilkanToast("Gagal menyalin");
             }
-            
             tempTextArea.blur(); 
             document.body.removeChild(tempTextArea);
         }
@@ -350,14 +332,21 @@
             const toast = document.getElementById("toast");
             toast.innerText = pesan;
             toast.className = "show";
-            
-            setTimeout(() => { 
-                toast.className = toast.className.replace("show", ""); 
-            }, 2000);
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
         }
 
-        function bukaDanTutup(url) {
-            window.open(url, '_blank');
+        // Fungsi baru untuk mengeksekusi klik agar affiliate terekam dan buka App Shopee
+        function bukaTautanAffiliate(url) {
+            // Membuat elemen anchor <a> sementara untuk mensimulasikan klik asli
+            // Ini memastikan tracking cookie berjalan dan deep-link hp terbuka
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // Logika median untuk menutup jendela setelah aplikasi Shopee terbuka (sesuai kode lamamu)
             setTimeout(() => {
                 window.location.href = 'median://window/close';
                 window.close();
@@ -367,12 +356,9 @@
         async function fetchProducts() {
             try {
                 const response = await fetch(GIST_URL);
-                if (!response.ok) {
-                    throw new Error('Gagal mengambil data jaringan');
-                }
+                if (!response.ok) throw new Error('Gagal mengambil data');
                 
                 const textData = await response.text();
-                
                 statusDiv.style.display = 'none';
 
                 const lines = textData.split('\n');
@@ -380,29 +366,23 @@
 
                 lines.forEach(line => {
                     if (line.trim() === '') return;
-
                     const parts = line.split('|');
                     
                     if (parts.length >= 2) {
                         productCount++; 
                         const nama = parts[0].trim();
                         const link = parts[1].trim();
-
-                        // ---- LOGIKA PERUBAHAN NOMOR ----
-                        // Menghitung nomor tampil agar kembali ke 1 setelah kelipatan 6
                         let displayCount = ((productCount - 1) % 6) + 1;
 
                         const li = document.createElement('li');
-                        li.className = 'note-item';
+                        li.className = 'product-item';
                         
+                        // Layout tombol baru: Tombol dengan nama produk + tombol salin link kecil
                         li.innerHTML = `
-                            <span class="product-name">${displayCount}. ${nama}</span>
-                            <div class="link-container">
-                                <a onclick="bukaDanTutup('${link}')" class="product-link">
-                                    ${link}
-                                </a>
-                                <button class="copy-link-btn" onclick="salinTeks('${link}', 'Link disalin')">Salin</button>
-                            </div>
+                            <button class="btn-product-link" onclick="bukaTautanAffiliate('${link}')">
+                                ${displayCount}. ${nama}
+                            </button>
+                            <button class="btn-copy-small" onclick="salinTeks('${link}', 'Link berhasil disalin')">Salin Link</button>
                         `;
                         
                         productList.appendChild(li);
@@ -414,11 +394,9 @@
                         }
                     }
                 });
-
             } catch (error) {
                 statusDiv.className = 'error';
-                statusDiv.innerText = 'Gagal memuat catatan produk. Pastikan URL Gist benar.';
-                console.error('Error fetching data:', error);
+                statusDiv.innerText = 'Gagal memuat produk. Cek koneksi internetmu.';
             }
         }
 
