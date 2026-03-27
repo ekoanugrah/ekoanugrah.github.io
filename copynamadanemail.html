@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copy and Increment Email, Nama Acak & Link Produk</title>
+    <title>Copy and Increment Email, Nama Acak & Link Affiliate</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,11 +52,11 @@
         }
 
         .btn-success {
-            background-color: #28a745;
+            background-color: #ff5722; /* Warna khas Shopee */
         }
 
         .btn-success:hover {
-            background-color: #218838;
+            background-color: #e64a19;
         }
 
         .toast {
@@ -110,7 +110,6 @@
             color: #666;
         }
 
-        /* Tambahan style untuk kotak nama */
         #nameBox {
             font-weight: bold;
             font-size: 18px;
@@ -141,8 +140,12 @@
     </div>
 
     <div class="container" id="productContainer">
-        <div class="history-title">Link Produk:</div>
-        <button class="btn-success" onclick="bukaBrowserBawaan('https://www.tokopedia.com/contoh-produk')">Buka di Browser Bawaan</button>
+        <div class="history-title">Link Affiliate Shopee:</div>
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Klik tombol di bawah untuk langsung menuju produk.</p>
+        
+        <button class="btn-success" onclick="bukaBrowserBawaan('https://ekoanugrah.github.io/directproduk.html')">
+            🛒 Buka Link Shopee
+        </button>
     </div>
 
     <div id="toast" class="toast"></div>
@@ -272,7 +275,6 @@
             localStorage.setItem('email', emailBox.value);
         }
 
-        // Menambahkan email ke riwayat tampilan
         function addEmailToHistoryList(email, time) {
             const historyList = document.getElementById('historyList');
             const listItem = document.createElement('li');
@@ -289,7 +291,6 @@
             historyList.prepend(listItem);
         }
 
-        // Salin dan bersihkan riwayat
         function copyAndClearHistory() {
             const emailHistory = JSON.parse(localStorage.getItem('emailHistory')) || [];
             if(emailHistory.length === 0) {
@@ -311,7 +312,6 @@
             document.getElementById('historyList').innerHTML = '';
         }
 
-        // Menampilkan notifikasi Toast
         function showToast(message) {
             const toast = document.getElementById("toast");
             toast.textContent = message;
@@ -321,21 +321,24 @@
             }, 3000);
         }
 
-        // FUNGSI BARU: Buka Browser Bawaan (Bypass WebView)
+        // FUNGSI BARU: Buka link langsung ke browser bawaan untuk melacak stat affiliate
         function bukaBrowserBawaan(url) {
+            // Membuka URL di tab/browser baru agar stat klik affiliate tercatat server Shopee
             let success = window.open(url, '_blank', 'noopener,noreferrer');
 
-            // Jika diblokir oleh WebView, gunakan trik Intent khusus Android
+            // Jika diblokir oleh WebView dalam aplikasi buatan (seperti APK), 
+            // kita gunakan Intent khusus Android agar melempar link ke luar aplikasi (misal Chrome)
             if (!success || success.closed || typeof success.closed == 'undefined') {
                 const isAndroid = /android/i.test(navigator.userAgent);
                 
                 if (isAndroid) {
                     let cleanUrl = url.replace(/^https?:\/\//, '');
                     let isHttps = url.startsWith('https') ? 'https' : 'http';
+                    // Format khusus agar HP Android melempar link ke Browser Eksternal
                     let intentUrl = `intent://${cleanUrl}#Intent;scheme=${isHttps};action=android.intent.action.VIEW;end;`;
                     window.location.href = intentUrl;
                 } else {
-                    // Fallback normal untuk perangkat selain Android
+                    // Fallback jika bukan Android (misal iOS)
                     window.location.href = url; 
                 }
             }
