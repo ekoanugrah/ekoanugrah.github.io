@@ -3,345 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copy and Increment Email, Nama Acak & Link Affiliate</title>
+    <title>My Shopee Affiliate Notes</title>
     <style>
+        :root {
+            --shopee-orange: #ee4d2d; 
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-main: rgba(0,0,0,.8);
+            --text-muted: rgba(0,0,0,.54);
+            --border-color: #e0e0e0;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
             margin: 0;
-            background-color: #f0f0f0;
-            align-items: center;
-        }
-
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 350px;
-            margin: 10px 0;
-        }
-
-        input {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            margin-top: 5px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-success {
-            background-color: #ff5722; /* Warna khas Shopee */
-        }
-
-        .btn-success:hover {
-            background-color: #e64a19;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 14px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: none;
-            z-index: 1000;
-        }
-
-        .history {
-            margin-top: 15px;
-            text-align: left;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .history-title {
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-
-        .history-list {
-            list-style-type: none;
             padding: 0;
-        }
-
-        .history-list li {
-            background: #f9f9f9;
-            padding: 5px;
-            margin: 5px 0;
-            border-radius: 5px;
-            font-size: 14px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
         }
 
-        .history-list li span {
-            display: inline-block;
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 20px;
         }
 
-        .history-list li span.time {
-            color: #666;
+        /* Header Tema Shopee */
+        .shopee-header {
+            background-color: var(--shopee-orange);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        #nameBox {
-            font-weight: bold;
+        
+        .shopee-header h1 {
+            margin: 0;
             font-size: 18px;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            word-break: break-all;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* Card Section Umum */
+        .section-card {
+            background-color: var(--card-bg);
+            margin: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 15px;
+            color: var(--text-main);
+            margin: 0 0 12px 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Generator Nama */
+        .textbox {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            background-color: #fafafa;
+            color: var(--shopee-orange);
+            font-weight: bold;
+            outline: none;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            gap: 16px;
+        }
+
+        .radio-group label, .checkbox-group label {
+            font-size: 13px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .btn-action {
+            width: 100%;
+            background-color: var(--shopee-orange);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 200px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 1000;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="nameContainer">
-        <div class="history-title">Generator Nama:</div>
-        <div id="nameBox">NAMA ACAK GENERATOR</div>
-        <button id="copyButton" onclick="generateAndCopyName()">Generate & Salin Nama</button>
-    </div>
 
-    <div class="container" id="emailContainer">
-        <div class="history-title">Email Generator:</div>
-        <input type="text" id="emailBox" value="yandu1@gmail.com">
-        <button onclick="copyAndIncrement()">Copy & Urutkan</button>
-        <button onclick="copyAndClearHistory()">Salin Riwayat Email</button>
-        <div class="history">
-            <div class="history-title">Riwayat Email:</div>
-            <ul id="historyList" class="history-list"></ul>
+    <div id="toast">Berhasil disalin</div>
+
+    <div class="app-container">
+        <div class="shopee-header">
+            <h1>Catatan Affiliate</h1>
+        </div>
+
+        <div class="section-card">
+            <h2 class="section-title">Buat Nama Acak</h2>
+            <input type="text" class="textbox" id="nameOutput" placeholder="Klik tombol di bawah" readonly />
+            
+            <div class="form-group">
+                <span class="form-group-title">Jenis Kelamin</span>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="acak" checked> Acak</label>
+                    <label><input type="radio" name="gender" value="cowok"> Cowok</label>
+                    <label><input type="radio" name="gender" value="cewek"> Cewek</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <span class="form-group-title">Format Nama</span>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="checkDigabung" value="digabung"> Digabung</label>
+                    <label><input type="checkbox" id="checkDipisah" value="dipisah" checked> Dipisah</label>
+                </div>
+            </div>
+            
+            <button class="btn-action" id="copyNameButton" style="margin-top: 8px;">Buat & Salin Nama</button>
+        </div>
+
+        <div class="section-card" style="padding: 12px 16px;">
+            <button class="btn-action" style="background-color: #00bfa5;" onclick="salinTeks('https://ekoanugrah.github.io/directproduk.html', 'Link Direct Produk disalin')">
+                Salin Link Direct Produk
+            </button>
         </div>
     </div>
 
-    <div class="container" id="productContainer">
-        <div class="history-title">Link Affiliate Shopee:</div>
-        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Klik tombol di bawah untuk langsung membuka produk di browser.</p>
-        
-        <button class="btn-success" onclick="bukaBrowserBawaan('https://ekoanugrah.github.io/directproduk.html')">
-            🛒 Buka Link Shopee
-        </button>
-    </div>
-
-    <div id="toast" class="toast"></div>
-
     <script>
-        // Array Nama Laki-laki
-        const maleNames = ["Adrian", "Aditya", "Agusto", "Ahmadi", "Ajiman", "Akbari", "Alamin", "Aldrin", "Alexio", "Alifin",
-        "Aliham", "Alvino", "Amiron", "Andrey", "Andria", "Anggri", "Anwaro", "Ardino", "Ariman", "Arifin",
-        "Asepar", "Bagito", "Bambang", "Bayuma", "Bimaru", "Bobbis", "Budiro", "Cahyan", "Candran", "Daffan",
-        "Damaru", "Danilo", "Danian", "Darmal", "Dedino", "Dedyan", "Denilo", "Dewano", "Dianri", "Dikman",
-        "Dikaro", "Dimasy", "Dinora", "Dionel", "Donilo", "Dwiyan", "Edrian", "Edwaro", "Ekoyan", "Elando",
-        "Elihan", "Elvino", "Emilan", "Erican", "Evanio", "Fadlio", "Fajrio", "Fakriz", "Fandry", "Farhano",
-        "Fauzri", "Febrian", "Felicio", "Fikran", "Firmal", "Fransy", "Galino", "Galang", "Gemaro", "Gilang",
-        "Gionan", "Guntor", "Hadiza", "Hafizi", "Haikal", "Halima", "Handry", "Hanifo", "Harito", "Haryon",
-        "Hendry", "Henris", "Hermano", "Herrio", "Hidayo", "Husein", "Ianosy", "Ibardo", "Ibrahim", "Idrisy",
-        "Ikhsan", "Ilhano", "Indrani", "Iqbalz", "Irfano", "Ismail", "Ivanyo", "Jafaro", "Jakran", "Jamalz",
-        "Jayaro", "Jeffri", "Jerrio", "Johana", "Jokoyo", "Jonath", "Jordan", "Julian", "Kamilo", "Kevinm",
-        "Khalid", "Kikman", "Krisno", "Krishno", "Leonar", "Lukman", "Lutfik", "Mahend", "Maulid", "Muhamd",
-        "Muklis", "Nandan", "Naufal", "Nicola", "Nikoyo", "Nizaro", "Novano", "Nurhan", "Omaryo", "Oscaro",
-        "Pandru", "Panjor", "Pashan", "Pratma", "Praygo", "Putram", "Rafino", "Rahmat", "Ramdan", "Ramyar",
-        "Randyz", "Ranggu", "Rianos", "Rickyo", "Ridhom", "Rifkan", "Rizalo", "Rizkio", "Robbyr", "Rudian",
-        "Ryanzo", "Saiful", "Samsul", "Samuel", "Sandio", "Satris", "Setwan", "Sigita", "Sulaim", "Syahro",
-        "Syamsu", "Taufiq", "Teguzo", "Tionel", "Tonilo", "Triano", "Tyomor", "Untoro", "Usmani", "Wawani",
-        "Wiboyo", "Widodo", "Wirano", "Yanura", "Yogaro", "Yogita", "Yudist", "Yusufi", "Zaidan", "Zainal",
-        "Zakiro", "Abdrah", "Adhiyo", "Akhmad", "Alamiz", "Aldyon", "Aminoz", "Anango", "Anasta", "Anindy",
-        "Antoni", "Ardian", "Arifin", "Arjuna", "Armany", "Arsyda", "Asrulo", "Azizur", "Bagiro", "Bakriy",
-        "Beniro", "Bimaru", "Bintar", "Bobbiq", "Bondri", "Cahyan", "Chandr", "Ciptan", "Cokron", "Daffar",
-        "Damian", "Dandio", "Dedina", "Dendro", "Derryz", "Didino", "Dinoro", "Dodino", "Edward", "Egaorn",
-        "Ekanyo", "Erwins", "Fadilo", "Farido", "Farizo", "Faturo", "Fauzan", "Febris", "Ferral", "Fikrol",
-        "Firdao", "Fitran", "Fuadro", "Gerrio", "Ghifar", "Gibron", "Gunman", "Hamido", "Hardyi", "Harris",
-        "Hartyo", "Hasyim", "Hendro", "Herwan", "Hilman", "Husena", "Ihsano", "Ikbalz", "Imamal", "Indara",
-        "Irsado", "Iskano", "Iwanyo", "Jaluzo", "Jameso", "Kamaly", "Krisor", "Laoday", "Lukito", "Mansuy",
-        "Marioz", "Martio", "Marwan", "Masrio", "Megany", "Mikoro", "Morgan", "Muchli", "Nadifo", "Natano",
-        "Nasiru", "Naufaz", "Nazril", "Okkoyo", "Ottoro", "Padlio", "Parman", "Rachmi", "Radity", "Ramziy",
-        "Rasyid", "Rezano", "Rianto", "Ridoma", "Rindro", "Rionan", "Robiro", "Salman", "Saputr", "Sarwon",
-        "Satyar", "Sayido", "Septio", "Sidiko", "Sofyaz", "Subagy", "Sukmar", "Suryos", "Tamaon", "Taufik",
-        "Tegusa", "Tirtan", "Topano", "Tresny", "Udinor", "Usnami", "Utomar", "Vegazi", "Vikris", "Wahyua",
-        "Waluya", "Wirato", "Yahyan", "Yansio", "Zamzam", "Zulfik"];
+        // ================= DATABASE NAMA & LOGIKA GENERATOR =================
+        
+        // Database Nama Pria
+        const maleFirst = ["Adi","Aditya","Agung","Agus","Ahmad","Andi","Angga","Arief","Bagas","Bagus","Bambang","Bayu","Bima","Budi","Candra","Dedi","Denny","Dimas","Dwi","Eko","Fajar","Fahmi","Farhan","Ferry","Galih","Gilang","Hadi","Hasan","Hendra","Heru","Ibrahim","Ilham","Imam","Indra","Irfan","Iwan","Joko","Kevin","Kiki","Lukman","Maulana","Muhammad","Naufal","Nur","Pratama","Putra","Rafi","Rahmat","Rangga","Reza","Rian","Ridwan","Rizki","Rudi","Satria","Surya","Taufik","Tegar","Tri","Wahyudi","Yogi","Yusuf","Zainal"];
+        const maleLast = ["Saputra","Pratama","Wijaya","Setiawan","Nugroho","Santoso","Wibowo","Hidayat","Syahputra","Baskoro","Pangestu","Gunawan","Susanto","Ramadhan","Firmansyah","Mahendra","Fauzi","Kusuma","Riyadi","Irawan","Haryanto","Sanjaya","Prasetyo","Gumilar","Yulianto","Prakoso","Mulyadi","Rahardjo","Purnomo","Wicaksono","Suryono","Handoko","Yudhistira","Anggara","Permana","Lesmana","Setyawan","Prabowo","Suryadi","Budiman","Darmawan","Kusnadi","Suhendra","Widodo","Pramana","Mahardika","Nugraha","Anugrah","Ferdian","Iskandar","Rizal","Hakim","Maulana","Ibrahim","Ridwan","Ghozali","Fadillah"];
 
-        // Array Nama Perempuan
-        const femaleNames = ["Aaliyah", "Abigail", "Adelina", "Adinda", "Adriana", "Afnanah", "Aishanti", "Aisyah", "Ajengti", "Alanna",
-        "Alinka", "Alisha", "Amalina", "Amarina", "Amelina", "Amirina", "Anastasia", "Andrina", "Anisya", "Antonia",
-        "Aurelia", "Auriana", "Azaleah", "Azimina", "Azriela", "Bianca", "Bintang", "Cahaya", "Camille", "Carmela",
-        "Cempaka", "Celinea", "Chelsea", "Chikaya", "Clarina", "Dahlina", "Damayanti", "Dianita", "Diandra", "Divaela",
-        "Dwiarti", "Elisaya", "Elysaia", "Emilia", "Endasha", "Erikina", "Evalina", "Farahna", "Fathina", "Febriani",
-        "Felicia", "Fitriani", "Gabriela", "Giselia", "Hanifah", "Hasniah", "Heliana", "Hestina", "Ilyasha", "Indriya", "Irfiana", "Isabela", "Ivanyah", "Jasmina", "Juliana", "Kamilla", "Kirana", "Larissa", "Lavinia", "Leandra", "Maharani", "Mahisya", "Malinda", "Malvina", "Meliana", "Melinda", "Mildana", "Milania", "Monika", "Mutiana", "Nabilah", "Nadiana", "Naomiah", "Natalia", "Naylina", "Novianna", "Olivia", "Puspita", "Rafika", "Raisina", "Renalia", "Rosalina", "Safrina", "Salinda", "Samantha", "Serafina", "Shafina", "Shanira", "Silvana", "Sofiana",
-        "Syafina", "Sylviana", "Tersina", "Tersiana", "Valencia", "Valerina", "Verenita", "Violetta", "Wahidah", "Wulanita",
-        "Yasminta", "Yohanita", "Zafrina", "Zanirah", "Zelinah", "Zivanna", "Zubairah", "Zulfiara", "Zuliyana", "Zurinata",
-        "Amarissa", "Angelina", "Annabeth", "Arletta", "Avelina", "Brianna", "Calista", "Celestia", "Clarissa", "Coraline",
-        "Darlina", "Deliana", "Denisya", "Desmira", "Deviana", "Dominia", "Edeline", "Eleanora", "Elisabet", "Eloisa",
-        "Emmaline", "Esperanza", "Eugenia", "Evaline", "Fabiola", "Faradina", "Febriana", "Florina", "Frederica", "Genoviva",
-        "Geraline", "Giselina", "Hadriana", "Halimah", "Hannissa", "Harietta", "Herliana", "Imanina", "Indriana", "Irinata",
-        "Izzanita", "Janetina", "Jesinta", "Joveline", "Karmilla", "Kasandra", "Keisiana", "Khadijah", "Kristina", "Laksmina",
-        "Lanovita", "Laurinda", "Leontina", "Lilianah", "Lindiana", "Liselina", "Lucillea", "Lunamara", "Madelina", "Mahendra",
-        "Marcelia", "Margenta", "Marietta", "Marietha", "Marilena", "Marindra", "Meilinda", "Melodina", "Milandra", "Mirabela",
-        "Myrianne", "Nafisina", "Najmiyah", "Narsilla", "Natassia", "Nazirah", "Nelliama", "Nessyrah", "Novarina", "Nuraylah",
-        "Nurazmah", "Nuriana", "Odelinda", "Onettina", "Ottalina", "Parasita", "Patricia", "Permatas", "Primasha", "Priscila",
-        "Radiyana", "Rafisya", "Rafisyan", "Ramandia", "Rashmiya", "Reginata", "Renaliya", "Rianesha", "Rionatta", "Rosamila",
-        "Rosyanda", "Rukmanah", "Safitria", "Salviana", "Samantara", "Saskiana", "Savienna", "Setyania", "Shaqeela", "Shavianna",
-        "Sherlita", "Shofiana", "Simarena", "Silviana", "Sivandre", "Slyvania", "Soleneva", "Sorantina", "Sufiyati", "Sulthani",
-        "Susyanda", "Sutriyana", "Sylvester", "Syuhania", "Tameriana", "Tashimira", "Tazmiyah", "Temariya", "Theophia", "Thessalia",
-        "Thoriahya", "Tiandraa", "Tiarnina", "Timoryah", "Triastina", "Triwanita", "Tsabirah", "Tsavrina", "Tsoviyana", "Ulfayana",
-        "Ummiarah", "Umrunita", "Urfiana", "Vaisilla", "Valenzia", "Valrennia", "Vessiana", "Viandria", "Vinoliah", "Virantia",
-        "Wajriani", "Waltinah", "Wantriya", "Wayuniar", "Winlatta", "Wirinata", "Wolindah", "Yarishma", "Yasvatra", "Yasyanti",
-        "Yasynara", "Yosavina", "Zailinya", "Zakiyrah", "Zarivana", "Zarlinah", "Zasfiya", "Zephina", "Zerahina", "Zhanriya",
-        "Zhivanna", "Zorvitha", "Zurhiyah", "Zuriyana", "Zylveria", "Zyvannah"];
+        // Database Nama Wanita
+        const femaleFirst = ["Adelia","Agnes","Aisyah","Amelia","Anisa","Anita","Aprilia","Ayu","Bella","Cahaya","Cindy","Citra","Desi","Dewi","Dian","Dinda","Eka","Elisa","Endah","Fani","Farah","Fatimah","Fitri","Hani","Indah","Intan","Irma","Jessica","Jihan","Julia","Kartika","Laila","Lestari","Lia","Lina","Linda","Lisa","Maria","Maya","Mega","Melati","Mia","Mila","Mutia","Nadia","Nia","Nina","Nisa","Novi","Nur","Nurul","Putri","Rahma","Rani","Ratih","Ratna","Ria","Rina","Rini","Riska","Rita","Sarah","Sinta","Siska","Siti","Sri","Tiara","Tina","Vina","Wulan","Yani","Yanti","Yulia","Yuni","Zahra"];
+        const femaleLast = ["Lestari","Sari","Putri","Anggraini","Maharani","Kusuma","Pertiwi","Susanti","Ningsih","Wati","Rahmawati","Novita","Fitriani","Handayani","Astuti","Wahyuni","Mulyani","Hapsari","Permatasari","Cahyani","Puspita","Kartika","Syafira","Nuraini","Amalia","Fatimah","Zahra","Aisyah","Nabila","Melati","Citra","Riana","Yuliana","Diana","Ratna","Larasati","Kirana","Pratiwi","Setiawati","Haryanti","Suryani","Widyastuti","Pujiastuti","Rahayu","Utami","Nugraheni","Widiyanti","Puspitasari","Wulandari","Safitri","Oktavia","Ramadhani","Kurniawati","Wardhani","Agustina","Salsabila","Azzahra","Nadhira","Ayunda","Amanda"];
+        
+        const nameOutput = document.getElementById("nameOutput");
+        const checkDigabung = document.getElementById("checkDigabung");
+        const checkDipisah = document.getElementById("checkDipisah");
+        const copyNameButton = document.getElementById("copyNameButton");
 
-        // Fungsi Generate Nama
-        function generateAndCopyName() {
-            const randomFromArray = arr => arr[Math.floor(Math.random() * arr.length)];
-            const name1 = randomFromArray(maleNames);
-            const name2 = randomFromArray(femaleNames);
-            const fullNameNoSpace = (name1 + name2).replace(/\s/g, ''); 
-            document.getElementById("nameBox").textContent = fullNameNoSpace;
-
-            const tempInput = document.createElement("input");
-            tempInput.value = fullNameNoSpace;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-
-            showToast(`Nama "${fullNameNoSpace}" telah disalin!`);
+        function handleCheckbox(checkbox) {
+            if (checkbox.id === "checkDigabung" && checkbox.checked) {
+                checkDipisah.checked = false;
+            } else if (checkbox.id === "checkDipisah" && checkbox.checked) {
+                checkDigabung.checked = false;
+            }
         }
+        checkDigabung.addEventListener("change", () => handleCheckbox(checkDigabung));
+        checkDipisah.addEventListener("change", () => handleCheckbox(checkDipisah));
 
-        // Load data saat halaman dibuka
-        window.onload = function() {
-            const savedEmail = localStorage.getItem('email');
-            const emailHistory = JSON.parse(localStorage.getItem('emailHistory')) || [];
-            const emailBox = document.getElementById('emailBox');
+        function generateName() {
+            const genderSelected = document.querySelector('input[name="gender"]:checked').value;
+            let poolFirst, poolLast;
 
-            if (savedEmail) emailBox.value = savedEmail;
-
-            emailHistory.forEach(item => {
-                addEmailToHistoryList(item.email, item.time);
-            });
-        }
-
-        // Fungsi Copy dan Increment Email
-        function copyAndIncrement() {
-            const emailBox = document.getElementById('emailBox');
-            const email = emailBox.value;
-
-            emailBox.select();
-            document.execCommand('copy');
-            showToast(`Email "${email}" telah disalin!`);
-
-            const emailHistory = JSON.parse(localStorage.getItem('emailHistory')) || [];
-            const timeString = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            emailHistory.unshift({ email, time: timeString });
-            localStorage.setItem('emailHistory', JSON.stringify(emailHistory));
-            addEmailToHistoryList(email, timeString);
-
-            const emailPartsFront = email.match(/^(\d+)(.*?)(@.*)/);
-            const emailPartsBack = email.match(/(.*?)(\d+)(@.*)/);
-            
-            if (emailPartsFront) {
-                let number = parseInt(emailPartsFront[1]) + 1;
-                emailBox.value = number + emailPartsFront[2] + emailPartsFront[3];
-            } else if (emailPartsBack) {
-                let number = parseInt(emailPartsBack[2]) + 1;
-                emailBox.value = emailPartsBack[1] + number + emailPartsBack[3];
+            if (genderSelected === "cowok") {
+                poolFirst = maleFirst;
+                poolLast = maleLast;
+            } else if (genderSelected === "cewek") {
+                poolFirst = femaleFirst;
+                poolLast = femaleLast;
             } else {
-                emailBox.value = '1' + email;
-            }
-
-            localStorage.setItem('email', emailBox.value);
-        }
-
-        function addEmailToHistoryList(email, time) {
-            const historyList = document.getElementById('historyList');
-            const listItem = document.createElement('li');
-
-            const emailSpan = document.createElement('span');
-            emailSpan.textContent = email;
-
-            const timeSpan = document.createElement('span');
-            timeSpan.textContent = time;
-            timeSpan.classList.add('time');
-
-            listItem.appendChild(emailSpan);
-            listItem.appendChild(timeSpan);
-            historyList.prepend(listItem);
-        }
-
-        function copyAndClearHistory() {
-            const emailHistory = JSON.parse(localStorage.getItem('emailHistory')) || [];
-            if(emailHistory.length === 0) {
-                showToast("Riwayat kosong!");
-                return;
-            }
-            
-            const emailList = emailHistory.map(item => item.email).join('\n');
-
-            const tempInput = document.createElement("textarea");
-            tempInput.value = emailList;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-
-            showToast("Riwayat email telah disalin ke clipboard!");
-            localStorage.removeItem('emailHistory');
-            document.getElementById('historyList').innerHTML = '';
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-            toast.textContent = message;
-            toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
-        }
-
-        // FUNGSI MEMBUKA LINK LANGSUNG KE BROWSER
-        function bukaBrowserBawaan(url) {
-            // Membuka URL di tab/browser baru agar stat klik affiliate tercatat server Shopee
-            let success = window.open(url, '_blank', 'noopener,noreferrer');
-
-            // Jika diblokir oleh WebView dalam aplikasi buatan (seperti APK), 
-            // kita gunakan Intent khusus Android agar melempar link ke luar aplikasi (misal Chrome)
-            if (!success || success.closed || typeof success.closed == 'undefined') {
-                const isAndroid = /android/i.test(navigator.userAgent);
-                
-                if (isAndroid) {
-                    let cleanUrl = url.replace(/^https?:\/\//, '');
-                    let isHttps = url.startsWith('https') ? 'https' : 'http';
-                    // Format khusus agar HP Android melempar link ke Browser Eksternal
-                    let intentUrl = `intent://${cleanUrl}#Intent;scheme=${isHttps};action=android.intent.action.VIEW;end;`;
-                    window.location.href = intentUrl;
+                // Jika Acak
+                if (Math.random() < 0.5) {
+                    poolFirst = maleFirst;
+                    poolLast = maleLast;
                 } else {
-                    // Fallback jika bukan Android (misal iOS atau desktop)
-                    window.location.href = url; 
+                    poolFirst = femaleFirst;
+                    poolLast = femaleLast;
                 }
             }
+            
+            let firstName = poolFirst[Math.floor(Math.random() * poolFirst.length)];
+            let lastName = poolLast[Math.floor(Math.random() * poolLast.length)];
+            
+            // Cegah nama depan dan belakang yang sama persis (misal: "Putri Putri")
+            while (firstName === lastName) {
+                lastName = poolLast[Math.floor(Math.random() * poolLast.length)];
+            }
+            
+            let fullName = checkDigabung.checked ? `${firstName}${lastName}` : `${firstName} ${lastName}`;
+            nameOutput.value = fullName;
+            return fullName;
+        }
+
+        copyNameButton.addEventListener("click", () => {
+            const generatedName = generateName();
+            salinTeks(generatedName, `Nama disalin: ${generatedName}`);
+        });
+
+        // ================= LOGIKA SALIN TEKS =================
+
+        function salinTeks(teks, pesanSukses) {
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = teks;
+            tempTextArea.style.position = "absolute";
+            tempTextArea.style.left = "-9999px";
+            tempTextArea.style.top = "-9999px";
+            tempTextArea.setAttribute("readonly", "");
+            
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            tempTextArea.setSelectionRange(0, 99999);
+            
+            try {
+                const berhasil = document.execCommand('copy');
+                if (berhasil) tampilkanToast(pesanSukses);
+            } catch (err) {
+                tampilkanToast("Gagal menyalin");
+            }
+            tempTextArea.blur(); 
+            document.body.removeChild(tempTextArea);
+        }
+
+        function tampilkanToast(pesan) {
+            const toast = document.getElementById("toast");
+            toast.innerText = pesan;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
         }
     </script>
 </body>
