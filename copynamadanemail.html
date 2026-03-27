@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copy and Increment Email & Nama Acak</title>
+    <title>Copy and Increment Email, Nama Acak & Link Produk</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -49,6 +49,14 @@
 
         button:hover {
             background-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
         }
 
         .toast {
@@ -101,91 +109,113 @@
         .history-list li span.time {
             color: #666;
         }
+
+        /* Tambahan style untuk kotak nama */
+        #nameBox {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
     <div class="container" id="nameContainer">
-        <div id="nameBox">"NAMA ACAK GENERATOR"</div>
-        <button id="copyButton" onclick="generateAndCopyName()">Salin Nama</button>
+        <div class="history-title">Generator Nama:</div>
+        <div id="nameBox">NAMA ACAK GENERATOR</div>
+        <button id="copyButton" onclick="generateAndCopyName()">Generate & Salin Nama</button>
     </div>
 
     <div class="container" id="emailContainer">
+        <div class="history-title">Email Generator:</div>
         <input type="text" id="emailBox" value="yandu1@gmail.com">
-        <button onclick="copyAndIncrement()">Copy</button>
+        <button onclick="copyAndIncrement()">Copy & Urutkan</button>
         <button onclick="copyAndClearHistory()">Salin Riwayat Email</button>
-        <div id="toast" class="toast"></div>
         <div class="history">
             <div class="history-title">Riwayat Email:</div>
             <ul id="historyList" class="history-list"></ul>
         </div>
     </div>
 
-    <script>
-        const maleNames = ["Adrian", "Aditya", "Agusto", "Ahmadi", "Ajiman", "Akbari", "Alamin", "Aldrin", "Alexio", "Alifin",
-    "Aliham", "Alvino", "Amiron", "Andrey", "Andria", "Anggri", "Anwaro", "Ardino", "Ariman", "Arifin",
-    "Asepar", "Bagito", "Bambang", "Bayuma", "Bimaru", "Bobbis", "Budiro", "Cahyan", "Candran", "Daffan",
-    "Damaru", "Danilo", "Danian", "Darmal", "Dedino", "Dedyan", "Denilo", "Dewano", "Dianri", "Dikman",
-    "Dikaro", "Dimasy", "Dinora", "Dionel", "Donilo", "Dwiyan", "Edrian", "Edwaro", "Ekoyan", "Elando",
-    "Elihan", "Elvino", "Emilan", "Erican", "Evanio", "Fadlio", "Fajrio", "Fakriz", "Fandry", "Farhano",
-    "Fauzri", "Febrian", "Felicio", "Fikran", "Firmal", "Fransy", "Galino", "Galang", "Gemaro", "Gilang",
-    "Gionan", "Guntor", "Hadiza", "Hafizi", "Haikal", "Halima", "Handry", "Hanifo", "Harito", "Haryon",
-    "Hendry", "Henris", "Hermano", "Herrio", "Hidayo", "Husein", "Ianosy", "Ibardo", "Ibrahim", "Idrisy",
-    "Ikhsan", "Ilhano", "Indrani", "Iqbalz", "Irfano", "Ismail", "Ivanyo", "Jafaro", "Jakran", "Jamalz",
-    "Jayaro", "Jeffri", "Jerrio", "Johana", "Jokoyo", "Jonath", "Jordan", "Julian", "Kamilo", "Kevinm",
-    "Khalid", "Kikman", "Krisno", "Krishno", "Leonar", "Lukman", "Lutfik", "Mahend", "Maulid", "Muhamd",
-    "Muklis", "Nandan", "Naufal", "Nicola", "Nikoyo", "Nizaro", "Novano", "Nurhan", "Omaryo", "Oscaro",
-    "Pandru", "Panjor", "Pashan", "Pratma", "Praygo", "Putram", "Rafino", "Rahmat", "Ramdan", "Ramyar",
-    "Randyz", "Ranggu", "Rianos", "Rickyo", "Ridhom", "Rifkan", "Rizalo", "Rizkio", "Robbyr", "Rudian",
-    "Ryanzo", "Saiful", "Samsul", "Samuel", "Sandio", "Satris", "Setwan", "Sigita", "Sulaim", "Syahro",
-    "Syamsu", "Taufiq", "Teguzo", "Tionel", "Tonilo", "Triano", "Tyomor", "Untoro", "Usmani", "Wawani",
-    "Wiboyo", "Widodo", "Wirano", "Yanura", "Yogaro", "Yogita", "Yudist", "Yusufi", "Zaidan", "Zainal",
-    "Zakiro", "Abdrah", "Adhiyo", "Akhmad", "Alamiz", "Aldyon", "Aminoz", "Anango", "Anasta", "Anindy",
-    "Antoni", "Ardian", "Arifin", "Arjuna", "Armany", "Arsyda", "Asrulo", "Azizur", "Bagiro", "Bakriy",
-    "Beniro", "Bimaru", "Bintar", "Bobbiq", "Bondri", "Cahyan", "Chandr", "Ciptan", "Cokron", "Daffar",
-    "Damian", "Dandio", "Dedina", "Dendro", "Derryz", "Didino", "Dinoro", "Dodino", "Edward", "Egaorn",
-    "Ekanyo", "Erwins", "Fadilo", "Farido", "Farizo", "Faturo", "Fauzan", "Febris", "Ferral", "Fikrol",
-    "Firdao", "Fitran", "Fuadro", "Gerrio", "Ghifar", "Gibron", "Gunman", "Hamido", "Hardyi", "Harris",
-    "Hartyo", "Hasyim", "Hendro", "Herwan", "Hilman", "Husena", "Ihsano", "Ikbalz", "Imamal", "Indara",
-    "Irsado", "Iskano", "Iwanyo", "Jaluzo", "Jameso", "Kamaly", "Krisor", "Laoday", "Lukito", "Mansuy",
-    "Marioz", "Martio", "Marwan", "Masrio", "Megany", "Mikoro", "Morgan", "Muchli", "Nadifo", "Natano",
-    "Nasiru", "Naufaz", "Nazril", "Okkoyo", "Ottoro", "Padlio", "Parman", "Rachmi", "Radity", "Ramziy",
-    "Rasyid", "Rezano", "Rianto", "Ridoma", "Rindro", "Rionan", "Robiro", "Salman", "Saputr", "Sarwon",
-    "Satyar", "Sayido", "Septio", "Sidiko", "Sofyaz", "Subagy", "Sukmar", "Suryos", "Tamaon", "Taufik",
-    "Tegusa", "Tirtan", "Topano", "Tresny", "Udinor", "Usnami", "Utomar", "Vegazi", "Vikris", "Wahyua",
-    "Waluya", "Wirato", "Yahyan", "Yansio", "Zamzam", "Zulfik"
-];
-        const femaleNames = ["Aaliyah", "Abigail", "Adelina", "Adinda", "Adriana", "Afnanah", "Aishanti", "Aisyah", "Ajengti", "Alanna",
-    "Alinka", "Alisha", "Amalina", "Amarina", "Amelina", "Amirina", "Anastasia", "Andrina", "Anisya", "Antonia",
-    "Aurelia", "Auriana", "Azaleah", "Azimina", "Azriela", "Bianca", "Bintang", "Cahaya", "Camille", "Carmela",
-    "Cempaka", "Celinea", "Chelsea", "Chikaya", "Clarina", "Dahlina", "Damayanti", "Dianita", "Diandra", "Divaela",
-    "Dwiarti", "Elisaya", "Elysaia", "Emilia", "Endasha", "Erikina", "Evalina", "Farahna", "Fathina", "Febriani",
-    "Felicia", "Fitriani", "Gabriela", "Giselia", "Hanifah", "Hasniah", "Heliana", "Hestina", "Ilyasha", "Indriya", "Irfiana", "Isabela", "Ivanyah", "Jasmina", "Juliana", "Kamilla", "Kirana", "Larissa", "Lavinia", "Leandra", "Maharani", "Mahisya", "Malinda", "Malvina", "Meliana", "Melinda", "Mildana", "Milania", "Monika", "Mutiana", "Nabilah", "Nadiana", "Naomiah", "Natalia", "Naylina", "Novianna", "Olivia", "Puspita", "Rafika", "Raisina", "Renalia", "Rosalina", "Safrina", "Salinda", "Samantha", "Serafina", "Shafina", "Shanira", "Silvana", "Sofiana",
-    "Syafina", "Sylviana", "Tersina", "Tersiana", "Valencia", "Valerina", "Verenita", "Violetta", "Wahidah", "Wulanita",
-    "Yasminta", "Yohanita", "Zafrina", "Zanirah", "Zelinah", "Zivanna", "Zubairah", "Zulfiara", "Zuliyana", "Zurinata",
-    "Amarissa", "Angelina", "Annabeth", "Arletta", "Avelina", "Brianna", "Calista", "Celestia", "Clarissa", "Coraline",
-    "Darlina", "Deliana", "Denisya", "Desmira", "Deviana", "Dominia", "Edeline", "Eleanora", "Elisabet", "Eloisa",
-    "Emmaline", "Esperanza", "Eugenia", "Evaline", "Fabiola", "Faradina", "Febriana", "Florina", "Frederica", "Genoviva",
-    "Geraline", "Giselina", "Hadriana", "Halimah", "Hannissa", "Harietta", "Herliana", "Imanina", "Indriana", "Irinata",
-    "Izzanita", "Janetina", "Jesinta", "Joveline", "Karmilla", "Kasandra", "Keisiana", "Khadijah", "Kristina", "Laksmina",
-    "Lanovita", "Laurinda", "Leontina", "Lilianah", "Lindiana", "Liselina", "Lucillea", "Lunamara", "Madelina", "Mahendra",
-    "Marcelia", "Margenta", "Marietta", "Marietha", "Marilena", "Marindra", "Meilinda", "Melodina", "Milandra", "Mirabela",
-    "Myrianne", "Nafisina", "Najmiyah", "Narsilla", "Natassia", "Nazirah", "Nelliama", "Nessyrah", "Novarina", "Nuraylah",
-    "Nurazmah", "Nuriana", "Odelinda", "Onettina", "Ottalina", "Parasita", "Patricia", "Permatas", "Primasha", "Priscila",
-    "Radiyana", "Rafisya", "Rafisyan", "Ramandia", "Rashmiya", "Reginata", "Renaliya", "Rianesha", "Rionatta", "Rosamila",
-    "Rosyanda", "Rukmanah", "Safitria", "Salviana", "Samantara", "Saskiana", "Savienna", "Setyania", "Shaqeela", "Shavianna",
-    "Sherlita", "Shofiana", "Simarena", "Silviana", "Sivandre", "Slyvania", "Soleneva", "Sorantina", "Sufiyati", "Sulthani",
-    "Susyanda", "Sutriyana", "Sylvester", "Syuhania", "Tameriana", "Tashimira", "Tazmiyah", "Temariya", "Theophia", "Thessalia",
-    "Thoriahya", "Tiandraa", "Tiarnina", "Timoryah", "Triastina", "Triwanita", "Tsabirah", "Tsavrina", "Tsoviyana", "Ulfayana",
-    "Ummiarah", "Umrunita", "Urfiana", "Vaisilla", "Valenzia", "Valrennia", "Vessiana", "Viandria", "Vinoliah", "Virantia",
-    "Wajriani", "Waltinah", "Wantriya", "Wayuniar", "Winlatta", "Wirinata", "Wolindah", "Yarishma", "Yasvatra", "Yasyanti",
-    "Yasynara", "Yosavina", "Zailinya", "Zakiyrah", "Zarivana", "Zarlinah", "Zasfiya", "Zephina", "Zerahina", "Zhanriya",
-    "Zhivanna", "Zorvitha", "Zurhiyah", "Zuriyana", "Zylveria", "Zyvannah"];
+    <div class="container" id="productContainer">
+        <div class="history-title">Link Produk:</div>
+        <button class="btn-success" onclick="bukaBrowserBawaan('https://www.tokopedia.com/contoh-produk')">Buka di Browser Bawaan</button>
+    </div>
 
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Array Nama Laki-laki
+        const maleNames = ["Adrian", "Aditya", "Agusto", "Ahmadi", "Ajiman", "Akbari", "Alamin", "Aldrin", "Alexio", "Alifin",
+        "Aliham", "Alvino", "Amiron", "Andrey", "Andria", "Anggri", "Anwaro", "Ardino", "Ariman", "Arifin",
+        "Asepar", "Bagito", "Bambang", "Bayuma", "Bimaru", "Bobbis", "Budiro", "Cahyan", "Candran", "Daffan",
+        "Damaru", "Danilo", "Danian", "Darmal", "Dedino", "Dedyan", "Denilo", "Dewano", "Dianri", "Dikman",
+        "Dikaro", "Dimasy", "Dinora", "Dionel", "Donilo", "Dwiyan", "Edrian", "Edwaro", "Ekoyan", "Elando",
+        "Elihan", "Elvino", "Emilan", "Erican", "Evanio", "Fadlio", "Fajrio", "Fakriz", "Fandry", "Farhano",
+        "Fauzri", "Febrian", "Felicio", "Fikran", "Firmal", "Fransy", "Galino", "Galang", "Gemaro", "Gilang",
+        "Gionan", "Guntor", "Hadiza", "Hafizi", "Haikal", "Halima", "Handry", "Hanifo", "Harito", "Haryon",
+        "Hendry", "Henris", "Hermano", "Herrio", "Hidayo", "Husein", "Ianosy", "Ibardo", "Ibrahim", "Idrisy",
+        "Ikhsan", "Ilhano", "Indrani", "Iqbalz", "Irfano", "Ismail", "Ivanyo", "Jafaro", "Jakran", "Jamalz",
+        "Jayaro", "Jeffri", "Jerrio", "Johana", "Jokoyo", "Jonath", "Jordan", "Julian", "Kamilo", "Kevinm",
+        "Khalid", "Kikman", "Krisno", "Krishno", "Leonar", "Lukman", "Lutfik", "Mahend", "Maulid", "Muhamd",
+        "Muklis", "Nandan", "Naufal", "Nicola", "Nikoyo", "Nizaro", "Novano", "Nurhan", "Omaryo", "Oscaro",
+        "Pandru", "Panjor", "Pashan", "Pratma", "Praygo", "Putram", "Rafino", "Rahmat", "Ramdan", "Ramyar",
+        "Randyz", "Ranggu", "Rianos", "Rickyo", "Ridhom", "Rifkan", "Rizalo", "Rizkio", "Robbyr", "Rudian",
+        "Ryanzo", "Saiful", "Samsul", "Samuel", "Sandio", "Satris", "Setwan", "Sigita", "Sulaim", "Syahro",
+        "Syamsu", "Taufiq", "Teguzo", "Tionel", "Tonilo", "Triano", "Tyomor", "Untoro", "Usmani", "Wawani",
+        "Wiboyo", "Widodo", "Wirano", "Yanura", "Yogaro", "Yogita", "Yudist", "Yusufi", "Zaidan", "Zainal",
+        "Zakiro", "Abdrah", "Adhiyo", "Akhmad", "Alamiz", "Aldyon", "Aminoz", "Anango", "Anasta", "Anindy",
+        "Antoni", "Ardian", "Arifin", "Arjuna", "Armany", "Arsyda", "Asrulo", "Azizur", "Bagiro", "Bakriy",
+        "Beniro", "Bimaru", "Bintar", "Bobbiq", "Bondri", "Cahyan", "Chandr", "Ciptan", "Cokron", "Daffar",
+        "Damian", "Dandio", "Dedina", "Dendro", "Derryz", "Didino", "Dinoro", "Dodino", "Edward", "Egaorn",
+        "Ekanyo", "Erwins", "Fadilo", "Farido", "Farizo", "Faturo", "Fauzan", "Febris", "Ferral", "Fikrol",
+        "Firdao", "Fitran", "Fuadro", "Gerrio", "Ghifar", "Gibron", "Gunman", "Hamido", "Hardyi", "Harris",
+        "Hartyo", "Hasyim", "Hendro", "Herwan", "Hilman", "Husena", "Ihsano", "Ikbalz", "Imamal", "Indara",
+        "Irsado", "Iskano", "Iwanyo", "Jaluzo", "Jameso", "Kamaly", "Krisor", "Laoday", "Lukito", "Mansuy",
+        "Marioz", "Martio", "Marwan", "Masrio", "Megany", "Mikoro", "Morgan", "Muchli", "Nadifo", "Natano",
+        "Nasiru", "Naufaz", "Nazril", "Okkoyo", "Ottoro", "Padlio", "Parman", "Rachmi", "Radity", "Ramziy",
+        "Rasyid", "Rezano", "Rianto", "Ridoma", "Rindro", "Rionan", "Robiro", "Salman", "Saputr", "Sarwon",
+        "Satyar", "Sayido", "Septio", "Sidiko", "Sofyaz", "Subagy", "Sukmar", "Suryos", "Tamaon", "Taufik",
+        "Tegusa", "Tirtan", "Topano", "Tresny", "Udinor", "Usnami", "Utomar", "Vegazi", "Vikris", "Wahyua",
+        "Waluya", "Wirato", "Yahyan", "Yansio", "Zamzam", "Zulfik"];
+
+        // Array Nama Perempuan
+        const femaleNames = ["Aaliyah", "Abigail", "Adelina", "Adinda", "Adriana", "Afnanah", "Aishanti", "Aisyah", "Ajengti", "Alanna",
+        "Alinka", "Alisha", "Amalina", "Amarina", "Amelina", "Amirina", "Anastasia", "Andrina", "Anisya", "Antonia",
+        "Aurelia", "Auriana", "Azaleah", "Azimina", "Azriela", "Bianca", "Bintang", "Cahaya", "Camille", "Carmela",
+        "Cempaka", "Celinea", "Chelsea", "Chikaya", "Clarina", "Dahlina", "Damayanti", "Dianita", "Diandra", "Divaela",
+        "Dwiarti", "Elisaya", "Elysaia", "Emilia", "Endasha", "Erikina", "Evalina", "Farahna", "Fathina", "Febriani",
+        "Felicia", "Fitriani", "Gabriela", "Giselia", "Hanifah", "Hasniah", "Heliana", "Hestina", "Ilyasha", "Indriya", "Irfiana", "Isabela", "Ivanyah", "Jasmina", "Juliana", "Kamilla", "Kirana", "Larissa", "Lavinia", "Leandra", "Maharani", "Mahisya", "Malinda", "Malvina", "Meliana", "Melinda", "Mildana", "Milania", "Monika", "Mutiana", "Nabilah", "Nadiana", "Naomiah", "Natalia", "Naylina", "Novianna", "Olivia", "Puspita", "Rafika", "Raisina", "Renalia", "Rosalina", "Safrina", "Salinda", "Samantha", "Serafina", "Shafina", "Shanira", "Silvana", "Sofiana",
+        "Syafina", "Sylviana", "Tersina", "Tersiana", "Valencia", "Valerina", "Verenita", "Violetta", "Wahidah", "Wulanita",
+        "Yasminta", "Yohanita", "Zafrina", "Zanirah", "Zelinah", "Zivanna", "Zubairah", "Zulfiara", "Zuliyana", "Zurinata",
+        "Amarissa", "Angelina", "Annabeth", "Arletta", "Avelina", "Brianna", "Calista", "Celestia", "Clarissa", "Coraline",
+        "Darlina", "Deliana", "Denisya", "Desmira", "Deviana", "Dominia", "Edeline", "Eleanora", "Elisabet", "Eloisa",
+        "Emmaline", "Esperanza", "Eugenia", "Evaline", "Fabiola", "Faradina", "Febriana", "Florina", "Frederica", "Genoviva",
+        "Geraline", "Giselina", "Hadriana", "Halimah", "Hannissa", "Harietta", "Herliana", "Imanina", "Indriana", "Irinata",
+        "Izzanita", "Janetina", "Jesinta", "Joveline", "Karmilla", "Kasandra", "Keisiana", "Khadijah", "Kristina", "Laksmina",
+        "Lanovita", "Laurinda", "Leontina", "Lilianah", "Lindiana", "Liselina", "Lucillea", "Lunamara", "Madelina", "Mahendra",
+        "Marcelia", "Margenta", "Marietta", "Marietha", "Marilena", "Marindra", "Meilinda", "Melodina", "Milandra", "Mirabela",
+        "Myrianne", "Nafisina", "Najmiyah", "Narsilla", "Natassia", "Nazirah", "Nelliama", "Nessyrah", "Novarina", "Nuraylah",
+        "Nurazmah", "Nuriana", "Odelinda", "Onettina", "Ottalina", "Parasita", "Patricia", "Permatas", "Primasha", "Priscila",
+        "Radiyana", "Rafisya", "Rafisyan", "Ramandia", "Rashmiya", "Reginata", "Renaliya", "Rianesha", "Rionatta", "Rosamila",
+        "Rosyanda", "Rukmanah", "Safitria", "Salviana", "Samantara", "Saskiana", "Savienna", "Setyania", "Shaqeela", "Shavianna",
+        "Sherlita", "Shofiana", "Simarena", "Silviana", "Sivandre", "Slyvania", "Soleneva", "Sorantina", "Sufiyati", "Sulthani",
+        "Susyanda", "Sutriyana", "Sylvester", "Syuhania", "Tameriana", "Tashimira", "Tazmiyah", "Temariya", "Theophia", "Thessalia",
+        "Thoriahya", "Tiandraa", "Tiarnina", "Timoryah", "Triastina", "Triwanita", "Tsabirah", "Tsavrina", "Tsoviyana", "Ulfayana",
+        "Ummiarah", "Umrunita", "Urfiana", "Vaisilla", "Valenzia", "Valrennia", "Vessiana", "Viandria", "Vinoliah", "Virantia",
+        "Wajriani", "Waltinah", "Wantriya", "Wayuniar", "Winlatta", "Wirinata", "Wolindah", "Yarishma", "Yasvatra", "Yasyanti",
+        "Yasynara", "Yosavina", "Zailinya", "Zakiyrah", "Zarivana", "Zarlinah", "Zasfiya", "Zephina", "Zerahina", "Zhanriya",
+        "Zhivanna", "Zorvitha", "Zurhiyah", "Zuriyana", "Zylveria", "Zyvannah"];
+
+        // Fungsi Generate Nama
         function generateAndCopyName() {
             const randomFromArray = arr => arr[Math.floor(Math.random() * arr.length)];
             const name1 = randomFromArray(maleNames);
             const name2 = randomFromArray(femaleNames);
-            const fullNameNoSpace = (name1 + name2).replace(/\s/g, ''); // hilangkan spasi
+            const fullNameNoSpace = (name1 + name2).replace(/\s/g, ''); 
             document.getElementById("nameBox").textContent = fullNameNoSpace;
 
             const tempInput = document.createElement("input");
@@ -198,6 +228,7 @@
             showToast(`Nama "${fullNameNoSpace}" telah disalin!`);
         }
 
+        // Load data saat halaman dibuka
         window.onload = function() {
             const savedEmail = localStorage.getItem('email');
             const emailHistory = JSON.parse(localStorage.getItem('emailHistory')) || [];
@@ -210,6 +241,7 @@
             });
         }
 
+        // Fungsi Copy dan Increment Email
         function copyAndIncrement() {
             const emailBox = document.getElementById('emailBox');
             const email = emailBox.value;
@@ -226,6 +258,7 @@
 
             const emailPartsFront = email.match(/^(\d+)(.*?)(@.*)/);
             const emailPartsBack = email.match(/(.*?)(\d+)(@.*)/);
+            
             if (emailPartsFront) {
                 let number = parseInt(emailPartsFront[1]) + 1;
                 emailBox.value = number + emailPartsFront[2] + emailPartsFront[3];
@@ -239,6 +272,7 @@
             localStorage.setItem('email', emailBox.value);
         }
 
+        // Menambahkan email ke riwayat tampilan
         function addEmailToHistoryList(email, time) {
             const historyList = document.getElementById('historyList');
             const listItem = document.createElement('li');
@@ -255,8 +289,14 @@
             historyList.prepend(listItem);
         }
 
+        // Salin dan bersihkan riwayat
         function copyAndClearHistory() {
             const emailHistory = JSON.parse(localStorage.getItem('emailHistory')) || [];
+            if(emailHistory.length === 0) {
+                showToast("Riwayat kosong!");
+                return;
+            }
+            
             const emailList = emailHistory.map(item => item.email).join('\n');
 
             const tempInput = document.createElement("textarea");
@@ -266,11 +306,12 @@
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            showToast("Riwayat email telah disalin ke papan klip!");
+            showToast("Riwayat email telah disalin ke clipboard!");
             localStorage.removeItem('emailHistory');
             document.getElementById('historyList').innerHTML = '';
         }
 
+        // Menampilkan notifikasi Toast
         function showToast(message) {
             const toast = document.getElementById("toast");
             toast.textContent = message;
@@ -278,6 +319,26 @@
             setTimeout(() => {
                 toast.style.display = 'none';
             }, 3000);
+        }
+
+        // FUNGSI BARU: Buka Browser Bawaan (Bypass WebView)
+        function bukaBrowserBawaan(url) {
+            let success = window.open(url, '_blank', 'noopener,noreferrer');
+
+            // Jika diblokir oleh WebView, gunakan trik Intent khusus Android
+            if (!success || success.closed || typeof success.closed == 'undefined') {
+                const isAndroid = /android/i.test(navigator.userAgent);
+                
+                if (isAndroid) {
+                    let cleanUrl = url.replace(/^https?:\/\//, '');
+                    let isHttps = url.startsWith('https') ? 'https' : 'http';
+                    let intentUrl = `intent://${cleanUrl}#Intent;scheme=${isHttps};action=android.intent.action.VIEW;end;`;
+                    window.location.href = intentUrl;
+                } else {
+                    // Fallback normal untuk perangkat selain Android
+                    window.location.href = url; 
+                }
+            }
         }
     </script>
 </body>
