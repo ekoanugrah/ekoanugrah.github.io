@@ -130,7 +130,20 @@
             margin: 0;
             display: grid;
             grid-template-columns: repeat(3, 1fr); 
-            gap: 10px; 
+            gap: 12px 10px; /* Jarak antar baris dan kolom */
+        }
+
+        /* Nama Kolom / Grup */
+        .group-title {
+            grid-column: 1 / -1; /* Membentang penuh 3 kolom */
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--shopee-orange);
+            margin-top: 8px;
+            margin-bottom: 2px;
+            text-align: left;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 6px;
         }
 
         .product-item {
@@ -139,63 +152,57 @@
             gap: 6px;
         }
 
-        /* Tombol Link Produk Utama (Bentuk Kotak) */
+        /* Tombol Link Produk Utama (Dipercantik agar lebih berisi) */
         .btn-product-link {
-            position: relative; /* Penting untuk menempatkan nomor di pojok */
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
             aspect-ratio: 1 / 1; 
-            background-color: #ffffff; 
-            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+            border: 1px solid #e0e0e0;
             color: var(--text-main);
-            padding: 12px 6px; 
-            border-radius: 8px;
+            padding: 14px 8px; 
+            border-radius: 12px; /* Sudut lebih membulat */
             cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04); /* Bayangan lebih dalam */
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
             -webkit-tap-highlight-color: transparent; 
+        }
+
+        .btn-product-link:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
 
         /* Gaya untuk teks nama produk di dalam tombol */
         .product-title {
-            font-size: 11px;
-            font-weight: 500;
+            font-size: 12px;
+            font-weight: 600; /* Ditebalkan */
             text-align: center;
-            line-height: 1.3;
+            line-height: 1.4;
             display: -webkit-box;
-            -webkit-line-clamp: 4;
+            -webkit-line-clamp: 3; /* Maksimal 3 baris */
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-break: break-word;
-            margin-top: 10px; 
+            margin-top: 14px; 
+            color: #333;
         }
 
-        /* Badge Nomor di Pojok Kiri Atas */
+        /* Badge Nomor di Pojok Kiri Atas (Tampilan pita/ribbon) */
         .product-number {
             position: absolute;
-            top: 6px;
-            left: 6px;
+            top: -1px;
+            left: -1px;
             background-color: var(--shopee-orange);
             color: white;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        /* Tombol Salin Link di Bawah Kotak */
-        .btn-copy-small {
-            width: 100%; 
-            background-color: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border-color);
-            padding: 6px 0;
-            border-radius: 6px;
             font-size: 11px;
-            cursor: pointer;
-            text-align: center;
-            -webkit-tap-highlight-color: transparent;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 12px 0 8px 0; /* Sudut asimetris untuk efek pita */
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
         }
 
         .loading, .error {
@@ -205,14 +212,6 @@
             font-size: 14px;
         }
         .error { color: var(--shopee-orange); }
-        
-        /* Spacer untuk memberikan jeda/enter setiap 6 produk */
-        .spacer-item { 
-            grid-column: 1 / -1; 
-            height: 24px; 
-            border: none; 
-            background: transparent; 
-        }
 
         /* Toast Notification */
         #toast {
@@ -272,12 +271,6 @@
             <button class="btn-action" id="copyNameButton" style="margin-top: 8px;">Buat & Salin Nama</button>
         </div>
 
-        <div class="section-card" style="padding: 12px 16px;">
-            <button class="btn-action" style="background-color: #00bfa5;" onclick="salinTeks('https://ekoanugrah.github.io/directproduk.html', 'Link Direct Produk disalin')">
-                Salin Link Direct Produk
-            </button>
-        </div>
-
         <div class="section-card">
             <h2 class="section-title">Daftar Produk Affiliate</h2>
             <div id="status" class="loading">Memuat produk...</div>
@@ -322,7 +315,6 @@
                 poolFirst = femaleFirst;
                 poolLast = femaleLast;
             } else {
-                // Jika Acak
                 if (Math.random() < 0.5) {
                     poolFirst = maleFirst;
                     poolLast = maleLast;
@@ -335,7 +327,6 @@
             let firstName = poolFirst[Math.floor(Math.random() * poolFirst.length)];
             let lastName = poolLast[Math.floor(Math.random() * poolLast.length)];
             
-            // Cegah nama depan dan belakang yang sama persis (misal: "Putri Putri")
             while (firstName === lastName) {
                 lastName = poolLast[Math.floor(Math.random() * poolLast.length)];
             }
@@ -408,6 +399,7 @@
 
                 const lines = textData.split('\n');
                 let productCount = 0; 
+                let groupCount = 1;
 
                 lines.forEach(line => {
                     if (line.trim() === '') return;
@@ -419,6 +411,15 @@
                         const link = parts[1].trim();
                         let displayCount = ((productCount - 1) % 3) + 1;
 
+                        // Menambahkan Nama Kolom/Grup setiap kelipatan 3 produk dimulai dari awal
+                        if (displayCount === 1) {
+                            const groupTitle = document.createElement('li');
+                            groupTitle.className = 'group-title';
+                            groupTitle.innerText = `Grup ${groupCount}`;
+                            productList.appendChild(groupTitle);
+                            groupCount++;
+                        }
+
                         const li = document.createElement('li');
                         li.className = 'product-item';
                         
@@ -427,16 +428,9 @@
                                 <span class="product-number">${displayCount}</span>
                                 <span class="product-title">${nama}</span>
                             </button>
-                            <button class="btn-copy-small" onclick="salinTeks('${link}', 'Link berhasil disalin')">Salin Link</button>
                         `;
                         
                         productList.appendChild(li);
-
-                        if (productCount % 3 === 0) {
-                            const spacer = document.createElement('li');
-                            spacer.className = 'spacer-item';
-                            productList.appendChild(spacer);
-                        }
                     }
                 });
             } catch (error) {
