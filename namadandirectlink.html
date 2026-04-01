@@ -130,16 +130,16 @@
             margin: 0;
             display: grid;
             grid-template-columns: repeat(3, 1fr); 
-            gap: 12px 10px; /* Jarak antar baris dan kolom */
+            gap: 12px 10px; 
         }
 
         /* Nama Kolom / Grup */
         .group-title {
-            grid-column: 1 / -1; /* Membentang penuh 3 kolom */
-            font-size: 14px;
+            grid-column: 1 / -1; 
+            font-size: 17px; /* Ukuran font diperbesar */
             font-weight: 700;
             color: var(--shopee-orange);
-            margin-top: 8px;
+            margin-top: 12px;
             margin-bottom: 2px;
             text-align: left;
             border-bottom: 2px solid #f0f0f0;
@@ -152,7 +152,7 @@
             gap: 6px;
         }
 
-        /* Tombol Link Produk Utama (Dipercantik agar lebih berisi) */
+        /* Tombol Link Produk Utama */
         .btn-product-link {
             position: relative;
             display: flex;
@@ -160,13 +160,13 @@
             justify-content: center;
             width: 100%;
             aspect-ratio: 1 / 1; 
-            background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
-            border: 1px solid #e0e0e0;
+            /* Background dihapus dari CSS karena akan diatur otomatis via JS per grup */
+            border: 1px solid rgba(0,0,0,0.05);
             color: var(--text-main);
             padding: 14px 8px; 
-            border-radius: 12px; /* Sudut lebih membulat */
+            border-radius: 12px; 
             cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04); /* Bayangan lebih dalam */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
             transition: transform 0.1s ease, box-shadow 0.1s ease;
             -webkit-tap-highlight-color: transparent; 
         }
@@ -179,11 +179,11 @@
         /* Gaya untuk teks nama produk di dalam tombol */
         .product-title {
             font-size: 12px;
-            font-weight: 600; /* Ditebalkan */
+            font-weight: 600; 
             text-align: center;
             line-height: 1.4;
             display: -webkit-box;
-            -webkit-line-clamp: 3; /* Maksimal 3 baris */
+            -webkit-line-clamp: 3; 
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-break: break-word;
@@ -191,7 +191,7 @@
             color: #333;
         }
 
-        /* Badge Nomor di Pojok Kiri Atas (Tampilan pita/ribbon) */
+        /* Badge Nomor di Pojok Kiri Atas */
         .product-number {
             position: absolute;
             top: -1px;
@@ -201,7 +201,7 @@
             font-size: 11px;
             font-weight: bold;
             padding: 4px 8px;
-            border-radius: 12px 0 8px 0; /* Sudut asimetris untuk efek pita */
+            border-radius: 12px 0 8px 0; 
             box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
         }
 
@@ -280,12 +280,8 @@
 
     <script>
         // ================= DATABASE NAMA & LOGIKA GENERATOR =================
-        
-        // Database Nama Pria
         const maleFirst = ["Adi","Aditya","Agung","Agus","Ahmad","Andi","Angga","Arief","Bagas","Bagus","Bambang","Bayu","Bima","Budi","Candra","Dedi","Denny","Dimas","Dwi","Eko","Fajar","Fahmi","Farhan","Ferry","Galih","Gilang","Hadi","Hasan","Hendra","Heru","Ibrahim","Ilham","Imam","Indra","Irfan","Iwan","Joko","Kevin","Kiki","Lukman","Maulana","Muhammad","Naufal","Nur","Pratama","Putra","Rafi","Rahmat","Rangga","Reza","Rian","Ridwan","Rizki","Rudi","Satria","Surya","Taufik","Tegar","Tri","Wahyudi","Yogi","Yusuf","Zainal"];
         const maleLast = ["Saputra","Pratama","Wijaya","Setiawan","Nugroho","Santoso","Wibowo","Hidayat","Syahputra","Baskoro","Pangestu","Gunawan","Susanto","Ramadhan","Firmansyah","Mahendra","Fauzi","Kusuma","Riyadi","Irawan","Haryanto","Sanjaya","Prasetyo","Gumilar","Yulianto","Prakoso","Mulyadi","Rahardjo","Purnomo","Wicaksono","Suryono","Handoko","Yudhistira","Anggara","Permana","Lesmana","Setyawan","Prabowo","Suryadi","Budiman","Darmawan","Kusnadi","Suhendra","Widodo","Pramana","Mahardika","Nugraha","Anugrah","Ferdian","Iskandar","Rizal","Hakim","Maulana","Ibrahim","Ridwan","Ghozali","Fadillah"];
-
-        // Database Nama Wanita
         const femaleFirst = ["Adelia","Agnes","Aisyah","Amelia","Anisa","Anita","Aprilia","Ayu","Bella","Cahaya","Cindy","Citra","Desi","Dewi","Dian","Dinda","Eka","Elisa","Endah","Fani","Farah","Fatimah","Fitri","Hani","Indah","Intan","Irma","Jessica","Jihan","Julia","Kartika","Laila","Lestari","Lia","Lina","Linda","Lisa","Maria","Maya","Mega","Melati","Mia","Mila","Mutia","Nadia","Nia","Nina","Nisa","Novi","Nur","Nurul","Putri","Rahma","Rani","Ratih","Ratna","Ria","Rina","Rini","Riska","Rita","Sarah","Sinta","Siska","Siti","Sri","Tiara","Tina","Vina","Wulan","Yani","Yanti","Yulia","Yuni","Zahra"];
         const femaleLast = ["Lestari","Sari","Putri","Anggraini","Maharani","Kusuma","Pertiwi","Susanti","Ningsih","Wati","Rahmawati","Novita","Fitriani","Handayani","Astuti","Wahyuni","Mulyani","Hapsari","Permatasari","Cahyani","Puspita","Kartika","Syafira","Nuraini","Amalia","Fatimah","Zahra","Aisyah","Nabila","Melati","Citra","Riana","Yuliana","Diana","Ratna","Larasati","Kirana","Pratiwi","Setiawati","Haryanti","Suryani","Widyastuti","Pujiastuti","Rahayu","Utami","Nugraheni","Widiyanti","Puspitasari","Wulandari","Safitri","Oktavia","Ramadhani","Kurniawati","Wardhani","Agustina","Salsabila","Azzahra","Nadhira","Ayunda","Amanda"];
         
@@ -400,9 +396,30 @@
                 const lines = textData.split('\n');
                 let productCount = 0; 
                 let groupCount = 1;
+                let pendingGroupName = null; // Menyimpan nama grup custom sementara
+
+                // Array warna-warna pastel/soft untuk setiap grup secara berurutan
+                const groupColors = [
+                    '#e3f2fd', // Biru muda
+                    '#e8f5e9', // Hijau muda
+                    '#fff3e0', // Oranye muda
+                    '#f3e5f5', // Ungu muda
+                    '#ffebee', // Merah muda / Pink
+                    '#e0f7fa', // Cyan muda
+                    '#fffde7', // Kuning muda
+                    '#eceff1'  // Abu-abu biru muda
+                ];
 
                 lines.forEach(line => {
-                    if (line.trim() === '') return;
+                    line = line.trim();
+                    if (line === '') return;
+
+                    // Jika baris TIDAK mengandung karakter '|', kita anggap itu nama grup custom
+                    if (!line.includes('|')) {
+                        pendingGroupName = line;
+                        return; // Lanjut proses baris berikutnya
+                    }
+                    
                     const parts = line.split('|');
                     
                     if (parts.length >= 2) {
@@ -410,21 +427,34 @@
                         const nama = parts[0].trim();
                         const link = parts[1].trim();
                         let displayCount = ((productCount - 1) % 3) + 1;
+                        let currentGroupIndex = Math.floor((productCount - 1) / 3);
 
-                        // Menambahkan Nama Kolom/Grup setiap kelipatan 3 produk dimulai dari awal
+                        // Buat Header Grup setiap awal kelipatan 3
                         if (displayCount === 1) {
                             const groupTitle = document.createElement('li');
                             groupTitle.className = 'group-title';
-                            groupTitle.innerText = `Grup ${groupCount}`;
+                            
+                            // Gunakan nama grup custom jika ada, kalau tidak gunakan default 'Grup X'
+                            if (pendingGroupName) {
+                                groupTitle.innerText = pendingGroupName;
+                            } else {
+                                groupTitle.innerText = `Grup ${groupCount}`;
+                            }
+                            
                             productList.appendChild(groupTitle);
                             groupCount++;
+                            pendingGroupName = null; // Kosongkan lagi setelah dipakai
                         }
+
+                        // Ambil warna secara bergantian berdasarkan urutan grup
+                        let colorHex = groupColors[currentGroupIndex % groupColors.length];
 
                         const li = document.createElement('li');
                         li.className = 'product-item';
                         
+                        // Set style inline background linear-gradient dengan warna spesifik grup
                         li.innerHTML = `
-                            <button class="btn-product-link" onclick="bukaTautanAffiliate('${link}')">
+                            <button class="btn-product-link" style="background: linear-gradient(135deg, ${colorHex} 0%, #ffffff 100%);" onclick="bukaTautanAffiliate('${link}')">
                                 <span class="product-number">${displayCount}</span>
                                 <span class="product-title">${nama}</span>
                             </button>
