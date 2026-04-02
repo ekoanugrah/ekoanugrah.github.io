@@ -232,7 +232,7 @@
 
     <div class="app-container">
         <div class="shopee-header">
-            <h1>Catatan Affiliate</h1>
+            <h1>Catatan Affiliate V2</h1>
         </div>
 
         <div class="section-card">
@@ -377,4 +377,121 @@ const daftarPatokan = [
                 let nomorRumah = Math.floor(Math.random() * 100) + 1;
                 if (Math.random() > 0.7) nomorRumah += ["A", "B", "C"][Math.floor(Math.random() * 3)];
                 let namaGang = Math.random() > 0.5 ? `, ${getRandomItem(daftarGang)}` : "";
-                const patokan = getRandomItem(daftar
+                const patokan = getRandomItem(daftarPatokan);
+
+                const stringFinal = `${namaLengkap}, ${namaJalan} No. ${nomorRumah}${namaGang}, ${patokan}, ${kecFinal}, ${kotaFinal}, ${provFinal}`;
+                
+                resultArea.value = stringFinal;
+                resultArea.select();
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+
+                tampilkanToast("✅ Data berhasil dibuat & disalin!");
+
+            } catch (error) {
+                console.error(error);
+                resultArea.value = "Gagal mengambil data wilayah. Pastikan internet Anda aktif.";
+                tampilkanToast("❌ Gagal memproses data");
+            } finally {
+                btnGenerate.disabled = false;
+                btnGenerate.innerText = "🎲 Buat & Salin Data Otomatis";
+            }
+        }
+
+        btnGenerate.addEventListener("click", generateCompleteData);
+
+        // ================= LOGIKA CATATAN AFFILIATE & KLIK LINK =================
+        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/edc48af3b64868baf88819cd9dfa1e65/raw/garapanaffiliate.txt';
+        const productList = document.getElementById('productList');
+        const statusDiv = document.getElementById('status');
+
+        function bukaTautanAffiliate(url) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            setTimeout(() => {
+                window.location.href = 'median://window/close';
+                window.close();
+            }, 800);
+        }
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch(GIST_URL);
+                if (!response.ok) throw new Error('Gagal mengambil data');
+                
+                const textData = await response.text();
+                statusDiv.style.display = 'none';
+
+                const lines = textData.split('\n');
+                let productCount = 0; 
+                let groupCount = 1;
+                let pendingGroupName = null; 
+
+                const groupColors = [
+                    '#e3f2fd', '#e8f5e9', '#fff3e0', '#f3e5f5', 
+                    '#ffebee', '#e0f7fa', '#fffde7', '#eceff1'
+                ];
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (line === '') return;
+
+                    if (!line.includes('|')) {
+                        pendingGroupName = line;
+                        return; 
+                    }
+                    
+                    const parts = line.split('|');
+                    
+                    if (parts.length >= 2) {
+                        productCount++; 
+                        const nama = parts[0].trim();
+                        const link = parts[1].trim();
+                        let displayCount = ((productCount - 1) % 3) + 1;
+                        let currentGroupIndex = Math.floor((productCount - 1) / 3);
+
+                        if (displayCount === 1) {
+                            const groupTitle = document.createElement('li');
+                            groupTitle.className = 'group-title';
+                            
+                            if (pendingGroupName) {
+                                groupTitle.innerText = pendingGroupName;
+                            } else {
+                                groupTitle.innerText = `Grup ${groupCount}`;
+                            }
+                            
+                            productList.appendChild(groupTitle);
+                            groupCount++;
+                            pendingGroupName = null; 
+                        }
+
+                        let colorHex = groupColors[currentGroupIndex % groupColors.length];
+
+                        const li = document.createElement('li');
+                        li.className = 'product-item';
+                        
+                        li.innerHTML = `
+                            <button class="btn-product-link" style="background: linear-gradient(135deg, ${colorHex} 0%, #ffffff 100%);" onclick="bukaTautanAffiliate('${link}')">
+                                <span class="product-number">${displayCount}</span>
+                                <span class="product-title">${nama}</span>
+                            </button>
+                        `;
+                        
+                        productList.appendChild(li);
+                    }
+                });
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.innerText = 'Gagal memuat produk. Cek koneksi internetmu.';
+            }
+        }
+
+        fetchProducts();
+    </script>
+</body>
+</html>
