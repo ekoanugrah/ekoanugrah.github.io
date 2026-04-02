@@ -70,45 +70,26 @@
             gap: 8px;
         }
 
-        /* Generator Nama */
-        .textbox {
+        /* Generator Alamat Textarea */
+        #resultArea {
             width: 100%;
-            box-sizing: border-box;
             padding: 12px;
             margin-bottom: 12px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 14px;
-            text-align: center;
+            color: var(--text-main);
             background-color: #fafafa;
-            color: var(--shopee-orange);
-            font-weight: bold;
+            box-sizing: border-box;
+            min-height: 80px;
+            resize: none;
+            font-family: inherit;
+            line-height: 1.5;
             outline: none;
         }
 
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-group-title {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .radio-group, .checkbox-group {
-            display: flex;
-            gap: 16px;
-        }
-
-        .radio-group label, .checkbox-group label {
-            font-size: 13px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
+        #resultArea:focus {
+            border-color: var(--shopee-orange);
         }
 
         .btn-action {
@@ -121,6 +102,16 @@
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: #d73a1e;
+        }
+
+        .btn-action:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
         }
 
         /* DAFTAR PRODUK AFFILIATE - GRID 3 KOLOM */
@@ -136,7 +127,7 @@
         /* Nama Kolom / Grup */
         .group-title {
             grid-column: 1 / -1; 
-            font-size: 17px; /* Ukuran font diperbesar */
+            font-size: 17px; 
             font-weight: 700;
             color: var(--shopee-orange);
             margin-top: 12px;
@@ -160,7 +151,6 @@
             justify-content: center;
             width: 100%;
             aspect-ratio: 1 / 1; 
-            /* Background dihapus dari CSS karena akan diatur otomatis via JS per grup */
             border: 1px solid rgba(0,0,0,0.05);
             color: var(--text-main);
             padding: 14px 8px; 
@@ -176,7 +166,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
 
-        /* Gaya untuk teks nama produk di dalam tombol */
         .product-title {
             font-size: 12px;
             font-weight: 600; 
@@ -191,7 +180,6 @@
             color: #333;
         }
 
-        /* Badge Nomor di Pojok Kiri Atas */
         .product-number {
             position: absolute;
             top: -1px;
@@ -244,31 +232,13 @@
 
     <div class="app-container">
         <div class="shopee-header">
-            <h1>Catatan Affiliate (Akun 2)</h1>
+            <h1>Catatan Affiliate</h1>
         </div>
 
         <div class="section-card">
-            <h2 class="section-title">Buat Nama Acak</h2>
-            <input type="text" class="textbox" id="nameOutput" placeholder="Klik tombol di bawah" readonly />
-            
-            <div class="form-group">
-                <span class="form-group-title">Jenis Kelamin</span>
-                <div class="radio-group">
-                    <label><input type="radio" name="gender" value="acak" checked> Acak</label>
-                    <label><input type="radio" name="gender" value="cowok"> Cowok</label>
-                    <label><input type="radio" name="gender" value="cewek"> Cewek</label>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <span class="form-group-title">Format Nama</span>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkDigabung" value="digabung"> Digabung</label>
-                    <label><input type="checkbox" id="checkDipisah" value="dipisah" checked> Dipisah</label>
-                </div>
-            </div>
-            
-            <button class="btn-action" id="copyNameButton" style="margin-top: 8px;">Buat & Salin Nama</button>
+            <h2 class="section-title">Generator Identitas & Alamat</h2>
+            <textarea id="resultArea" readonly placeholder="Klik tombol di bawah untuk membuat data acak..."></textarea>
+            <button class="btn-action" id="btnGenerate">🎲 Buat & Salin Data Otomatis</button>
         </div>
 
         <div class="section-card">
@@ -279,91 +249,7 @@
     </div>
 
     <script>
-        // ================= DATABASE NAMA & LOGIKA GENERATOR =================
-        const maleFirst = ["Adi","Aditya","Agung","Agus","Ahmad","Andi","Angga","Arief","Bagas","Bagus","Bambang","Bayu","Bima","Budi","Candra","Dedi","Denny","Dimas","Dwi","Eko","Fajar","Fahmi","Farhan","Ferry","Galih","Gilang","Hadi","Hasan","Hendra","Heru","Ibrahim","Ilham","Imam","Indra","Irfan","Iwan","Joko","Kevin","Kiki","Lukman","Maulana","Muhammad","Naufal","Nur","Pratama","Putra","Rafi","Rahmat","Rangga","Reza","Rian","Ridwan","Rizki","Rudi","Satria","Surya","Taufik","Tegar","Tri","Wahyudi","Yogi","Yusuf","Zainal"];
-        const maleLast = ["Saputra","Pratama","Wijaya","Setiawan","Nugroho","Santoso","Wibowo","Hidayat","Syahputra","Baskoro","Pangestu","Gunawan","Susanto","Ramadhan","Firmansyah","Mahendra","Fauzi","Kusuma","Riyadi","Irawan","Haryanto","Sanjaya","Prasetyo","Gumilar","Yulianto","Prakoso","Mulyadi","Rahardjo","Purnomo","Wicaksono","Suryono","Handoko","Yudhistira","Anggara","Permana","Lesmana","Setyawan","Prabowo","Suryadi","Budiman","Darmawan","Kusnadi","Suhendra","Widodo","Pramana","Mahardika","Nugraha","Anugrah","Ferdian","Iskandar","Rizal","Hakim","Maulana","Ibrahim","Ridwan","Ghozali","Fadillah"];
-        const femaleFirst = ["Adelia","Agnes","Aisyah","Amelia","Anisa","Anita","Aprilia","Ayu","Bella","Cahaya","Cindy","Citra","Desi","Dewi","Dian","Dinda","Eka","Elisa","Endah","Fani","Farah","Fatimah","Fitri","Hani","Indah","Intan","Irma","Jessica","Jihan","Julia","Kartika","Laila","Lestari","Lia","Lina","Linda","Lisa","Maria","Maya","Mega","Melati","Mia","Mila","Mutia","Nadia","Nia","Nina","Nisa","Novi","Nur","Nurul","Putri","Rahma","Rani","Ratih","Ratna","Ria","Rina","Rini","Riska","Rita","Sarah","Sinta","Siska","Siti","Sri","Tiara","Tina","Vina","Wulan","Yani","Yanti","Yulia","Yuni","Zahra"];
-        const femaleLast = ["Lestari","Sari","Putri","Anggraini","Maharani","Kusuma","Pertiwi","Susanti","Ningsih","Wati","Rahmawati","Novita","Fitriani","Handayani","Astuti","Wahyuni","Mulyani","Hapsari","Permatasari","Cahyani","Puspita","Kartika","Syafira","Nuraini","Amalia","Fatimah","Zahra","Aisyah","Nabila","Melati","Citra","Riana","Yuliana","Diana","Ratna","Larasati","Kirana","Pratiwi","Setiawati","Haryanti","Suryani","Widyastuti","Pujiastuti","Rahayu","Utami","Nugraheni","Widiyanti","Puspitasari","Wulandari","Safitri","Oktavia","Ramadhani","Kurniawati","Wardhani","Agustina","Salsabila","Azzahra","Nadhira","Ayunda","Amanda"];
-        
-        const nameOutput = document.getElementById("nameOutput");
-        const checkDigabung = document.getElementById("checkDigabung");
-        const checkDipisah = document.getElementById("checkDipisah");
-        const copyNameButton = document.getElementById("copyNameButton");
-
-        function handleCheckbox(checkbox) {
-            if (checkbox.id === "checkDigabung" && checkbox.checked) {
-                checkDipisah.checked = false;
-            } else if (checkbox.id === "checkDipisah" && checkbox.checked) {
-                checkDigabung.checked = false;
-            }
-        }
-        checkDigabung.addEventListener("change", () => handleCheckbox(checkDigabung));
-        checkDipisah.addEventListener("change", () => handleCheckbox(checkDipisah));
-
-        function generateName() {
-            const genderSelected = document.querySelector('input[name="gender"]:checked').value;
-            let poolFirst, poolLast;
-
-            if (genderSelected === "cowok") {
-                poolFirst = maleFirst;
-                poolLast = maleLast;
-            } else if (genderSelected === "cewek") {
-                poolFirst = femaleFirst;
-                poolLast = femaleLast;
-            } else {
-                if (Math.random() < 0.5) {
-                    poolFirst = maleFirst;
-                    poolLast = maleLast;
-                } else {
-                    poolFirst = femaleFirst;
-                    poolLast = femaleLast;
-                }
-            }
-            
-            let firstName = poolFirst[Math.floor(Math.random() * poolFirst.length)];
-            let lastName = poolLast[Math.floor(Math.random() * poolLast.length)];
-            
-            while (firstName === lastName) {
-                lastName = poolLast[Math.floor(Math.random() * poolLast.length)];
-            }
-            
-            let fullName = checkDigabung.checked ? `${firstName}${lastName}` : `${firstName} ${lastName}`;
-            nameOutput.value = fullName;
-            return fullName;
-        }
-
-        copyNameButton.addEventListener("click", () => {
-            const generatedName = generateName();
-            salinTeks(generatedName, `Nama disalin: ${generatedName}`);
-        });
-
-        // ================= LOGIKA CATATAN AFFILIATE & KLIK LINK =================
-        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/edc48af3b64868baf88819cd9dfa1e65/raw/garapanaffiliate.txt';
-        const productList = document.getElementById('productList');
-        const statusDiv = document.getElementById('status');
-
-        function salinTeks(teks, pesanSukses) {
-            const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = teks;
-            tempTextArea.style.position = "absolute";
-            tempTextArea.style.left = "-9999px";
-            tempTextArea.style.top = "-9999px";
-            tempTextArea.setAttribute("readonly", "");
-            
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
-            tempTextArea.setSelectionRange(0, 99999);
-            
-            try {
-                const berhasil = document.execCommand('copy');
-                if (berhasil) tampilkanToast(pesanSukses);
-            } catch (err) {
-                tampilkanToast("Gagal menyalin");
-            }
-            tempTextArea.blur(); 
-            document.body.removeChild(tempTextArea);
-        }
-
+        // ================= FUNGSI BERSAMA =================
         function tampilkanToast(pesan) {
             const toast = document.getElementById("toast");
             toast.innerText = pesan;
@@ -371,105 +257,124 @@
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
         }
 
-        function bukaTautanAffiliate(url) {
-            const a = document.createElement('a');
-            a.href = url;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+        // ================= LOGIKA GENERATOR ALAMAT & NAMA =================
+        const maleFirst = [
 
-            setTimeout(() => {
-                window.location.href = 'median://window/close';
-                window.close();
-            }, 800);
+    /* Nama dari Anda */
+    "Adi","Aditya","Agung","Agus","Ahmad","Andi","Angga","Arief","Bagas","Bagus","Bambang","Bayu","Bima","Budi","Candra","Dedi","Denny","Dimas","Dwi","Eko","Fajar","Fahmi","Farhan","Ferry","Galih","Gilang","Hadi","Hasan","Hendra","Heru","Ibrahim","Ilham","Imam","Indra","Irfan","Iwan","Joko","Kevin","Kiki","Lukman","Maulana","Muhammad","Naufal","Nur","Pratama","Putra","Rafi","Rahmat","Rangga","Reza","Rian","Ridwan","Rizki","Rudi","Satria","Surya","Taufik","Tegar","Tri","Wahyudi","Yogi","Yusuf","Zainal",
+
+    /* Tambahan Baru */
+    "Abdul","Abid","Achmad","Adam","Adnan","Adrian","Afandi","Agil","Aksa","Alamsyah","Aldi","Aldo","Alfi","Alfin","Ali","Alif","Alvin","Ammar","Ananda","Andhika","Andre","Anton","Anwar","Ardi","Ardian","Aris","Arya","Asep","Azis","Bachtiar","Bagaskara","Bahar","Bani","Bara","Basri","Beni","Bintang","Boby","Boy","Cipto","Dadang","Daffa","Dani","Danu","Darmaji","David","Deka","Dendi","Derry","Dika","Diky","Dito","Doni","Dzaky","Edi","Edwin","Endra","Erik","Erwin","Fachri","Fadli","Fahreza","Faisal","Fandi","Faris","Fauzan","Febri","Felix","Firman","Frans","Gading","Galang","Gani","Garry","Gibran","Gino","Guntur","Hafiz","Haikal","Hakim","Halim","Hamzah","Hanafi","Hanif","Haris","Haryanto","Hasyim","Hendri","Hery","Husni","Ibnu","Ihsan","Ilyas","Iqbal","Irwan","Iskak","Ismail","Jafar","Jamal","Jati","Jauhari","Jefri","Junaidi","Kadir","Kamal","Kamil","Kardi","Krisna","Kurniawan","Kusuma","Latif","Leo","Lucky","Lutfi","Maman","Mario","Marwan","Nanda","Niko","Noval","Oka","Oki","Panca","Pandu","Panji","Raden","Raditya","Rafa","Raffi","Rama","Ramon","Rendy","Reno","Rendi","Reyhan","Rido","Rifai","Rizal","Romi","Roy","Rudy","Rusdi","Salman","Sandi","Satriyo","Sigit","Soleh","Soni","Sopian","Subagyo","Sugiarto","Sugito","Suhardi","Sukma","Sulaiman","Sandiaga","Syafiq","Syahrir","Tantowi","Taufiq","Tedi","Tirta","Tito","Tommy","Toni","Toto","Tyas","Umar","Usman","Vicky","Wawan","Wira","Wisnu","Yadi","Yanto","Yasser","Yuda","Yudi","Zaenal","Zaki","Zulfikar"
+];
+
+const maleLast = [
+
+    /* Nama dari Anda */
+    "Saputra","Pratama","Wijaya","Setiawan","Nugroho","Santoso","Wibowo","Hidayat","Syahputra","Baskoro","Pangestu","Gunawan","Susanto","Ramadhan","Firmansyah","Mahendra","Fauzi","Kusuma","Riyadi","Irawan","Haryanto","Sanjaya","Prasetyo","Gumilar","Yulianto","Prakoso","Mulyadi","Rahardjo","Purnomo","Wicaksono","Suryono","Handoko","Yudhistira","Anggara","Permana","Lesmana","Setyawan","Prabowo","Suryadi","Budiman","Darmawan","Kusnadi","Suhendra","Widodo","Pramana","Mahardika","Nugraha","Anugrah","Ferdian","Iskandar","Rizal","Hakim","Maulana","Ibrahim","Ridwan","Ghozali","Fadillah",
+    /* Tambahan Baru */
+    "Abdullah","Affandi","Akbar","Alatas","Amin","Anas","Anwar","Ardiansyah","Arifin","Aryanto","Assegaf","Bachtiar","Baharudin","Bakti","Basuki","Budiyanto","Cahyadi","Cahyono","Damanik","Dananjaya","Djaja","Effendi","Fadhillah","Fahmi","Faisal","Firdaus","Gani","Ginting","Gunardi","Hadi","Halim","Hamzah","Hanafi","Hidayatullah","Hutagalung","Hutapea","Ilham","Ilyas","Jaelani","Jamaludin","Jaya","Kamal","Kurnia","Kurniawan","Kusnandar","Laksono","Latuconsina","Lukito","Mahmud","Mansyur","Mustofa","Mutaqin","Nasution","Naufal","Nurdin","Pamungkas","Pandjaitan","Pranata","Pranoto","Prawira","Prayoga","Prayogo","Purba","Purnama","Purwanto","Putra","Rachman","Rachmat","Riyanto","Rizki","Rohman","Rosyadi","Rusdi","Ruslan","Sadikin","Safri","Saleh","Salim","Sambas","Samosir","Santika","Sasmita","Setiadi","Sihombing","Silaban","Siregar","Situmorang","Slamet","Subagyo","Sudirman","Suganda","Sugeng","Suhardi","Suhari","Sukamto","Sulaiman","Sumarno","Sunardi","Supardi","Supriadi","Suryanto","Suwandi","Syarif","Syarief","Tambunan","Tampubolon","Tarigan","Taufiq","Utomo","Wahyudi","Wibisono","Widianto","Widjaja","Wiguna","Wijanarko","Winarto","Wirawan","Yudhoyono","Yuliyanto","Yusuf","Zaelani","Zainuddin","Zakaria","Zubair"
+];
+
+const femaleFirst = [
+
+    /* Nama dari Anda */
+ "Adelia","Agnes","Aisyah","Amelia","Anisa","Anita","Aprilia","Ayu","Bella","Cahaya","Cindy","Citra","Desi","Dewi","Dian","Dinda","Eka","Elisa","Endah","Fani","Farah","Fatimah","Fitri","Hani","Indah","Intan","Irma","Jessica","Jihan","Julia","Kartika","Laila","Lestari","Lia","Lina","Linda","Lisa","Maria","Maya","Mega","Melati","Mia","Mila","Mutia","Nadia","Nia","Nina","Nisa","Novi","Nur","Nurul","Putri","Rahma","Rani","Ratih","Ratna","Ria","Rina","Rini","Riska","Rita","Sarah","Sinta","Siska","Siti","Sri","Tiara","Tina","Vina","Wulan","Yani","Yanti","Yulia","Yuni","Zahra",
+
+    /* Tambahan Baru */
+ "Adel","Adinda","Afifah","Agatha","Alika","Aliyah","Amanda","Ambar","Andini","Anggun","Anindya","Annisa","Arum","Aulia","Aurel","Ayudia","Balqis","Bunga","Carissa","Chika","Cici","Cinta","Clara","Cut","Dania","Dara","Della","Desti","Dhea","Diah","Dina","Dita","Diandra","Elsa","Elvina","Ema","Emilia","Erina","Erna","Fadhila","Fadia","Fatin","Febby","Febrianti","Feni","Fika","Fira","Fitria","Fransiska","Galuh","Gita","Grace","Hana","Hapsari","Hasna","Helma","Hesti","Husna","Ika","Imas","Indri","Indriani","Inez","Ira","Iren","Iriana","Isma","Istiqomah","Ita","Jasmine","Jessy","Karina","Keke","Keshia","Khadijah","Kinanti","Kirana","Laras","Leny","Lidia","Lilis","Manda","Mawar","Mayang","Meilani","Melisa","Merry","Mey","Mita","Muna","Mutiara","Nabila","Nada","Nadhira","Nadya","Nafa","Najwa","Nanda","Nani","Neli","Nenden","Neta","Nimas","Nita","Novia","Novita","Octavia","Olivia","Poppy","Pratiwi","Prita","Puji","Puspa","Puspita","Qoriah","Rara","Ratu","Reka","Reni","Rere","Resi","Resti","Retno","Reza","Rika","Risa","Risma","Rossa","Rosita","Ruli","Rully","Sabrina","Safira","Salma","Salsabila","Santi","Santika","Sekar","Sela","Seli","Septi","Sherly","Shinta","Sifa","Silvi","Silvia","Suci","Sukma","Susi","Syifa","Tasya","Tati","Tika","Tini","Tita","Tiwi","Tuti","Uli","Ulfa","Umi","Vania","Vanya","Veni","Vera","Vika","Wafa","Wati","Wida","Widya","Wina","Winda","Windi","Yeni","Yola","Yovita","Yunita","Zahira","Zahrana","Zakia","Zalfa","Zara","Zaskia"
+];
+
+const femaleLast = [
+
+    /* Nama dari Anda */
+ "Lestari","Sari","Putri","Anggraini","Maharani","Kusuma","Pertiwi","Susanti","Ningsih","Wati","Rahmawati","Novita","Fitriani","Handayani","Astuti","Wahyuni","Mulyani","Hapsari","Permatasari","Cahyani","Puspita","Kartika","Syafira","Nuraini","Amalia","Fatimah","Zahra","Aisyah","Nabila","Melati","Citra","Riana","Yuliana","Diana","Ratna","Larasati","Kirana","Pratiwi","Setiawati","Haryanti","Suryani","Widyastuti","Pujiastuti","Rahayu","Utami","Nugraheni","Widiyanti","Puspitasari","Wulandari","Safitri","Oktavia","Ramadhani","Kurniawati","Wardhani","Agustina","Salsabila","Azzahra","Nadhira","Ayunda","Amanda",
+
+    /* Tambahan Baru */
+ "Agustin","Alawiyah","Andriyani","Anggraeni","Anjani","Apriliani","Arifin","Aryani","Aulia","Azahra","Azizah","Bahar","Balqis","Bella","Cahyanti","Cantika","Damayanti","Darmawati","Dwi","Ekayanti","Elfira","Fauziah","Febrianti","Gunawan","Halimah","Hasanah","Hidayati","Indah","Indriani","Irawati","Islami","Latuconsina","Liana","Mahmudah","Mardiana","Mariana","Maryati","Maulida","Mayasari","Megawati","Melani","Mustika","Mutmainah","Nadira","Nirmala","Noviani","Novitasari","Nurhayati","Nurjannah","Oktaviani","Pahlawanti","Paramitha","Prabandari","Pramesti","Prastiwi","Purnama","Purnamasari","Purwanti","Rachmawati","Rengganis","Riyanti","Rizkia","Rohmah","Rosidah","Rosyidah","Saraswati","Sartika","Sasmita","Septiani","Setyowati","Shafira","Sihombing","Siregar","Siswanti","Sitompul","Sudiarti","Sulastri","Sulistyowati","Sumarni","Sunarni","Sundari","Susilowati","Syafitri","Syahputri","Tambunan","Wardani","Wibowo","Widiastuti","Wijayanti","Winarni","Yanti","Yulianti","Yuniar","Yunita","Zainab","Zakiyah","Zulaikha"
+];
+
+        const daftarJalan = [
+    // Nama Pahlawan/Tokoh
+    "Jl. Jendral Sudirman", "Jl. Ahmad Yani", "Jl. Diponegoro", "Jl. Pahlawan", "Jl. Gajah Mada", "Jl. Hasanuddin", "Jl. Imam Bonjol", "Jl. Teuku Umar", "Jl. R.A. Kartini", "Jl. Ki Hajar Dewantara", "Jl. Gatot Subroto", "Jl. S. Parman", "Jl. M.T. Haryono", "Jl. Hayam Wuruk", "Jl. R.E. Martadinata", "Jl. Cut Nyak Dien",
+    // Nama Bunga/Pohon
+    "Jl. Mawar", "Jl. Melati", "Jl. Anggrek", "Jl. Cempaka", "Jl. Kenanga", "Jl. Bougenville", "Jl. Teratai", "Jl. Flamboyan", "Jl. Dahlia", "Jl. Kamboja", "Jl. Beringin", "Jl. Cemara", "Jl. Nusa Indah",
+    // Nama Burung/Hewan
+    "Jl. Garuda", "Jl. Rajawali", "Jl. Cendrawasih", "Jl. Merpati", "Jl. Nuri", "Jl. Kutilang", "Jl. Kepodang", "Jl. Merak",
+    // Umum/Lainnya
+    "Jl. Merdeka", "Jl. Veteran", "Jl. Pemuda", "Jl. Nusantara", "Jl. Perintis Kemerdekaan", "Jl. Pembangunan", "Jl. Sejahtera", "Jl. Makmur", "Jl. Karya", "Jl. Bhakti"
+];
+
+const daftarGang = [
+    /* Angka */
+    "Gg. 1", "Gg. 2", "Gg. 3", "Gg. 4", "Gg. 5", "Gg. 6", "Gg. 7", "Gg. 8", "Gg. 9", "Gg. 10", "Gg. 1A", "Gg. 2B",
+    /* Bunga/Tumbuhan */
+    "Gg. Mawar", "Gg. Melati", "Gg. Kenanga", "Gg. Teratai", "Gg. Anggrek", "Gg. Mangga", "Gg. Jambu",
+    /* Umum/Kondisi */
+    "Gg. Buntu", "Gg. Makmur", "Gg. Damai", "Gg. Sejahtera", "Gg. Rukun", "Gg. Harapan", "Gg. Keluarga", "Gg. Masjid", "Gg. Langgar", "Gg. Musholla", "Gg. Pelajar", "Gg. Kancil", "Gg. Kelinci", "Gg. Senggol", "Gg. Swadaya"
+];
+
+const daftarPatokan = [
+    /* Fasilitas Umum/Komersial */
+    "Depan SPBU", "Samping Indomaret", "Sebelah Alfamart", "Dekat Pasar", "Samping Klinik", "Depan SD Negeri", "Samping Puskesmas", "Depan Kantor Kepala Desa", "Sebelah Balai RW", "Belakang Kelurahan", "Samping Apotek", "Depan Toko Bangunan", "Seberang Fotokopi", "Samping Warkop", "Belakang Lapangan Futsal", "Dekat Pangkalan Ojek", "Depan Konter Pulsa", "Samping Bengkel Motor",
+    /* Tempat Ibadah */
+    "Belakang Masjid", "Seberang Masjid Jami", "Samping Musholla", "Depan Gereja",
+    /* Ciri Fisik Rumah/Lingkungan */
+    "Masuk gapura warna hijau", "Rumah pagar hitam", "Rumah cat biru", "Rumah tingkat cat putih", "Pagar warna merah", "Ada pohon mangga di depan", "Pintu gerbang coklat", "Rumah pojok", "Sebelah tanah kosong"
+];
+
+        const BASE_API_URL = 'https://ibnux.github.io/data-indonesia';
+
+        const btnGenerate = document.getElementById("btnGenerate");
+        const resultArea = document.getElementById("resultArea");
+
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
         }
 
-        async function fetchProducts() {
-            try {
-                const response = await fetch(GIST_URL);
-                if (!response.ok) throw new Error('Gagal mengambil data');
-                
-                const textData = await response.text();
-                statusDiv.style.display = 'none';
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, function(txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
 
-                const lines = textData.split('\n');
-                let productCount = 0; 
-                let groupCount = 1;
-                let pendingGroupName = null; // Menyimpan nama grup custom sementara
-
-                // Array warna-warna pastel/soft untuk setiap grup secara berurutan
-                const groupColors = [
-                    '#e3f2fd', // Biru muda
-                    '#e8f5e9', // Hijau muda
-                    '#fff3e0', // Oranye muda
-                    '#f3e5f5', // Ungu muda
-                    '#ffebee', // Merah muda / Pink
-                    '#e0f7fa', // Cyan muda
-                    '#fffde7', // Kuning muda
-                    '#eceff1'  // Abu-abu biru muda
-                ];
-
-                lines.forEach(line => {
-                    line = line.trim();
-                    if (line === '') return;
-
-                    // Jika baris TIDAK mengandung karakter '|', kita anggap itu nama grup custom
-                    if (!line.includes('|')) {
-                        pendingGroupName = line;
-                        return; // Lanjut proses baris berikutnya
-                    }
-                    
-                    const parts = line.split('|');
-                    
-                    if (parts.length >= 2) {
-                        productCount++; 
-                        const nama = parts[0].trim();
-                        const link = parts[1].trim();
-                        let displayCount = ((productCount - 1) % 3) + 1;
-                        let currentGroupIndex = Math.floor((productCount - 1) / 3);
-
-                        // Buat Header Grup setiap awal kelipatan 3
-                        if (displayCount === 1) {
-                            const groupTitle = document.createElement('li');
-                            groupTitle.className = 'group-title';
-                            
-                            // Gunakan nama grup custom jika ada, kalau tidak gunakan default 'Grup X'
-                            if (pendingGroupName) {
-                                groupTitle.innerText = pendingGroupName;
-                            } else {
-                                groupTitle.innerText = `Grup ${groupCount}`;
-                            }
-                            
-                            productList.appendChild(groupTitle);
-                            groupCount++;
-                            pendingGroupName = null; // Kosongkan lagi setelah dipakai
-                        }
-
-                        // Ambil warna secara bergantian berdasarkan urutan grup
-                        let colorHex = groupColors[currentGroupIndex % groupColors.length];
-
-                        const li = document.createElement('li');
-                        li.className = 'product-item';
-                        
-                        // Set style inline background linear-gradient dengan warna spesifik grup
-                        li.innerHTML = `
-                            <button class="btn-product-link" style="background: linear-gradient(135deg, ${colorHex} 0%, #ffffff 100%);" onclick="bukaTautanAffiliate('${link}')">
-                                <span class="product-number">${displayCount}</span>
-                                <span class="product-title">${nama}</span>
-                            </button>
-                        `;
-                        
-                        productList.appendChild(li);
-                    }
-                });
-            } catch (error) {
-                statusDiv.className = 'error';
-                statusDiv.innerText = 'Gagal memuat produk. Cek koneksi internetmu.';
+        function generateName() {
+            let poolFirst, poolLast;
+            if (Math.random() < 0.5) { 
+                poolFirst = maleFirst; 
+                poolLast = maleLast; 
+            } else { 
+                poolFirst = femaleFirst; 
+                poolLast = femaleLast; 
             }
+            let firstName = getRandomItem(poolFirst);
+            let lastName = getRandomItem(poolLast);
+            while (firstName === lastName) lastName = getRandomItem(poolLast);
+            return `${firstName} ${lastName}`;
         }
 
-        fetchProducts();
-    </script>
-</body>
-</html>
+        async function generateCompleteData() {
+            try {
+                btnGenerate.disabled = true;
+                btnGenerate.innerText = "⏳ Memproses...";
+
+                const namaLengkap = generateName();
+
+                const resProv = await fetch(`${BASE_API_URL}/provinsi.json`);
+                const randomProv = getRandomItem(await resProv.json());
+
+                const resKota = await fetch(`${BASE_API_URL}/kabupaten/${randomProv.id}.json`);
+                const randomKota = getRandomItem(await resKota.json());
+
+                const resKec = await fetch(`${BASE_API_URL}/kecamatan/${randomKota.id}.json`);
+                const randomKec = getRandomItem(await resKec.json());
+
+                let kotaBersih = randomKota.nama.replace(/^(KAB\.|KOTA|KABUPATEN)\s+/i, '');
+                const provFinal = toTitleCase(randomProv.nama);
+                const kotaFinal = toTitleCase(kotaBersih);
+                const kecFinal = toTitleCase(randomKec.nama);
+
+                const namaJalan = getRandomItem(daftarJalan);
+                let nomorRumah = Math.floor(Math.random() * 100) + 1;
+                if (Math.random() > 0.7) nomorRumah += ["A", "B", "C"][Math.floor(Math.random() * 3)];
+                let namaGang = Math.random() > 0.5 ? `, ${getRandomItem(daftarGang)}` : "";
+                const patokan = getRandomItem(daftar
