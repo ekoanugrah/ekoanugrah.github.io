@@ -384,14 +384,10 @@
                 // Menampilkan hasil ke textarea
                 resultArea.value = stringFinal;
                 
-                // Proses Salin Otomatis ke Clipboard (Mendukung browser lama & baru)
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(stringFinal);
-                } else {
-                    resultArea.select();
-                    resultArea.setSelectionRange(0, 99999); 
-                    document.execCommand('copy');
-                }
+                // Proses Salin Otomatis ke Clipboard (Kembali ke versi semula yang berfungsi di WebView)
+                resultArea.select();
+                resultArea.setSelectionRange(0, 99999); // Untuk perangkat mobile
+                document.execCommand('copy');
                 
                 // Hilangkan seleksi agar rapi
                 window.getSelection().removeAllRanges();
