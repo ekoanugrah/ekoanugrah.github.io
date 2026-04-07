@@ -120,14 +120,14 @@
             transform: none !important;
         }
 
-        /* DAFTAR PRODUK AFFILIATE - GRID 3 KOLOM */
+        /* DAFTAR PRODUK AFFILIATE - GRID 3 KOLOM PRESISI */
         .note-list {
             list-style-type: none;
             padding: 0;
             margin: 0;
             display: grid;
             grid-template-columns: repeat(3, 1fr); 
-            gap: 12px 10px; 
+            gap: 12px; 
         }
 
         /* Nama Kolom / Grup */
@@ -145,26 +145,28 @@
 
         .product-item {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            width: 100%;
         }
 
         /* Tombol Link Produk Utama */
         .btn-product-link {
+            box-sizing: border-box; 
             position: relative;
             display: flex;
+            flex-direction: column; 
             align-items: center;
             justify-content: center;
             width: 100%;
             aspect-ratio: 1 / 1; 
             border: 1px solid rgba(0,0,0,0.05);
             color: var(--text-main);
-            padding: 14px 8px; 
+            padding: 8px; 
             border-radius: 12px; 
             cursor: pointer;
             box-shadow: 0 4px 8px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
             transition: transform 0.1s ease, box-shadow 0.1s ease;
             -webkit-tap-highlight-color: transparent; 
+            overflow: hidden; 
         }
 
         .btn-product-link:active {
@@ -182,8 +184,8 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-break: break-word;
-            margin-top: 14px; 
-            color: #333;
+            margin-top: 0; 
+            width: 100%;
         }
 
         .product-number {
@@ -197,6 +199,7 @@
             padding: 4px 8px;
             border-radius: 12px 0 8px 0; 
             box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            z-index: 2;
         }
 
         .loading, .error {
@@ -381,10 +384,14 @@
                 // Menampilkan hasil ke textarea
                 resultArea.value = stringFinal;
                 
-                // Proses Salin Otomatis ke Clipboard
-                resultArea.select();
-                resultArea.setSelectionRange(0, 99999); // Untuk perangkat mobile
-                document.execCommand('copy');
+                // Proses Salin Otomatis ke Clipboard (Mendukung browser lama & baru)
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(stringFinal);
+                } else {
+                    resultArea.select();
+                    resultArea.setSelectionRange(0, 99999); 
+                    document.execCommand('copy');
+                }
                 
                 // Hilangkan seleksi agar rapi
                 window.getSelection().removeAllRanges();
@@ -413,21 +420,18 @@
         
         let allAffiliateLinks = []; // Variabel untuk menyimpan semua link yang di-fetch
 
-        // Fungsi untuk membuka link dan menutup window (opsional untuk integrasi app)
+        // Fungsi untuk membuka link yang lebih stabil
         function bukaTautanAffiliate(url) {
-            const a = document.createElement('a');
-            a.href = url;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            // Membuka tautan langsung di tab baru (atau memicu intent aplikasi)
+            window.open(url, '_blank', 'noopener,noreferrer');
 
-            // Memberikan jeda sebelum menutup (khusus jika dijalankan di webview tertentu)
+            // Memberikan jeda sebelum menutup (khusus WebView Median)
+            // Jeda diperpanjang menjadi 1500ms agar jaringan tidak membatalkan request (Connection Drop)
             setTimeout(() => {
                 if (window.location.href.includes('median')) {
                     window.location.href = 'median://window/close';
                 }
-            }, 800);
+            }, 1500); 
         }
 
         // Listener untuk Tombol Acak
