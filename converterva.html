@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Convert & Copy</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #1a73e8;
+            margin-bottom: 5px;
+            font-size: 22px;
+        }
+        p.subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 15px;
+            border: 2px solid #1a73e8;
+            border-radius: 10px;
+            font-size: 18px;
+            box-sizing: border-box;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 8px rgba(26, 115, 232, 0.3);
+        }
+        .result-box {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #ccc;
+            position: relative;
+            margin-top: 15px;
+        }
+        .result-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #34a853;
+            display: block;
+            margin-top: 5px;
+        }
+        .status-msg {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 10px;
+            height: 20px;
+        }
+        .timer-bar {
+            height: 4px;
+            background-color: #1a73e8;
+            width: 0%;
+            margin-top: 15px;
+            border-radius: 2px;
+            transition: width 3s linear;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Smart Converter</h2>
+    <p class="subtitle">Tempel (Paste) nomor ke kotak di bawah</p>
+    
+    <input type="tel" id="phoneInput" placeholder="Tempel / Paste di sini..." autocomplete="off" autofocus>
+    
+    <div class="result-box" id="boxHasil">
+        <small style="color: #666;">HASIL (OTOMATIS TERSALIN):</small>
+        <span class="result-text" id="result">-</span>
+        <div id="statusMsg" class="status-msg"></div>
+        <div id="timerBar" class="timer-bar"></div>
+    </div>
+</div>
+
+<script>
+    let resetTimer;
+    const inputEl = document.getElementById('phoneInput');
+    const resultEl = document.getElementById('result');
+    const statusEl = document.getElementById('statusMsg');
+    const timerBar = document.getElementById('timerBar');
+    const boxHasil = document.getElementById('boxHasil');
+
+    // FUNGSI UNTUK MEMAKSA FOKUS DAN KEYBOARD
+    function forceFocus() {
+        inputEl.focus();
+        // Mencoba men-trigger keyboard dengan click event buatan
+        const clickEvent = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+        });
+        inputEl.dispatchEvent(clickEvent);
+    }
+
+    // Eksekusi saat halaman dimuat
+    window.onload = function() {
+        // Berikan sedikit delay agar browser siap menerima trigger focus
+        setTimeout(forceFocus, 300);
+    };
+
+    // Pendeteksi Input
+    inputEl.addEventListener('input', function() {
+        let text = this.value.trim();
+        if (text.length > 5) {
+            prosesOtomatis(text);
+        }
+    });
+
+    function prosesOtomatis(text) {
+        clearTimeout(resetTimer);
+        timerBar.style.transition = 'none';
+        timerBar.style.width = '0%';
+
+        let cleanNumber = text.replace(/[^\d+]/g, '');
+        let nomorInti = cleanNumber;
+
+        if (cleanNumber.startsWith('+62')) {
+            nomorInti = cleanNumber.slice(3);
+        } else if (cleanNumber.startsWith('62')) {
+            nomorInti = cleanNumber.slice(2);
+        } else if (cleanNumber.startsWith('0')) {
+            nomorInti = cleanNumber.slice(1);
+        } else if (cleanNumber.startsWith('8')) {
+            nomorInti = cleanNumber;
+        }
+
+        if (nomorInti.length >= 8) {
+            const hasilFinal = '7810' + nomorInti;
+            resultEl.innerText = hasilFinal;
+            boxHasil.style.borderColor = '#34a853';
+            
+            salinKeClipboard(hasilFinal);
+            
+            statusEl.innerText = "✓ Berhasil Diubah & Disalin!";
+            statusEl.style.color = "#34a853";
+            
+            setTimeout(() => {
+                timerBar.style.transition = 'width 3s linear';
+                timerBar.style.width = '100%';
+            }, 50);
+
+            resetTimer = setTimeout(() => {
+                hapusSemua();
+            }, 3000);
+
+        } else {
+            statusEl.innerText = "Menunggu nomor lengkap...";
+            statusEl.style.color = "#fbbc04";
+        }
+    }
+
+    function salinKeClipboard(teks) {
+        let tempTextArea = document.createElement("textarea");
+        tempTextArea.value = teks;
+        tempTextArea.style.position = "fixed";
+        tempTextArea.style.left = "-9999px";
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        tempTextArea.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+    }
+
+    function hapusSemua() {
+        inputEl.value = '';
+        resultEl.innerText = '-';
+        statusEl.innerText = '';
+        boxHasil.style.borderColor = '#ccc';
+        timerBar.style.transition = 'none';
+        timerBar.style.width = '0%';
+        clearTimeout(resetTimer);
+        
+        // Kembalikan fokus kursor agar keyboard tidak tertutup
+        inputEl.focus();
+    }
+</script>
+
+</body>
+</html>
