@@ -48,6 +48,26 @@
             outline: none;
             box-shadow: 0 0 8px rgba(26, 115, 232, 0.3);
         }
+        /* Style baru untuk Tombol Paste */
+        .paste-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        .paste-btn:hover {
+            background-color: #1557b0;
+        }
+        .paste-btn:active {
+            transform: scale(0.98);
+        }
         .result-box {
             padding: 20px;
             background-color: #f8f9fa;
@@ -87,6 +107,8 @@
     
     <input type="tel" id="phoneInput" placeholder="Tempel / Paste di sini..." autocomplete="off" autofocus>
     
+    <button id="pasteBtn" class="paste-btn">📋 Paste & Proses</button>
+    
     <div class="result-box" id="boxHasil">
         <small style="color: #666;">HASIL (OTOMATIS TERSALIN):</small>
         <span class="result-text" id="result">-</span>
@@ -98,6 +120,7 @@
 <script>
     let resetTimer;
     const inputEl = document.getElementById('phoneInput');
+    const pasteBtn = document.getElementById('pasteBtn'); // Deklarasi tombol paste
     const resultEl = document.getElementById('result');
     const statusEl = document.getElementById('statusMsg');
     const timerBar = document.getElementById('timerBar');
@@ -106,7 +129,6 @@
     // FUNGSI UNTUK MEMAKSA FOKUS DAN KEYBOARD
     function forceFocus() {
         inputEl.focus();
-        // Mencoba men-trigger keyboard dengan click event buatan
         const clickEvent = new MouseEvent('click', {
             view: window,
             bubbles: true,
@@ -117,11 +139,36 @@
 
     // Eksekusi saat halaman dimuat
     window.onload = function() {
-        // Berikan sedikit delay agar browser siap menerima trigger focus
         setTimeout(forceFocus, 300);
     };
 
-    // Pendeteksi Input
+    // FUNGSI TOMBOL PASTE
+    pasteBtn.addEventListener('click', async () => {
+        try {
+            // Membaca teks dari clipboard browser
+            const text = await navigator.clipboard.readText();
+            if (text) {
+                inputEl.value = text;
+                prosesOtomatis(text); // Langsung eksekusi perubahan dan copy
+            } else {
+                statusEl.innerText = "Clipboard kosong!";
+                statusEl.style.color = "red";
+            }
+        } catch (err) {
+            console.error('Gagal membaca clipboard: ', err);
+            statusEl.innerText = "Izin Paste ditolak browser!";
+            statusEl.style.color = "red";
+            
+            // Fallback: Mengingatkan user jika browser memblokir akses clipboard
+            setTimeout(() => {
+                statusEl.innerText = "Silakan paste manual ke dalam kotak.";
+                statusEl.style.color = "#fbbc04";
+                forceFocus();
+            }, 2000);
+        }
+    });
+
+    // Pendeteksi Input Manual (tetap dibiarkan agar tetap responsif jika diketik manual)
     inputEl.addEventListener('input', function() {
         let text = this.value.trim();
         if (text.length > 5) {
@@ -193,7 +240,6 @@
         timerBar.style.width = '0%';
         clearTimeout(resetTimer);
         
-        // Kembalikan fokus kursor agar keyboard tidak tertutup
         inputEl.focus();
     }
 </script>
