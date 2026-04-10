@@ -13,6 +13,7 @@
             --text-muted: rgba(0,0,0,.54);
             --border-color: #e0e0e0;
             --success-green: #2ecc71;
+            --action-blue: #3498db;
         }
         
         body {
@@ -121,7 +122,7 @@
             overflow-x: auto;
             display: flex;
             padding-bottom: 12px;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll di iOS/Android */
+            -webkit-overflow-scrolling: touch; 
         }
 
         .note-list {
@@ -164,10 +165,10 @@
             text-align: center;
         }
 
-        /* Tombol Copy Khusus per Kolom */
-        .btn-copy-column {
+        /* Tombol Buka Acak Khusus per Kolom */
+        .btn-open-column {
             width: 100%;
-            background-color: var(--success-green);
+            background-color: var(--action-blue);
             color: white;
             border: none;
             padding: 10px 4px;
@@ -176,11 +177,11 @@
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
         }
 
-        .btn-copy-column:active {
-            background-color: #27ae60;
+        .btn-open-column:active {
+            background-color: #2980b9;
             transform: scale(0.96);
         }
 
@@ -264,7 +265,7 @@
 </head>
 <body>
 
-    <div id="toast">Berhasil disalin</div>
+    <div id="toast">Berhasil</div>
 
     <div class="app-container">
         <div class="shopee-header">
@@ -377,17 +378,14 @@
 
                 const namaLengkap = generateName();
 
-                // 1. Fetch semua provinsi
                 const resProv = await fetch(`${BASE_API_URL}/provinsi.json`);
                 const allProvinces = await resProv.json();
 
-                // 2. Filter hanya provinsi di Jawa dan Bali
                 const targetProvinces = ["BANTEN", "JAKARTA", "JAWA BARAT", "JAWA TENGAH", "YOGYAKARTA", "JAWA TIMUR", "BALI"];
                 const javaBaliProvinces = allProvinces.filter(p => 
                     targetProvinces.some(target => p.nama.toUpperCase().includes(target))
                 );
 
-                // 3. Pilih acak dari provinsi yang sudah di-filter
                 const randomProv = getRandomItem(javaBaliProvinces);
 
                 const resKota = await fetch(`${BASE_API_URL}/kabupaten/${randomProv.id}.json`);
@@ -408,13 +406,10 @@
                 
                 const patokan = getRandomItem(daftarPatokan);
 
-                // Menggabungkan semua komponen menjadi satu string alamat lengkap
                 const stringFinal = `${namaLengkap}, ${namaJalan} No. ${nomorRumah}${namaGang}, ${patokan}, ${kecFinal}, ${kotaFinal}, ${provFinal}`;
                 
-                // Menampilkan hasil ke textarea
                 resultArea.value = stringFinal;
                 
-                // Proses Salin Otomatis ke Clipboard (Kompatibel WebView)
                 resultArea.select();
                 resultArea.setSelectionRange(0, 99999); 
                 document.execCommand('copy');
@@ -441,9 +436,8 @@
         const btnRandomProduct = document.getElementById('btnRandomProduct');
         
         let allAffiliateLinks = []; 
-        let groupedProducts = []; // Array untuk menampung data grup/kolom
+        let groupedProducts = []; 
 
-        // Fungsi membuka link (dioptimalkan untuk WebView)
         function bukaTautanAffiliate(url) {
             window.open(url, '_blank', 'noopener,noreferrer');
             setTimeout(() => {
@@ -453,7 +447,6 @@
             }, 1500); 
         }
 
-        // Fungsi mengambil data produk dari Gist
         async function fetchProducts() {
             try {
                 const response = await fetch(GIST_URL);
@@ -465,12 +458,10 @@
                 const lines = textData.split('\n');
                 let currentGroup = null;
 
-                // Parsing text menjadi array objek berdasarkan Nomor/Grup
                 lines.forEach(line => {
                     line = line.trim();
                     if (line === '') return;
 
-                    // Jika tidak ada '|', berarti ini adalah Nama Kolom (Nomor)
                     if (!line.includes('|')) {
                         currentGroup = {
                             name: line,
@@ -478,7 +469,6 @@
                         };
                         groupedProducts.push(currentGroup);
                     } 
-                    // Jika ada '|' dan sudah ada grup yang dibuat
                     else if (currentGroup) {
                         const parts = line.split('|');
                         if (parts.length >= 2) {
@@ -503,11 +493,9 @@
             }
         }
 
-        // Render data yang sudah diparsing menjadi kolom HTML
         function renderColumns() {
             productList.innerHTML = '';
             
-            // Variasi background ringan untuk tombol produk
             const bgColors = ['#f8fafc', '#f1f5f9', '#fdf8f6', '#f0fdf4', '#fdf4ff'];
 
             groupedProducts.forEach((group, index) => {
@@ -516,17 +504,16 @@
 
                 const colorBg = bgColors[index % bgColors.length];
 
-                // Buat Header Kolom & Tombol Copy Acak per Kolom
+                // PERUBAHAN DI SINI: Memanggil fungsi bukaAcakDariGrup
                 columnLi.innerHTML = `
                     <div class="column-header">
                         <div class="column-number">${group.name}</div>
-                        <button class="btn-copy-column" onclick="copyRandomFromGroup(${index})">
-                            📋 COPY ACAK
+                        <button class="btn-open-column" onclick="bukaAcakDariGrup(${index})">
+                            🎁 BUKA ACAK
                         </button>
                     </div>
                 `;
 
-                // Render Produk di bawah Header
                 group.products.forEach(prod => {
                     const prodDiv = document.createElement('div');
                     prodDiv.className = 'product-item';
@@ -542,25 +529,19 @@
             });
         }
 
-        // Fungsi Tombol Copy Acak Khusus Per Kolom
-        window.copyRandomFromGroup = function(groupIndex) {
+        // PERUBAHAN DI SINI: Fungsi baru untuk langsung membuka link
+        window.bukaAcakDariGrup = function(groupIndex) {
             const group = groupedProducts[groupIndex];
             if (group && group.products.length > 0) {
+                // Pilih satu produk secara acak dari grup tersebut
                 const randomItem = group.products[Math.floor(Math.random() * group.products.length)];
                 
-                // Gunakan textarea sementara untuk eksekusi copy
-                const tempTextArea = document.createElement('textarea');
-                tempTextArea.value = randomItem.link;
-                document.body.appendChild(tempTextArea);
-                tempTextArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(tempTextArea);
-
-                tampilkanToast(`✅ Link ${group.name} Disalin!`);
+                // Langsung buka link menggunakan fungsi yang sudah ada
+                bukaTautanAffiliate(randomItem.link);
+                tampilkanToast(`Membuka produk dari ${group.name}...`);
             }
         };
 
-        // Fungsi Buka Link Acak Global
         btnRandomProduct.addEventListener('click', () => {
             if (allAffiliateLinks.length > 0) {
                 const randomLink = allAffiliateLinks[Math.floor(Math.random() * allAffiliateLinks.length)];
@@ -568,7 +549,6 @@
             }
         });
 
-        // Jalankan pemuatan saat aplikasi siap
         fetchProducts();
     </script>
 </body>
