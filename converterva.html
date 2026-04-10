@@ -2,247 +2,74 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Auto Convert & Copy</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        h2 {
-            color: #1a73e8;
-            margin-bottom: 5px;
-            font-size: 22px;
-        }
-        p.subtitle {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-        input {
-            width: 100%;
-            padding: 16px;
-            margin-bottom: 15px;
-            border: 2px solid #1a73e8;
-            border-radius: 10px;
-            font-size: 18px;
-            box-sizing: border-box;
-            text-align: center;
-            transition: border-color 0.3s;
-        }
-        input:focus {
-            outline: none;
-            box-shadow: 0 0 8px rgba(26, 115, 232, 0.3);
-        }
-        /* Style baru untuk Tombol Paste */
-        .paste-btn {
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 15px;
-            transition: background-color 0.3s, transform 0.1s;
-        }
-        .paste-btn:hover {
-            background-color: #1557b0;
-        }
-        .paste-btn:active {
-            transform: scale(0.98);
-        }
-        .result-box {
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            border: 2px dashed #ccc;
-            position: relative;
-            margin-top: 15px;
-        }
-        .result-text {
-            font-size: 24px;
-            font-weight: bold;
-            color: #34a853;
-            display: block;
-            margin-top: 5px;
-        }
-        .status-msg {
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 10px;
-            height: 20px;
-        }
-        .timer-bar {
-            height: 4px;
-            background-color: #1a73e8;
-            width: 0%;
-            margin-top: 15px;
-            border-radius: 2px;
-            transition: width 3s linear;
-        }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid #1a73e8; border-radius: 8px; font-size: 18px; text-align: center; }
+        .paste-btn { background-color: #1a73e8; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; margin-bottom: 20px; }
+        .result-box { padding: 15px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 8px; }
+        .result-text { font-size: 22px; font-weight: bold; color: #34a853; display: block; margin: 10px 0; }
+        .status-msg { font-size: 14px; min-height: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>Smart Converter</h2>
-    <p class="subtitle">Tempel (Paste) nomor ke kotak di bawah</p>
+    <input type="tel" id="phoneInput" placeholder="Tempel nomor di sini..." autofocus>
     
-    <input type="tel" id="phoneInput" placeholder="Tempel / Paste di sini..." autocomplete="off" autofocus>
-    
-    <button id="pasteBtn" class="paste-btn">📋 Paste & Proses</button>
+    <button id="pasteBtn" class="paste-btn">📋 TEMPEL (PASTE)</button>
     
     <div class="result-box" id="boxHasil">
-        <small style="color: #666;">HASIL (OTOMATIS TERSALIN):</small>
+        <small>HASIL (OTOMATIS DISALIN):</small>
         <span class="result-text" id="result">-</span>
         <div id="statusMsg" class="status-msg"></div>
-        <div id="timerBar" class="timer-bar"></div>
     </div>
 </div>
 
 <script>
-    let resetTimer;
     const inputEl = document.getElementById('phoneInput');
-    const pasteBtn = document.getElementById('pasteBtn'); // Deklarasi tombol paste
+    const pasteBtn = document.getElementById('pasteBtn');
     const resultEl = document.getElementById('result');
     const statusEl = document.getElementById('statusMsg');
-    const timerBar = document.getElementById('timerBar');
-    const boxHasil = document.getElementById('boxHasil');
 
-    // FUNGSI UNTUK MEMAKSA FOKUS DAN KEYBOARD
-    function forceFocus() {
-        inputEl.focus();
-        const clickEvent = new MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true
-        });
-        inputEl.dispatchEvent(clickEvent);
-    }
-
-    // Eksekusi saat halaman dimuat
-    window.onload = function() {
-        setTimeout(forceFocus, 300);
-    };
-
-    // FUNGSI TOMBOL PASTE
+    // Fungsi Paste Otomatis
     pasteBtn.addEventListener('click', async () => {
         try {
-            // Membaca teks dari clipboard browser
             const text = await navigator.clipboard.readText();
-            if (text) {
-                inputEl.value = text;
-                prosesOtomatis(text); // Langsung eksekusi perubahan dan copy
-            } else {
-                statusEl.innerText = "Clipboard kosong!";
-                statusEl.style.color = "red";
-            }
+            inputEl.value = text;
+            prosesOtomatis(text);
         } catch (err) {
-            console.error('Gagal membaca clipboard: ', err);
-            statusEl.innerText = "Izin Paste ditolak browser!";
-            statusEl.style.color = "red";
-            
-            // Fallback: Mengingatkan user jika browser memblokir akses clipboard
-            setTimeout(() => {
-                statusEl.innerText = "Silakan paste manual ke dalam kotak.";
-                statusEl.style.color = "#fbbc04";
-                forceFocus();
-            }, 2000);
+            statusEl.innerText = "Tekan lama pada kotak untuk Tempel manual";
+            inputEl.focus();
         }
     });
 
-    // Pendeteksi Input Manual (tetap dibiarkan agar tetap responsif jika diketik manual)
-    inputEl.addEventListener('input', function() {
-        let text = this.value.trim();
-        if (text.length > 5) {
-            prosesOtomatis(text);
-        }
-    });
+    // Deteksi input manual atau dari paste manual
+    inputEl.addEventListener('input', (e) => prosesOtomatis(e.target.value));
 
     function prosesOtomatis(text) {
-        clearTimeout(resetTimer);
-        timerBar.style.transition = 'none';
-        timerBar.style.width = '0%';
-
         let cleanNumber = text.replace(/[^\d+]/g, '');
         let nomorInti = cleanNumber;
 
-        if (cleanNumber.startsWith('+62')) {
-            nomorInti = cleanNumber.slice(3);
-        } else if (cleanNumber.startsWith('62')) {
-            nomorInti = cleanNumber.slice(2);
-        } else if (cleanNumber.startsWith('0')) {
-            nomorInti = cleanNumber.slice(1);
-        } else if (cleanNumber.startsWith('8')) {
-            nomorInti = cleanNumber;
-        }
+        if (cleanNumber.startsWith('+62')) nomorInti = cleanNumber.slice(3);
+        else if (cleanNumber.startsWith('62')) nomorInti = cleanNumber.slice(2);
+        else if (cleanNumber.startsWith('0')) nomorInti = cleanNumber.slice(1);
 
         if (nomorInti.length >= 8) {
             const hasilFinal = '7810' + nomorInti;
             resultEl.innerText = hasilFinal;
-            boxHasil.style.borderColor = '#34a853';
             
-            salinKeClipboard(hasilFinal);
+            // Salin ke clipboard otomatis
+            navigator.clipboard.writeText(hasilFinal);
             
-            statusEl.innerText = "✓ Berhasil Diubah & Disalin!";
+            statusEl.innerText = "✓ Berhasil diubah & disalin!";
             statusEl.style.color = "#34a853";
-            
-            setTimeout(() => {
-                timerBar.style.transition = 'width 3s linear';
-                timerBar.style.width = '100%';
-            }, 50);
-
-            resetTimer = setTimeout(() => {
-                hapusSemua();
-            }, 3000);
-
-        } else {
-            statusEl.innerText = "Menunggu nomor lengkap...";
-            statusEl.style.color = "#fbbc04";
         }
     }
-
-    function salinKeClipboard(teks) {
-        let tempTextArea = document.createElement("textarea");
-        tempTextArea.value = teks;
-        tempTextArea.style.position = "fixed";
-        tempTextArea.style.left = "-9999px";
-        document.body.appendChild(tempTextArea);
-        tempTextArea.select();
-        tempTextArea.setSelectionRange(0, 99999);
-        document.execCommand('copy');
-        document.body.removeChild(tempTextArea);
-    }
-
-    function hapusSemua() {
-        inputEl.value = '';
-        resultEl.innerText = '-';
-        statusEl.innerText = '';
-        boxHasil.style.borderColor = '#ccc';
-        timerBar.style.transition = 'none';
-        timerBar.style.width = '0%';
-        clearTimeout(resetTimer);
-        
-        inputEl.focus();
-    }
 </script>
-
 </body>
 </html>
