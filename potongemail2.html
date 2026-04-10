@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Email Collector Tool Pro - Fix</title>
+    <title>Email Collector Tool Pro - Fix Layout</title>
     <style>
         html, body {
             height: 100%;
@@ -24,7 +24,7 @@
             background: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            padding: 15px 20px;
+            padding: 15px 15px; /* Sedikit disesuaikan untuk layar kecil */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -67,16 +67,22 @@
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
 
+        /* PERBAIKAN CSS GRID AGAR TIDAK MELUBER */
         .controls, .controls-bottom {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(3, minmax(0, 1fr)); /* Paksa agar muat di layar */
+            gap: 8px;
             margin-bottom: 10px;
+        }
+
+        .controls-bottom {
+            align-items: end; /* Sejajarkan tombol dengan kotak input, bukan dengan labelnya */
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
+            width: 100%; /* Pastikan grup mengambil 100% kolom */
         }
 
         .input-group label {
@@ -84,10 +90,14 @@
             font-weight: 600;
             color: #555;
             margin-bottom: 3px;
-            white-space: nowrap;
+            line-height: 1.2;
+            /* white-space: nowrap dihapus agar teks bisa wrap di HP yang sangat sempit */
         }
 
         .input-group input {
+            width: 100%;
+            box-sizing: border-box; /* PERBAIKAN UTAMA: Cegah input meluber */
+            min-width: 0; /* Trik agar input patuh pada batas grid */
             padding: 7px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -102,19 +112,23 @@
 
         .buttons {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(4, minmax(0, 1fr)); /* Paksa agar muat */
+            gap: 6px;
             margin-bottom: 15px;
         }
 
         button {
-            padding: 10px 5px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 4px; /* Padding sisi diperkecil agar teks muat */
             border: none;
             border-radius: 5px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.1s ease;
+            line-height: 1.2;
+            word-wrap: break-word; /* Izinkan teks tombol membengkok jika terlalu panjang */
         }
         
         button:active { transform: scale(0.97); }
@@ -163,7 +177,7 @@
             font-weight: 600;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-            pointer-events: none; /* Cegah notifikasi memblokir tombol */
+            pointer-events: none; 
         }
         #notification.show {
             visibility: visible;
@@ -207,7 +221,7 @@
 
         <hr>
 
-        <div class="section-label">2. Email Selesai (Riwayat Potong)</div>
+        <div class="section-label">2. Email Selesai (Riwayat)</div>
         <textarea id="doneEmailList" readonly placeholder="Email yang telah dipotong akan terkumpul di sini..."></textarea>
         
         <div class="controls-bottom">
@@ -257,7 +271,7 @@
             totalCut: 'ect_total_cut_v2'
         };
 
-        // --- Fungsi Notifikasi & Storage Aman (Anti-Crash) ---
+        // --- Fungsi Notifikasi & Storage ---
         function showNotification(message, type = 'success') {
             clearTimeout(notificationTimer);
             notification.textContent = message;
@@ -295,7 +309,6 @@
 
             for (let i = 0; i < lines.length; i++) {
                 const trimmed = lines[i].trim();
-                // Hanya izinkan format email yang benar!
                 if (trimmed.length > 0 && isValidEmail(trimmed)) {
                     cleanEmails.push(trimmed);
                 }
@@ -309,11 +322,10 @@
             return cleanEmails;
         }
 
-        // --- Clipboard Asinkron (Anti-Gagal di Mobile) ---
+        // --- Clipboard Asinkron ---
         async function universalCopyToClipboard(textToCopy) {
             if (!textToCopy) return false;
             
-            // Coba metode modern dulu
             try {
                 if (navigator.clipboard && window.isSecureContext) {
                     await navigator.clipboard.writeText(textToCopy);
@@ -321,7 +333,6 @@
                 }
             } catch(e) { console.warn("Modern clipboard gagal, mencoba fallback..."); }
 
-            // Metode fallback (execCommand)
             try {
                 clipboardHelper.value = textToCopy;
                 clipboardHelper.select();
@@ -350,13 +361,11 @@
         // --- EVENT LISTENER ATAS ---
         editButton.addEventListener('click', () => {
             if (emailList.readOnly) {
-                // Masuk Edit
                 emailList.readOnly = false;
                 editButton.textContent = 'Simpan';
                 editButton.className = 'btn-green';
                 emailList.focus();
             } else {
-                // Simpan Data
                 emailList.readOnly = true;
                 editButton.textContent = 'Edit';
                 editButton.className = 'btn-blue';
@@ -378,7 +387,6 @@
         });
 
         cutButton.addEventListener('click', async () => {
-            // Paksa mode "Simpan" jika user memotong saat masih dalam mode "Edit"
             if (!emailList.readOnly) {
                 emailList.readOnly = true;
                 editButton.textContent = 'Edit';
@@ -398,24 +406,19 @@
                 return;
             }
 
-            // Eksekusi potong
             const emailsToCut = currentEmails.slice(0, amountToCut);
             const remainingEmails = currentEmails.slice(amountToCut);
             const cutText = emailsToCut.join('\n');
             
-            // Salin ke Clipboard
             const copySuccess = await universalCopyToClipboard(cutText);
 
-            // Pindah ke bawah
             const existingDoneText = doneEmailList.value.trim();
             doneEmailList.value = existingDoneText ? (existingDoneText + '\n' + cutText) : cutText;
             filterAndCleanEmails(doneEmailList, doneEmailCountInput, STORAGE.doneList);
 
-            // Update Atas
             emailList.value = remainingEmails.join('\n');
             filterAndCleanEmails(emailList, emailCountInput, STORAGE.mainList);
             
-            // Update Counter Keluaran
             let currentTotalCut = parseInt(totalCutCounterInput.value, 10) || 0;
             currentTotalCut += amountToCut;
             totalCutCounterInput.value = currentTotalCut;
@@ -529,10 +532,8 @@
             safeSaveData(STORAGE.mainList, emailList.value);
         });
 
-        // Panggil inisialisasi Data Saat Aplikasi Dibuka
         loadData();
     });
     </script>
 </body>
 </html>
- 
