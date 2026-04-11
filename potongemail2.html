@@ -538,4 +538,112 @@
             } else {
                 doneEmailList.readOnly = true;
                 editBottomButton.textContent = 'Edit Bawah';
-                editBottomButton.class
+                editBottomButton.className = 'btn-blue';
+                filterAndCleanEmails(doneEmailList, doneEmailCountInput, STORAGE.doneList);
+                showNotification("Riwayat email bawah berhasil disimpan.", "success");
+            }
+        });
+
+        copyBottomButton.addEventListener('click', async () => {
+            const textToCopy = doneEmailList.value.trim();
+            if (!textToCopy) {
+                showNotification("Kotak bawah kosong.", "warning");
+                return;
+            }
+            const success = await universalCopyToClipboard(textToCopy);
+            if (success) showNotification("Semua email selesai berhasil disalin.", "success");
+        });
+
+        cutBottomButton.addEventListener('click', async () => {
+            const textToCut = doneEmailList.value.trim();
+            if (!textToCut) {
+                showNotification("Tidak ada yang bisa dipotong.", "warning");
+                return;
+            }
+            const success = await universalCopyToClipboard(textToCut);
+            if (success) {
+                doneEmailList.value = '';
+                filterAndCleanEmails(doneEmailList, doneEmailCountInput, STORAGE.doneList);
+                showNotification("Email tersalin dan dibersihkan.", "success");
+            }
+        });
+
+
+        // --- FITUR POPUP RESET & IMPOR (PERMINTAAN 4) ---
+        
+        // Memunculkan Modal
+        resetButton.addEventListener('click', () => {
+            resetModal.classList.add('show');
+        });
+
+        // Menutup Modal (Batal)
+        cancelResetBtn.addEventListener('click', () => {
+            resetModal.classList.remove('show');
+        });
+
+        // Eksekusi Reset dari Modal
+        confirmResetBtn.addEventListener('click', () => {
+            emailList.value = '';
+            doneEmailList.value = '';
+            totalCutCounterInput.value = '0';
+            undoSnapshot = null; // Hapus juga memori undo
+            
+            emailList.readOnly = true;
+            editButton.textContent = 'Edit';
+            editButton.className = 'btn-blue';
+            doneEmailList.readOnly = true;
+            editBottomButton.textContent = 'Edit Bawah';
+            editBottomButton.className = 'btn-blue';
+            
+            filterAndCleanEmails(emailList, emailCountInput, STORAGE.mainList);
+            filterAndCleanEmails(doneEmailList, doneEmailCountInput, STORAGE.doneList);
+            safeSaveData(STORAGE.totalCut, '0');
+            
+            resetModal.classList.remove('show');
+            showNotification("Data berhasil di-reset seluruhnya.", "success");
+        });
+
+        importButton.addEventListener('click', () => { fileInput.click(); });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const fileName = file.name.toLowerCase();
+            if (!fileName.endsWith('.txt')) {
+                showNotification("Wajib menggunakan file .txt!", "error");
+                fileInput.value = null;
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                const existingContent = emailList.value.trim();
+                
+                emailList.value = existingContent ? (existingContent + '\n' + content) : content;
+                
+                const cleanList = filterAndCleanEmails(emailList, emailCountInput, STORAGE.mainList);
+                showNotification(`Impor sukses: ${cleanList.length} email dideteksi.`, "success");
+                fileInput.value = null;
+            };
+            reader.readAsText(file);
+        });
+
+        emailList.addEventListener('input', () => {
+            const lines = emailList.value.split('\n').filter(line => line.trim().length > 0);
+            emailCountInput.value = lines.length;
+            safeSaveData(STORAGE.mainList, emailList.value);
+        });
+        
+        doneEmailList.addEventListener('input', () => {
+            const lines = doneEmailList.value.split('\n').filter(line => line.trim().length > 0);
+            doneEmailCountInput.value = lines.length;
+            safeSaveData(STORAGE.doneList, doneEmailList.value);
+        });
+
+        loadData();
+    });
+    </script>
+</body>
+</html>
