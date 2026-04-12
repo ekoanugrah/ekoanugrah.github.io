@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My Shopee Affiliate Notes</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
         :root {
             --shopee-orange: #ee4d2d; 
@@ -429,7 +433,26 @@
 
         btnGenerate.addEventListener("click", generateCompleteData);
 
-        // ================= LOGIKA CATATAN AFFILIATE & KLIK LINK =================
+        // ================= LOGIKA CATATAN AFFILIATE & KLIK LINK DENGAN SINKRONISASI FIREBASE =================
+        
+        // 1. Inisialisasi Firebase Database
+        const firebaseConfig = { 
+            apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", 
+            authDomain: "catatanku-app-ce60b.firebaseapp.com", 
+            databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", 
+            projectId: "catatanku-app-ce60b", 
+            storageBucket: "catatanku-app-ce60b.firebasestorage.app", 
+            messagingSenderId: "291744292263", 
+            appId: "1:291744292263:web:ab8d32ba52bc19cbffea82" 
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const db = firebase.database();
+        const syncRef = db.ref('shopee_affiliate/used_indices');
+
         const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
@@ -463,10 +486,7 @@
                     if (line === '') return;
 
                     if (!line.includes('|')) {
-                        currentGroup = {
-                            name: line,
-                            products: []
-                        };
+                        currentGroup = { name: line, products: [] };
                         groupedProducts.push(currentGroup);
                     } 
                     else if (currentGroup) {
@@ -495,16 +515,13 @@
 
         function renderColumns() {
             productList.innerHTML = '';
-            
             const bgColors = ['#f8fafc', '#f1f5f9', '#fdf8f6', '#f0fdf4', '#fdf4ff'];
 
             groupedProducts.forEach((group, index) => {
                 const columnLi = document.createElement('li');
                 columnLi.className = 'product-column';
-
                 const colorBg = bgColors[index % bgColors.length];
 
-                // PERUBAHAN DI SINI: Memanggil fungsi bukaAcakDariGrup
                 columnLi.innerHTML = `
                     <div class="column-header">
                         <div class="column-number">${group.name}</div>
@@ -529,24 +546,63 @@
             });
         }
 
-        // PERUBAHAN DI SINI: Fungsi baru untuk langsung membuka link
         window.bukaAcakDariGrup = function(groupIndex) {
             const group = groupedProducts[groupIndex];
             if (group && group.products.length > 0) {
-                // Pilih satu produk secara acak dari grup tersebut
                 const randomItem = group.products[Math.floor(Math.random() * group.products.length)];
-                
-                // Langsung buka link menggunakan fungsi yang sudah ada
                 bukaTautanAffiliate(randomItem.link);
                 tampilkanToast(`Membuka produk dari ${group.name}...`);
             }
         };
 
+        // 2. Logika Sinkronisasi Buka Acak Global (Firebase Transaction)
         btnRandomProduct.addEventListener('click', () => {
-            if (allAffiliateLinks.length > 0) {
-                const randomLink = allAffiliateLinks[Math.floor(Math.random() * allAffiliateLinks.length)];
-                bukaTautanAffiliate(randomLink);
-            }
+            if (allAffiliateLinks.length === 0) return;
+
+            btnRandomProduct.disabled = true;
+            const originalText = btnRandomProduct.innerHTML;
+            btnRandomProduct.innerText = "⏳ Sinkronisasi...";
+
+            // Menggunakan transaksi Firebase agar data tidak tabrakan antar HP
+            syncRef.transaction((currentUsedData) => {
+                let used = currentUsedData || [];
+                let totalLinks = allAffiliateLinks.length;
+                let available = [];
+
+                // Cek index mana saja yang belum dibuka
+                for(let i = 0; i < totalLinks; i++) {
+                    if(!used.includes(i)) available.push(i);
+                }
+
+                // Jika sudah habis dibuka semua, reset putaran
+                if(available.length === 0) {
+                    available = [];
+                    for(let i = 0; i < totalLinks; i++) available.push(i);
+                    used = []; // Kosongkan riwayat
+                }
+
+                // Pilih 1 acak dari yang masih tersedia
+                let pickedIndex = available[Math.floor(Math.random() * available.length)];
+                used.push(pickedIndex); // Masukkan ke daftar riwayat yang sudah terpakai
+
+                return used; // Simpan kembali ke Firebase
+
+            }, (error, committed, snapshot) => {
+                // Kembalikan tombol seperti semula setelah proses selesai
+                btnRandomProduct.disabled = false;
+                btnRandomProduct.innerHTML = originalText;
+
+                if (error) {
+                    tampilkanToast("❌ Gagal sinkronisasi antar HP");
+                } else if (committed) {
+                    let used = snapshot.val();
+                    let pickedIndex = used[used.length - 1]; // Mengambil index terakhir yang didapat
+                    let remaining = allAffiliateLinks.length - used.length;
+                    
+                    tampilkanToast(`Membuka Link Acak (Sisa di putaran ini: ${remaining})`);
+                    bukaTautanAffiliate(allAffiliateLinks[pickedIndex]);
+                }
+            });
         });
 
         fetchProducts();
