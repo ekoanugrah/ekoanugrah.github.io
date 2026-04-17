@@ -286,7 +286,7 @@
             <h2 class="section-title">Daftar Produk Affiliate</h2>
             
             <button class="btn-action" id="btnRandomProduct" style="margin-bottom: 15px; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);" disabled>
-                🎁 Buka Tautan Produk Acak Global
+                📋 Salin Tautan Produk Acak Global
             </button>
             <div id="status" class="loading">Memuat produk...</div>
             
@@ -433,7 +433,7 @@
 
         btnGenerate.addEventListener("click", generateCompleteData);
 
-        // ================= LOGIKA CATATAN AFFILIATE & KLIK LINK DENGAN SINKRONISASI FIREBASE =================
+        // ================= LOGIKA CATATAN AFFILIATE & SALIN LINK DENGAN SINKRONISASI FIREBASE =================
         
         // 1. Inisialisasi Firebase Database
         const firebaseConfig = { 
@@ -461,13 +461,34 @@
         let allAffiliateLinks = []; 
         let groupedProducts = []; 
 
-        function bukaTautanAffiliate(url) {
-            window.open(url, '_blank', 'noopener,noreferrer');
-            setTimeout(() => {
-                if (window.location.href.includes('median')) {
-                    window.location.href = 'median://window/close';
+        // ================= FUNGSI BARU UNTUK MENYALIN LINK =================
+        function salinTautanAffiliate(url) {
+            // Menggunakan Clipboard API modern jika mendukung
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(() => {
+                    tampilkanToast("✅ Link berhasil disalin!");
+                }).catch(err => {
+                    tampilkanToast("❌ Gagal menyalin link");
+                });
+            } else {
+                // Fallback untuk browser lawas / HTTP
+                let textArea = document.createElement("textarea");
+                textArea.value = url;
+                // Agar tidak mengubah scroll halaman
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    tampilkanToast("✅ Link berhasil disalin!");
+                } catch (err) {
+                    tampilkanToast("❌ Gagal menyalin link");
                 }
-            }, 1500); 
+                textArea.remove();
+            }
         }
 
         async function fetchProducts() {
@@ -525,8 +546,8 @@
                 columnLi.innerHTML = `
                     <div class="column-header">
                         <div class="column-number">${group.name}</div>
-                        <button class="btn-open-column" onclick="bukaAcakDariGrup(${index})">
-                            🎁 BUKA ACAK
+                        <button class="btn-open-column" onclick="salinAcakDariGrup(${index})">
+                            📋 SALIN ACAK
                         </button>
                     </div>
                 `;
@@ -535,7 +556,7 @@
                     const prodDiv = document.createElement('div');
                     prodDiv.className = 'product-item';
                     prodDiv.innerHTML = `
-                        <button class="btn-product-link" style="background-color: ${colorBg};" onclick="bukaTautanAffiliate('${prod.link}')">
+                        <button class="btn-product-link" style="background-color: ${colorBg};" onclick="salinTautanAffiliate('${prod.link}')">
                             <span class="product-title">${prod.nama}</span>
                         </button>
                     `;
@@ -546,16 +567,16 @@
             });
         }
 
-        window.bukaAcakDariGrup = function(groupIndex) {
+        window.salinAcakDariGrup = function(groupIndex) {
             const group = groupedProducts[groupIndex];
             if (group && group.products.length > 0) {
                 const randomItem = group.products[Math.floor(Math.random() * group.products.length)];
-                bukaTautanAffiliate(randomItem.link);
-                tampilkanToast(`Membuka produk dari ${group.name}...`);
+                salinTautanAffiliate(randomItem.link);
+                // tampilkanToast(`Menyalin produk dari ${group.name}...`);
             }
         };
 
-        // 2. Logika Sinkronisasi Buka Acak Global (Firebase Transaction)
+        // 2. Logika Sinkronisasi Salin Acak Global (Firebase Transaction)
         btnRandomProduct.addEventListener('click', () => {
             if (allAffiliateLinks.length === 0) return;
 
@@ -569,12 +590,12 @@
                 let totalLinks = allAffiliateLinks.length;
                 let available = [];
 
-                // Cek index mana saja yang belum dibuka
+                // Cek index mana saja yang belum disalin
                 for(let i = 0; i < totalLinks; i++) {
                     if(!used.includes(i)) available.push(i);
                 }
 
-                // Jika sudah habis dibuka semua, reset putaran
+                // Jika sudah habis disalin semua, reset putaran
                 if(available.length === 0) {
                     available = [];
                     for(let i = 0; i < totalLinks; i++) available.push(i);
@@ -597,10 +618,9 @@
                 } else if (committed) {
                     let used = snapshot.val();
                     let pickedIndex = used[used.length - 1]; // Mengambil index terakhir yang didapat
-                    let remaining = allAffiliateLinks.length - used.length;
+                    // let remaining = allAffiliateLinks.length - used.length;
                     
-                    tampilkanToast(`Membuka Link Acak (Sisa di putaran ini: ${remaining})`);
-                    bukaTautanAffiliate(allAffiliateLinks[pickedIndex]);
+                    salinTautanAffiliate(allAffiliateLinks[pickedIndex]);
                 }
             });
         });
