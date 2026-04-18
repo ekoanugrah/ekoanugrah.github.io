@@ -461,34 +461,33 @@
         let allAffiliateLinks = []; 
         let groupedProducts = []; 
 
-        // ================= FUNGSI BARU UNTUK MENYALIN LINK =================
+        // ================= FUNGSI BARU UNTUK MENYALIN LINK (VERSI TANGGUH UNTUK MOBILE) =================
         function salinTautanAffiliate(url) {
-            // Menggunakan Clipboard API modern jika mendukung
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(url).then(() => {
-                    tampilkanToast("✅ Link berhasil disalin!");
-                }).catch(err => {
-                    tampilkanToast("❌ Gagal menyalin link");
-                });
-            } else {
-                // Fallback untuk browser lawas / HTTP
-                let textArea = document.createElement("textarea");
-                textArea.value = url;
-                // Agar tidak mengubah scroll halaman
-                textArea.style.position = "fixed";
-                textArea.style.left = "-999999px";
-                textArea.style.top = "-999999px";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    tampilkanToast("✅ Link berhasil disalin!");
-                } catch (err) {
-                    tampilkanToast("❌ Gagal menyalin link");
-                }
-                textArea.remove();
+            // Buat elemen textarea sementara
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = url;
+            
+            // Sembunyikan elemen tanpa membuatnya hilang dari DOM
+            tempTextArea.style.position = "absolute";
+            tempTextArea.style.left = "-9999px";
+            document.body.appendChild(tempTextArea);
+            
+            // Pilih teks di dalam textarea
+            tempTextArea.select();
+            tempTextArea.setSelectionRange(0, 99999); // Penting untuk perangkat mobile
+            
+            try {
+                // Jalankan perintah copy tradisional yang lebih didukung di semua perangkat
+                document.execCommand('copy');
+                tampilkanToast("✅ Link berhasil disalin!");
+            } catch (err) {
+                console.error("Gagal menyalin:", err);
+                tampilkanToast("❌ Gagal menyalin link");
             }
+            
+            // Bersihkan sisa elemen
+            document.body.removeChild(tempTextArea);
+            window.getSelection().removeAllRanges();
         }
 
         async function fetchProducts() {
@@ -572,7 +571,6 @@
             if (group && group.products.length > 0) {
                 const randomItem = group.products[Math.floor(Math.random() * group.products.length)];
                 salinTautanAffiliate(randomItem.link);
-                // tampilkanToast(`Menyalin produk dari ${group.name}...`);
             }
         };
 
@@ -618,7 +616,6 @@
                 } else if (committed) {
                     let used = snapshot.val();
                     let pickedIndex = used[used.length - 1]; // Mengambil index terakhir yang didapat
-                    // let remaining = allAffiliateLinks.length - used.length;
                     
                     salinTautanAffiliate(allAffiliateLinks[pickedIndex]);
                 }
