@@ -451,7 +451,8 @@
         }
         
         const db = firebase.database();
-        const syncRef = db.ref('shopee_affiliate/used_indices');
+        // MENGGUNAKAN NODE BARU 'link_pool_master' AGAR BERSIH DARI DATA LAMA
+        const syncRef = db.ref('shopee_affiliate/link_pool_master');
 
         const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
         const productList = document.getElementById('productList');
@@ -461,23 +462,17 @@
         let allAffiliateLinks = []; 
         let groupedProducts = []; 
 
-        // ================= FUNGSI BARU UNTUK MENYALIN LINK (VERSI TANGGUH UNTUK MOBILE) =================
         function salinTautanAffiliate(url) {
-            // Buat elemen textarea sementara
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = url;
-            
-            // Sembunyikan elemen tanpa membuatnya hilang dari DOM
             tempTextArea.style.position = "absolute";
             tempTextArea.style.left = "-9999px";
             document.body.appendChild(tempTextArea);
             
-            // Pilih teks di dalam textarea
             tempTextArea.select();
-            tempTextArea.setSelectionRange(0, 99999); // Penting untuk perangkat mobile
+            tempTextArea.setSelectionRange(0, 99999);
             
             try {
-                // Jalankan perintah copy tradisional yang lebih didukung di semua perangkat
                 document.execCommand('copy');
                 tampilkanToast("✅ Link berhasil disalin!");
             } catch (err) {
@@ -485,7 +480,6 @@
                 tampilkanToast("❌ Gagal menyalin link");
             }
             
-            // Bersihkan sisa elemen
             document.body.removeChild(tempTextArea);
             window.getSelection().removeAllRanges();
         }
@@ -555,8 +549,8 @@
                     const prodDiv = document.createElement('div');
                     prodDiv.className = 'product-item';
                     prodDiv.innerHTML = `
-                        <button class="btn-product-link" style="background-color: ${colorBg};" onclick="salinTautanAffiliate('${prod.link}')">
-                            <span class="product-title">${prod.nama}</span>
+                        <button class=\"btn-product-link\" style=\"background-color: ${colorBg};\" onclick=\"salinTautanAffiliate('${prod.link}')\">
+                            <span class=\"product-title\">${prod.nama}</span>
                         </button>
                     `;
                     columnLi.appendChild(prodDiv);
@@ -574,7 +568,7 @@
             }
         };
 
-        // 2. Logika Sinkronisasi Salin Acak Global (Firebase Transaction)
+        // 2. Logika Distribusi Link Global Bebas Ganda (Advanced Firebase Transaction)
         btnRandomProduct.addEventListener('click', () => {
             if (allAffiliateLinks.length === 0) return;
 
@@ -582,42 +576,68 @@
             const originalText = btnRandomProduct.innerHTML;
             btnRandomProduct.innerText = "⏳ Sinkronisasi...";
 
-            // Menggunakan transaksi Firebase agar data tidak tabrakan antar HP
-            syncRef.transaction((currentUsedData) => {
-                let used = currentUsedData || [];
-                let totalLinks = allAffiliateLinks.length;
-                let available = [];
+            // Membuat "Sidik Jari" unik dari isi Gist saat ini
+            // Jika ada penambahan/pengurangan link di Gist, sidik jari ini otomatis berubah
+            const currentSignature = allAffiliateLinks.length + "_" + allAffiliateLinks.join("").length;
 
-                // Cek index mana saja yang belum disalin
-                for(let i = 0; i < totalLinks; i++) {
-                    if(!used.includes(i)) available.push(i);
+            syncRef.transaction((currentData) => {
+                
+                // KONDISI 1: RESET TOTAL (Jika Firebase kosong, atau Gist baru saja diubah)
+                if (!currentData || currentData.signature !== currentSignature) {
+                    
+                    // Buat gudang nomor sisa dari awal (0 sampai total link)
+                    let newAvailable = [];
+                    for(let i = 0; i < allAffiliateLinks.length; i++) {
+                        newAvailable.push(i);
+                    }
+                    
+                    // HP ini langsung mengambil 1 nomor secara acak
+                    let randomIndex = Math.floor(Math.random() * newAvailable.length);
+                    
+                    // splice() secara permanen menghapus nomor tersebut dari gudang
+                    let pickedIndex = newAvailable.splice(randomIndex, 1)[0];
+                    
+                    return {
+                        signature: currentSignature,
+                        available: newAvailable, // Simpan gudang yang sudah berkurang 1
+                        lastPicked: pickedIndex  // Catat nomor yang diambil oleh HP ini
+                    };
                 }
 
-                // Jika sudah habis disalin semua, reset putaran
-                if(available.length === 0) {
-                    available = [];
-                    for(let i = 0; i < totalLinks; i++) available.push(i);
-                    used = []; // Kosongkan riwayat
+                // KONDISI 2: NORMAL (Mengambil dari sisa gudang yang ada di server)
+                let available = currentData.available || [];
+                
+                // Jika gudang ternyata sudah habis, kita reset putarannya
+                if (available.length === 0) {
+                    for(let i = 0; i < allAffiliateLinks.length; i++) {
+                        available.push(i);
+                    }
                 }
 
-                // Pilih 1 acak dari yang masih tersedia
-                let pickedIndex = available[Math.floor(Math.random() * available.length)];
-                used.push(pickedIndex); // Masukkan ke daftar riwayat yang sudah terpakai
+                // Ambil 1 nomor secara acak dari gudang sisa
+                let randomIndex = Math.floor(Math.random() * available.length);
+                
+                // Hapus nomor tersebut dari gudang agar tidak bisa diambil HP lain
+                let pickedIndex = available.splice(randomIndex, 1)[0];
 
-                return used; // Simpan kembali ke Firebase
+                return {
+                    signature: currentData.signature,
+                    available: available, // Simpan gudang yang sudah dikurangi
+                    lastPicked: pickedIndex // Kunci pilihan untuk HP ini
+                };
 
             }, (error, committed, snapshot) => {
-                // Kembalikan tombol seperti semula setelah proses selesai
                 btnRandomProduct.disabled = false;
                 btnRandomProduct.innerHTML = originalText;
 
                 if (error) {
                     tampilkanToast("❌ Gagal sinkronisasi antar HP");
                 } else if (committed) {
-                    let used = snapshot.val();
-                    let pickedIndex = used[used.length - 1]; // Mengambil index terakhir yang didapat
-                    
-                    salinTautanAffiliate(allAffiliateLinks[pickedIndex]);
+                    // Firebase menjamin snapshot ini adalah hasil final eksklusif milik HP ini
+                    let data = snapshot.val();
+                    if (data && data.lastPicked !== undefined) {
+                        salinTautanAffiliate(allAffiliateLinks[data.lastPicked]);
+                    }
                 }
             });
         });
