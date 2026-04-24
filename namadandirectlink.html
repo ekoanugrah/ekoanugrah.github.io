@@ -120,35 +120,40 @@
             transform: none !important;
         }
 
-        /* DAFTAR PRODUK AFFILIATE - HORIZONTAL SCROLL */
+        /* DAFTAR PRODUK AFFILIATE - HORIZONTAL SCROLL SNAP */
         .scroll-wrapper {
             width: 100%;
             overflow-x: auto;
             display: flex;
             padding-bottom: 12px;
             -webkit-overflow-scrolling: touch; 
+            scroll-snap-type: x mandatory; /* Fitur snap/magnet */
         }
 
         .note-list {
             display: flex;
-            gap: 15px;
-            padding: 5px;
+            gap: 12px; /* Jarak pas antar kolom */
+            padding: 0; /* Menghilangkan padding kiri-kanan agar snap akurat */
             margin: 0;
             list-style-type: none;
+            width: 100%;
         }
 
-        /* Tiap Kolom (Sesuai Nomor) */
+        /* Tiap Kolom (Toko) Diatur Memuat Tepat 2 */
         .product-column {
             display: flex;
             flex-direction: column;
-            min-width: 150px; 
-            max-width: 180px;
+            /* 50% dari layar dikurangi setengah jarak (gap) */
+            flex: 0 0 calc(50% - 6px); 
+            max-width: calc(50% - 6px);
+            min-width: unset;
             background: #fff;
             border-radius: 12px;
             padding: 12px;
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 6px rgba(0,0,0,0.03);
-            flex-shrink: 0;
+            box-sizing: border-box;
+            scroll-snap-align: start; /* Titik henti magnet scroll */
         }
 
         /* Header dalam Kolom */
@@ -156,10 +161,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border-bottom: 2px solid var(--shopee-orange);
             padding-bottom: 12px;
-            gap: 8px;
+            gap: 10px;
         }
 
         .column-number {
@@ -169,19 +174,20 @@
             text-align: center;
         }
 
-        /* Tombol Buka Acak Khusus per Kolom */
+        /* Tombol Buka Acak Khusus per Kolom (DIPERBESAR) */
         .btn-open-column {
             width: 100%;
             background-color: var(--action-blue);
             color: white;
             border: none;
-            padding: 10px 4px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
+            padding: 12px 6px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 800;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 3px 6px rgba(52, 152, 219, 0.3);
+            letter-spacing: 0.5px;
         }
 
         .btn-open-column:active {
@@ -189,48 +195,65 @@
             transform: scale(0.96);
         }
 
-        /* Tombol Link Produk Utama (Di dalam kolom) */
+        /* Container Tombol Link Produk */
         .product-item {
             display: flex;
             width: 100%;
             margin-bottom: 10px;
         }
 
+        /* Desain Baru Tombol Link Produk */
         .btn-product-link {
             box-sizing: border-box; 
             width: 100%;
-            min-height: 60px;
-            border: 1px solid rgba(0,0,0,0.05);
+            min-height: 65px;
+            border: 1px solid rgba(0,0,0,0.08);
             color: var(--text-main);
-            padding: 12px 8px; 
+            padding: 10px; 
             border-radius: 10px; 
             cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
             transition: transform 0.1s ease, box-shadow 0.1s ease;
             -webkit-tap-highlight-color: transparent; 
             background: #ffffff;
             display: flex;
-            align-items: center;
+            flex-direction: column; /* Mengubah gaya menjadi rata bawah-atas */
+            align-items: flex-start; /* Rata Kiri */
             justify-content: center;
+            gap: 6px;
         }
 
         .btn-product-link:active {
             transform: translateY(2px);
             background: #f9f9f9;
+            border-color: var(--shopee-orange);
         }
 
+        /* Nama Produk Dirapihkan */
         .product-title {
-            font-size: 12px;
-            font-weight: 600; 
-            text-align: center;
+            font-size: 13px;
+            font-weight: 700; 
+            text-align: left;
             line-height: 1.4;
             display: -webkit-box;
-            -webkit-line-clamp: 3; 
+            -webkit-line-clamp: 2; /* Batasi maksimal 2 baris teks */
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-break: break-word;
             margin: 0; 
             width: 100%;
+            color: #2c3e50;
+        }
+
+        /* Harga Produk Terpisah dan Bergaya Shopee */
+        .product-price {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--shopee-orange);
+            margin: 0;
+            background: rgba(238, 77, 45, 0.1);
+            padding: 3px 6px;
+            border-radius: 4px;
         }
 
         .loading, .error {
@@ -451,7 +474,6 @@
         }
         
         const db = firebase.database();
-        // MENGGUNAKAN NODE BARU 'link_pool_master' AGAR BERSIH DARI DATA LAMA
         const syncRef = db.ref('shopee_affiliate/link_pool_master');
 
         const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
@@ -548,9 +570,26 @@
                 group.products.forEach(prod => {
                     const prodDiv = document.createElement('div');
                     prodDiv.className = 'product-item';
+
+                    // === LOGIKA PEMISAH HARGA CERDAS ===
+                    let rawName = prod.nama;
+                    let displayName = rawName;
+                    let displayPrice = "";
+
+                    // Mendeteksi format Rp di akhir string.
+                    let priceMatch = rawName.match(/(?:-?\s*)?(Rp\s*[\d\.]+.*)$/i);
+                    if (priceMatch) {
+                        displayPrice = priceMatch[1];
+                        displayName = rawName.replace(priceMatch[0], '').trim();
+                    }
+
+                    // Jika ada harga, bungkus ke dalam span bergaya oren, jika tidak biarkan kosong
+                    let priceHtml = displayPrice ? `<div class="product-price">${displayPrice}</div>` : '';
+
                     prodDiv.innerHTML = `
-                        <button class=\"btn-product-link\" style=\"background-color: ${colorBg};\" onclick=\"salinTautanAffiliate('${prod.link}')\">
-                            <span class=\"product-title\">${prod.nama}</span>
+                        <button class="btn-product-link" style="background-color: ${colorBg};" onclick="salinTautanAffiliate('${prod.link}')">
+                            <span class="product-title">${displayName}</span>
+                            ${priceHtml}
                         </button>
                     `;
                     columnLi.appendChild(prodDiv);
@@ -576,54 +615,41 @@
             const originalText = btnRandomProduct.innerHTML;
             btnRandomProduct.innerText = "⏳ Sinkronisasi...";
 
-            // Membuat "Sidik Jari" unik dari isi Gist saat ini
-            // Jika ada penambahan/pengurangan link di Gist, sidik jari ini otomatis berubah
             const currentSignature = allAffiliateLinks.length + "_" + allAffiliateLinks.join("").length;
 
             syncRef.transaction((currentData) => {
                 
-                // KONDISI 1: RESET TOTAL (Jika Firebase kosong, atau Gist baru saja diubah)
                 if (!currentData || currentData.signature !== currentSignature) {
-                    
-                    // Buat gudang nomor sisa dari awal (0 sampai total link)
                     let newAvailable = [];
                     for(let i = 0; i < allAffiliateLinks.length; i++) {
                         newAvailable.push(i);
                     }
                     
-                    // HP ini langsung mengambil 1 nomor secara acak
                     let randomIndex = Math.floor(Math.random() * newAvailable.length);
-                    
-                    // splice() secara permanen menghapus nomor tersebut dari gudang
                     let pickedIndex = newAvailable.splice(randomIndex, 1)[0];
                     
                     return {
                         signature: currentSignature,
-                        available: newAvailable, // Simpan gudang yang sudah berkurang 1
-                        lastPicked: pickedIndex  // Catat nomor yang diambil oleh HP ini
+                        available: newAvailable,
+                        lastPicked: pickedIndex
                     };
                 }
 
-                // KONDISI 2: NORMAL (Mengambil dari sisa gudang yang ada di server)
                 let available = currentData.available || [];
                 
-                // Jika gudang ternyata sudah habis, kita reset putarannya
                 if (available.length === 0) {
                     for(let i = 0; i < allAffiliateLinks.length; i++) {
                         available.push(i);
                     }
                 }
 
-                // Ambil 1 nomor secara acak dari gudang sisa
                 let randomIndex = Math.floor(Math.random() * available.length);
-                
-                // Hapus nomor tersebut dari gudang agar tidak bisa diambil HP lain
                 let pickedIndex = available.splice(randomIndex, 1)[0];
 
                 return {
                     signature: currentData.signature,
-                    available: available, // Simpan gudang yang sudah dikurangi
-                    lastPicked: pickedIndex // Kunci pilihan untuk HP ini
+                    available: available,
+                    lastPicked: pickedIndex
                 };
 
             }, (error, committed, snapshot) => {
@@ -633,7 +659,6 @@
                 if (error) {
                     tampilkanToast("❌ Gagal sinkronisasi antar HP");
                 } else if (committed) {
-                    // Firebase menjamin snapshot ini adalah hasil final eksklusif milik HP ini
                     let data = snapshot.val();
                     if (data && data.lastPicked !== undefined) {
                         salinTautanAffiliate(allAffiliateLinks[data.lastPicked]);
