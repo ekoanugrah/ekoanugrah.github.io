@@ -127,33 +127,33 @@
             display: flex;
             padding-bottom: 12px;
             -webkit-overflow-scrolling: touch; 
-            scroll-snap-type: x mandatory; /* Fitur snap/magnet */
+            scroll-snap-type: x mandatory; 
         }
 
         .note-list {
             display: flex;
-            gap: 12px; /* Jarak pas antar kolom */
-            padding: 0; /* Menghilangkan padding kiri-kanan agar snap akurat */
+            gap: 12px; 
+            padding: 0; 
             margin: 0;
             list-style-type: none;
             width: 100%;
         }
 
-        /* Tiap Kolom (Toko) Diatur Memuat Tepat 2 */
+        /* Tiap Kolom (Toko) */
         .product-column {
             display: flex;
             flex-direction: column;
-            /* 50% dari layar dikurangi setengah jarak (gap) */
             flex: 0 0 calc(50% - 6px); 
             max-width: calc(50% - 6px);
             min-width: unset;
             background: #fff;
             border-radius: 12px;
-            padding: 12px;
+            /* Padding kiri-kanan diperkecil menjadi 6px agar tombol di dalamnya bisa lebih lebar */
+            padding: 12px 6px; 
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 6px rgba(0,0,0,0.03);
             box-sizing: border-box;
-            scroll-snap-align: start; /* Titik henti magnet scroll */
+            scroll-snap-align: start; 
         }
 
         /* Header dalam Kolom */
@@ -174,15 +174,15 @@
             text-align: center;
         }
 
-        /* Tombol Buka Acak Khusus per Kolom (DIPERBESAR) */
+        /* Tombol Buka Acak Khusus per Kolom (DIPERLEBAR & DIPERBESAR) */
         .btn-open-column {
             width: 100%;
             background-color: var(--action-blue);
             color: white;
             border: none;
-            padding: 12px 6px;
+            padding: 14px 4px; /* Padding vertikal ditambah */
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 13px; /* Font lebih besar */
             font-weight: 800;
             cursor: pointer;
             text-transform: uppercase;
@@ -202,7 +202,7 @@
             margin-bottom: 10px;
         }
 
-        /* Desain Baru Tombol Link Produk */
+        /* Desain Baru Tombol Link Produk (Rata Tengah) */
         .btn-product-link {
             box-sizing: border-box; 
             width: 100%;
@@ -215,28 +215,27 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.03);
             transition: transform 0.1s ease, box-shadow 0.1s ease;
             -webkit-tap-highlight-color: transparent; 
-            background: #ffffff;
             display: flex;
-            flex-direction: column; /* Mengubah gaya menjadi rata bawah-atas */
-            align-items: flex-start; /* Rata Kiri */
+            flex-direction: column; 
+            align-items: center; /* Rata Tengah Horizontal */
             justify-content: center;
             gap: 6px;
         }
 
         .btn-product-link:active {
             transform: translateY(2px);
-            background: #f9f9f9;
+            filter: brightness(0.95);
             border-color: var(--shopee-orange);
         }
 
-        /* Nama Produk Dirapihkan */
+        /* Nama Produk (Rata Tengah) */
         .product-title {
             font-size: 13px;
             font-weight: 700; 
-            text-align: left;
+            text-align: center; /* Teks Rata Tengah */
             line-height: 1.4;
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* Batasi maksimal 2 baris teks */
+            -webkit-line-clamp: 2; 
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-break: break-word;
@@ -245,14 +244,14 @@
             color: #2c3e50;
         }
 
-        /* Harga Produk Terpisah dan Bergaya Shopee */
+        /* Harga Produk */
         .product-price {
             font-size: 12px;
             font-weight: 800;
             color: var(--shopee-orange);
             margin: 0;
             background: rgba(238, 77, 45, 0.1);
-            padding: 3px 6px;
+            padding: 3px 8px;
             border-radius: 4px;
         }
 
@@ -458,7 +457,6 @@
 
         // ================= LOGIKA CATATAN AFFILIATE & SALIN LINK DENGAN SINKRONISASI FIREBASE =================
         
-        // 1. Inisialisasi Firebase Database
         const firebaseConfig = { 
             apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", 
             authDomain: "catatanku-app-ce60b.firebaseapp.com", 
@@ -551,7 +549,8 @@
 
         function renderColumns() {
             productList.innerHTML = '';
-            const bgColors = ['#f8fafc', '#f1f5f9', '#fdf8f6', '#f0fdf4', '#fdf4ff'];
+            // WARNA PASTEL BARU YANG LEBIH NYATA UNTUK MASING-MASING TOKO
+            const bgColors = ['#dbeafe', '#fce7f3', '#dcfce7', '#ffedd5', '#f3e8ff'];
 
             groupedProducts.forEach((group, index) => {
                 const columnLi = document.createElement('li');
@@ -571,19 +570,16 @@
                     const prodDiv = document.createElement('div');
                     prodDiv.className = 'product-item';
 
-                    // === LOGIKA PEMISAH HARGA CERDAS ===
                     let rawName = prod.nama;
                     let displayName = rawName;
                     let displayPrice = "";
 
-                    // Mendeteksi format Rp di akhir string.
                     let priceMatch = rawName.match(/(?:-?\s*)?(Rp\s*[\d\.]+.*)$/i);
                     if (priceMatch) {
                         displayPrice = priceMatch[1];
                         displayName = rawName.replace(priceMatch[0], '').trim();
                     }
 
-                    // Jika ada harga, bungkus ke dalam span bergaya oren, jika tidak biarkan kosong
                     let priceHtml = displayPrice ? `<div class="product-price">${displayPrice}</div>` : '';
 
                     prodDiv.innerHTML = `
@@ -607,7 +603,6 @@
             }
         };
 
-        // 2. Logika Distribusi Link Global Bebas Ganda (Advanced Firebase Transaction)
         btnRandomProduct.addEventListener('click', () => {
             if (allAffiliateLinks.length === 0) return;
 
