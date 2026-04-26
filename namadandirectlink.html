@@ -85,23 +85,22 @@
         /* TOMBOL UTAMA (DIPERBESAR) */
         .btn-main-large {
             width: 100%;
-            padding: 16px;
+            padding: 16px 8px;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 800;
             cursor: pointer;
             border: none;
             color: white;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             transition: transform 0.1s, filter 0.2s;
-            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .btn-main-large:active { transform: scale(0.97); }
         .btn-main-large:disabled { background-color: #cccccc !important; cursor: not-allowed; box-shadow: none !important; transform: none !important; }
 
-        .btn-generate { background-color: var(--shopee-orange); }
+        .btn-generate { background-color: var(--shopee-orange); margin-bottom: 10px; font-size: 16px;}
         .btn-global-random { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); }
 
         /* DAFTAR PRODUK AFFILIATE */
@@ -143,8 +142,16 @@
         .loading, .error { text-align: center; color: var(--text-muted); padding: 20px; font-size: 14px; }
         .error { color: var(--shopee-orange); }
 
+        /* MODAL EDITOR CSS */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal.hidden { display: none; }
+        .modal-content { background: var(--bg-color); padding: 15px; border-radius: 12px; position: relative; display: flex; flex-direction: column; width: 95%; max-width: 500px; max-height: 90vh; }
+        .editor-store-card { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 15px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .editor-btn { background: #f0f0f0; border: 1px solid #ccc; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .editor-btn:active { background: #e0e0e0; }
+
         /* Toast Notification */
-        #toast { visibility: hidden; min-width: 200px; background-color: rgba(0, 0, 0, 0.85); color: #fff; text-align: center; border-radius: 30px; padding: 12px 20px; position: fixed; z-index: 1000; bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
+        #toast { visibility: hidden; min-width: 200px; background-color: rgba(0, 0, 0, 0.85); color: #fff; text-align: center; border-radius: 30px; padding: 12px 20px; position: fixed; z-index: 1500; bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
     </style>
 </head>
@@ -160,26 +167,47 @@
         <div class="section-card">
             <h2 class="section-title">Generator Identitas & Alamat</h2>
             <textarea id="resultArea" readonly placeholder="Tunggu, mengunduh database nama dari Firebase..."></textarea>
-            
             <button class="btn-main-large btn-generate" id="btnGenerate" disabled>⏳ Memuat Database...</button>
         </div>
 
         <div class="section-card">
             <h2 class="section-title">Daftar Produk Affiliate</h2>
             
-            <button class="btn-main-large btn-global-random" id="btnRandomProduct" disabled>
-                📋 Salin Produk Acak Global
-            </button>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button class="btn-main-large btn-global-random" id="btnRandomProduct" style="flex: 2; margin-bottom: 0;" disabled>
+                    📋 Acak Global
+                </button>
+                <button class="btn-main-large" style="flex: 1; margin-bottom: 0; background: var(--text-main);" onclick="openEditorModal()">
+                    ⚙️ Kelola
+                </button>
+            </div>
 
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
             <div class="progress-text" id="progressText">Menyinkronkan status link...</div>
 
-            <div id="status" class="loading">Memuat produk...</div>
+            <div id="status" class="loading">Memuat produk dari Firebase...</div>
             
             <div class="scroll-wrapper">
                 <ul class="note-list" id="productList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="editorModal" class="modal hidden">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--shopee-orange); padding-bottom: 10px; margin-bottom: 10px;">
+                <h3 style="margin:0; font-size: 16px; color: var(--shopee-orange);">⚙️ Kelola Database Produk</h3>
+                <button onclick="closeEditorModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--danger-red);">✖</button>
+            </div>
+            
+            <div id="editorBody" style="overflow-y: auto; flex: 1; padding-right: 5px;">
+                </div>
+
+            <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn-main-large" style="background: var(--success-green); padding: 12px; margin: 0; font-size: 13px;" onclick="addStore()">+ Tambah Toko Baru</button>
+                <button class="btn-main-large" style="background: var(--shopee-orange); padding: 12px; margin: 0; font-size: 13px;" onclick="saveEditorData()">💾 SIMPAN & SINKRONKAN KE 15 HP</button>
             </div>
         </div>
     </div>
@@ -205,12 +233,11 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        // ================= LOGIKA GENERATOR ALAMAT (VIA FIREBASE) =================
+        // ================= LOGIKA GENERATOR ALAMAT =================
         const btnGenerate = document.getElementById("btnGenerate");
         const resultArea = document.getElementById("resultArea");
-        let dbNames = null; // Menyimpan data nama dari Firebase
+        let dbNames = null; 
 
-        // Unduh Database Nama dari Firebase saat halaman dimuat
         db.ref('shopee_affiliate/address_db').on('value', snap => {
             if(snap.exists()){
                 dbNames = snap.val();
@@ -220,7 +247,7 @@
             } else {
                 btnGenerate.disabled = true;
                 btnGenerate.innerText = "⚠️ Database Kosong";
-                resultArea.placeholder = "Data belum dimasukkan ke Firebase.";
+                resultArea.placeholder = "Data alamat belum dimasukkan ke Firebase.";
             }
         });
 
@@ -230,7 +257,6 @@
             if(!array || array.length === 0) return "";
             return array[Math.floor(Math.random() * array.length)];
         }
-
         function toTitleCase(str) { return str.replace(/\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); }); }
 
         function generateName() {
@@ -289,19 +315,20 @@
                 btnGenerate.disabled = false; btnGenerate.innerText = "🎲 Buat & Salin Data Otomatis";
             }
         }
-
         btnGenerate.addEventListener("click", generateCompleteData);
 
-        // ================= LOGIKA PRODUK AFFILIATE (15 HP SYNC) =================
+        // ================= LOGIKA PRODUK AFFILIATE =================
+        const productsRef = db.ref('shopee_affiliate/products_db');
         const syncRef = db.ref('shopee_affiliate/link_pool_master');
         const flagRef = db.ref('shopee_affiliate/flagged_links');
-        const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
         
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
         const btnRandomProduct = document.getElementById('btnRandomProduct');
         
-        let allAffiliateLinks = []; let groupedProducts = []; let flaggedSet = new Set(); 
+        let allAffiliateLinks = []; 
+        let groupedProducts = []; 
+        let flaggedSet = new Set(); 
 
         function encodeFirebaseKey(str) { return btoa(str).replace(/[=\+\/]/g, 'A').substring(0, 50); }
 
@@ -314,37 +341,41 @@
             document.body.removeChild(tempTextArea); window.getSelection().removeAllRanges();
         }
 
-        async function fetchProducts() {
-            try {
-                const response = await fetch(GIST_URL);
-                if (!response.ok) throw new Error('Gagal');
-                const textData = await response.text();
-                statusDiv.style.display = 'none'; 
+        // FUNGSI UTAMA: Mengambil data produk real-time dari Firebase
+        function initProductsSync() {
+            productsRef.on('value', snap => {
+                statusDiv.style.display = 'none';
+                groupedProducts = snap.val() || [];
+                allAffiliateLinks = [];
 
-                const lines = textData.split('\n'); let currentGroup = null;
-                lines.forEach(line => {
-                    line = line.trim(); if (line === '') return;
-                    if (!line.includes('|')) { currentGroup = { name: line, products: [] }; groupedProducts.push(currentGroup); } 
-                    else if (currentGroup) {
-                        const parts = line.split('|');
-                        if (parts.length >= 2) {
-                            const nama = parts[0].trim(); const link = parts[1].trim();
-                            currentGroup.products.push({ nama, link, id: encodeFirebaseKey(link) });
-                            allAffiliateLinks.push(link); 
-                        }
-                    }
+                groupedProducts.forEach(group => {
+                    if(!group.products) group.products = []; 
+                    group.products.forEach(prod => {
+                        prod.id = encodeFirebaseKey(prod.link);
+                        allAffiliateLinks.push(prod.link);
+                    });
                 });
 
-                if (allAffiliateLinks.length > 0) btnRandomProduct.disabled = false;
-                listenToFlags(); listenToProgress();
-            } catch (error) { statusDiv.className = 'error'; statusDiv.innerText = 'Gagal memuat produk.'; }
+                if (allAffiliateLinks.length > 0) {
+                    btnRandomProduct.disabled = false;
+                } else {
+                    btnRandomProduct.disabled = true;
+                    statusDiv.style.display = 'block';
+                    statusDiv.innerText = 'Database produk kosong. Silakan kelola produk.';
+                }
+
+                renderColumns();
+                syncRef.once('value').then(s => updateProgressBar(s.val()));
+            });
         }
 
+        // Listener Status Blokir (X)
         function listenToFlags() {
             flagRef.on('value', snap => {
                 flaggedSet.clear();
                 if(snap.exists()){ snap.forEach(child => { flaggedSet.add(child.key); }); }
                 renderColumns(); 
+                syncRef.once('value').then(s => updateProgressBar(s.val()));
             });
         }
 
@@ -402,20 +433,23 @@
             }
         };
 
-        function listenToProgress() {
-            syncRef.on('value', snap => {
-                const data = snap.val(); let sisa = 0;
-                let activeLinksTotal = allAffiliateLinks.filter(url => !flaggedSet.has(encodeFirebaseKey(url))).length;
-                
-                if (data && data.available) sisa = data.available.length; 
-                else sisa = activeLinksTotal; 
+        // ================= PROGRESS BAR & TRANSAKSI SINKRONISASI =================
+        function updateProgressBar(data) {
+            let sisa = 0;
+            let activeLinksTotal = allAffiliateLinks.filter(url => !flaggedSet.has(encodeFirebaseKey(url))).length;
+            
+            if (data && data.available) sisa = data.available.length; 
+            else sisa = activeLinksTotal; 
 
-                if(activeLinksTotal === 0) activeLinksTotal = 1; 
-                let percentage = (sisa / activeLinksTotal) * 100;
-                
-                document.getElementById('progressBar').style.width = percentage + '%';
-                document.getElementById('progressText').innerText = `Tersisa ${sisa} dari ${activeLinksTotal} Link Aktif (Sync 15 HP)`;
-            });
+            if(activeLinksTotal === 0) activeLinksTotal = 1; 
+            let percentage = (sisa / activeLinksTotal) * 100;
+            
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').innerText = `Tersisa ${sisa} dari ${activeLinksTotal} Link Aktif (Sync 15 HP)`;
+        }
+
+        function listenToProgress() {
+            syncRef.on('value', snap => updateProgressBar(snap.val()));
         }
 
         btnRandomProduct.addEventListener('click', () => {
@@ -461,7 +495,119 @@
             });
         });
 
-        fetchProducts();
+        // ================= EDITOR VISUAL (KELOLA PRODUK & TOKO) =================
+        let editorData = [];
+
+        window.openEditorModal = function() {
+            editorData = JSON.parse(JSON.stringify(groupedProducts)); 
+            document.getElementById('editorModal').classList.remove('hidden');
+            renderEditorUI();
+        }
+
+        window.closeEditorModal = function() {
+            document.getElementById('editorModal').classList.add('hidden');
+        }
+
+        function renderEditorUI() {
+            const body = document.getElementById('editorBody');
+            body.innerHTML = '';
+            
+            if (editorData.length === 0) {
+                body.innerHTML = '<div style="text-align:center; padding: 30px; color: #888; border: 2px dashed #ccc; border-radius: 8px;">Database masih kosong.<br>Silakan klik Tambah Toko Baru.</div>';
+            }
+
+            editorData.forEach((store, sIdx) => {
+                const storeDiv = document.createElement('div');
+                storeDiv.className = 'editor-store-card';
+                
+                let productsHtml = '';
+                if(store.products && store.products.length > 0) {
+                    store.products.forEach((p, pIdx) => {
+                        productsHtml += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; background: #f9f9f9; padding: 8px; border-radius: 6px; border: 1px solid #eee;">
+                            <div style="font-size: 12px; line-height: 1.4; width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                <strong style="color: #333;">${p.nama}</strong><br>
+                                <span style="color: var(--action-blue); font-size: 10px;">${p.link}</span>
+                            </div>
+                            <div style="min-width: 60px; text-align: right;">
+                                <button class="editor-btn" onclick="editProduct(${sIdx}, ${pIdx})" style="margin-right: 4px;">✏️</button>
+                                <button class="editor-btn" onclick="deleteProduct(${sIdx}, ${pIdx})">🗑️</button>
+                            </div>
+                        </div>`;
+                    });
+                } else {
+                    productsHtml = '<div style="font-size: 11px; color: #999; text-align: center; padding: 10px;">Belum ada produk di toko ini.</div>';
+                }
+
+                storeDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px;">
+                        <strong style="color: var(--shopee-orange); font-size: 15px;">${store.name}</strong>
+                        <div>
+                            <button class="editor-btn" onclick="editStoreName(${sIdx})" style="margin-right: 4px;">✏️ Ganti Nama</button>
+                            <button class="editor-btn" style="color: var(--danger-red);" onclick="deleteStore(${sIdx})">🗑️ Hapus</button>
+                        </div>
+                    </div>
+                    <div style="max-height: 200px; overflow-y: auto; padding-right: 5px; margin-bottom: 10px;">
+                        ${productsHtml}
+                    </div>
+                    <button onclick="addProduct(${sIdx})" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px dashed #ccc; background: #fff; cursor: pointer; font-weight: bold; color: var(--action-blue);">+ Tambah Produk ke Toko Ini</button>
+                `;
+                body.appendChild(storeDiv);
+            });
+        }
+
+        window.addStore = function() {
+            let name = prompt("Masukkan nama toko baru:");
+            if (name) { editorData.push({ name: name, products: [] }); renderEditorUI(); }
+        }
+        window.editStoreName = function(sIdx) {
+            let newName = prompt("Ganti nama toko:", editorData[sIdx].name);
+            if (newName) { editorData[sIdx].name = newName; renderEditorUI(); }
+        }
+        window.deleteStore = function(sIdx) {
+            if (confirm("Yakin ingin menghapus toko ini beserta SEMUA isinya?")) { editorData.splice(sIdx, 1); renderEditorUI(); }
+        }
+
+        window.addProduct = function(sIdx) {
+            let nama = prompt("Masukkan Nama Produk (Contoh: Sepatu Pria - Rp 50.000):");
+            if (!nama) return;
+            let link = prompt("Masukkan Link URL Produk (Contoh: https://shp.ee/...):");
+            if (!link) return;
+            
+            if(!editorData[sIdx].products) editorData[sIdx].products = [];
+            editorData[sIdx].products.push({ nama: nama, link: link });
+            renderEditorUI();
+        }
+        window.editProduct = function(sIdx, pIdx) {
+            let prod = editorData[sIdx].products[pIdx];
+            let nama = prompt("Edit Nama Produk:", prod.nama);
+            if (!nama) return;
+            let link = prompt("Edit Link URL Produk:", prod.link);
+            if (!link) return;
+
+            editorData[sIdx].products[pIdx] = { nama: nama, link: link };
+            renderEditorUI();
+        }
+        window.deleteProduct = function(sIdx, pIdx) {
+            if (confirm("Hapus produk ini?")) { editorData[sIdx].products.splice(pIdx, 1); renderEditorUI(); }
+        }
+
+        window.saveEditorData = function() {
+            // Pastikan tidak ada array toko yang tidak memiliki property products
+            editorData.forEach(store => { if (!store.products) store.products = []; });
+            
+            productsRef.set(editorData).then(() => {
+                tampilkanToast("✅ Database berhasil disimpan & tersinkronisasi!");
+                closeEditorModal();
+            }).catch(e => {
+                tampilkanToast("❌ Gagal menyimpan database.");
+            });
+        }
+
+        // ================= EKSEKUSI AWAL =================
+        initProductsSync();
+        listenToFlags();
+        listenToProgress();
     </script>
 </body>
 </html>
