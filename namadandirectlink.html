@@ -51,12 +51,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
-        .shopee-header h1 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
+        .shopee-header h1 { margin: 0; font-size: 18px; font-weight: 500; letter-spacing: 0.5px; }
 
         /* Card Section Umum */
         .section-card {
@@ -67,21 +62,13 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .section-title {
-            font-size: 15px;
-            color: var(--text-main);
-            margin: 0 0 12px 0;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .section-title { font-size: 15px; color: var(--text-main); margin: 0 0 12px 0; font-weight: 600; }
 
         /* Generator Alamat Textarea */
         #resultArea {
             width: 100%;
             padding: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 14px;
@@ -90,263 +77,75 @@
             box-sizing: border-box;
             min-height: 80px;
             resize: none;
-            font-family: inherit;
             line-height: 1.5;
             outline: none;
         }
+        #resultArea:focus { border-color: var(--shopee-orange); }
 
-        #resultArea:focus {
-            border-color: var(--shopee-orange);
-        }
-
-        .btn-action {
+        /* TOMBOL UTAMA (DIPERBESAR) */
+        .btn-main-large {
             width: 100%;
-            background-color: var(--shopee-orange);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 800;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+            border: none;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: transform 0.1s, filter 0.2s;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+        .btn-main-large:active { transform: scale(0.97); }
+        .btn-main-large:disabled { background-color: #cccccc !important; cursor: not-allowed; box-shadow: none !important; transform: none !important; }
 
-        .btn-action:hover { background-color: #d73a1e; }
-        .btn-action:active { transform: scale(0.98); }
-        .btn-action:disabled {
-            background-color: #cccccc !important;
-            cursor: not-allowed;
-            box-shadow: none !important;
-            transform: none !important;
-        }
+        .btn-generate { background-color: var(--shopee-orange); }
+        .btn-global-random { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); }
 
-        /* DAFTAR PRODUK AFFILIATE - HORIZONTAL SCROLL SNAP */
-        .scroll-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            display: flex;
-            padding-bottom: 12px;
-            -webkit-overflow-scrolling: touch; 
-            scroll-snap-type: x mandatory; 
-        }
-
-        .note-list {
-            display: flex;
-            gap: 12px; 
-            padding: 0; 
-            margin: 0;
-            list-style-type: none;
-            width: 100%;
-        }
+        /* DAFTAR PRODUK AFFILIATE */
+        .scroll-wrapper { width: 100%; overflow-x: auto; display: flex; padding-bottom: 12px; scroll-snap-type: x mandatory; }
+        .note-list { display: flex; gap: 12px; padding: 0; margin: 0; list-style-type: none; width: 100%; }
 
         /* Tiap Kolom (Toko) */
         .product-column {
-            display: flex;
-            flex-direction: column;
-            flex: 0 0 calc(50% - 6px); 
-            max-width: calc(50% - 6px);
-            min-width: unset;
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px 6px; 
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
-            box-sizing: border-box;
-            scroll-snap-align: start; 
+            display: flex; flex-direction: column; flex: 0 0 calc(50% - 6px); max-width: calc(50% - 6px);
+            background: #fff; border-radius: 12px; padding: 12px 6px; border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03); box-sizing: border-box; scroll-snap-align: start; 
         }
 
-        /* Header dalam Kolom */
-        .column-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 12px;
-            border-bottom: 2px solid var(--shopee-orange);
-            padding-bottom: 12px;
-            gap: 10px;
-        }
+        .column-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--shopee-orange); padding-bottom: 12px; gap: 10px; }
+        .column-number { font-size: 16px; font-weight: 800; color: var(--shopee-orange); text-align: center; }
 
-        .column-number {
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--shopee-orange);
-            text-align: center;
-        }
+        .btn-open-column { width: 100%; background-color: var(--action-blue); color: white; border: none; padding: 14px 4px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; box-shadow: 0 3px 6px rgba(52, 152, 219, 0.3); }
+        .btn-open-column:active { background-color: #2980b9; transform: scale(0.96); }
 
-        /* Tombol Buka Acak Khusus per Kolom */
-        .btn-open-column {
-            width: 100%;
-            background-color: var(--action-blue);
-            color: white;
-            border: none;
-            padding: 14px 4px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 3px 6px rgba(52, 152, 219, 0.3);
-            letter-spacing: 0.5px;
-        }
+        /* ITEM PRODUK & FLAGGING */
+        .product-item { display: flex; align-items: stretch; width: 100%; margin-bottom: 10px; position: relative; gap: 4px; }
+        .btn-product-link { flex: 1; box-sizing: border-box; min-height: 65px; border: 1px solid rgba(0,0,0,0.08); color: var(--text-main); padding: 10px; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.03); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: 0.1s; }
+        .btn-product-link:active:not(.flagged) { transform: translateY(2px); filter: brightness(0.95); border-color: var(--shopee-orange); }
+        .btn-product-link.flagged { background-color: #f1f1f1 !important; filter: grayscale(100%); opacity: 0.5; cursor: not-allowed; border: 1px dashed #ccc; }
 
-        .btn-open-column:active {
-            background-color: #2980b9;
-            transform: scale(0.96);
-        }
-
-        /* ITEM PRODUK & FLAGGING CSS */
-        .product-item {
-            display: flex;
-            align-items: stretch;
-            width: 100%;
-            margin-bottom: 10px;
-            position: relative;
-            gap: 4px;
-        }
-
-        /* Desain Tombol Link Produk */
-        .btn-product-link {
-            flex: 1;
-            box-sizing: border-box; 
-            min-height: 65px;
-            border: 1px solid rgba(0,0,0,0.08);
-            color: var(--text-main);
-            padding: 10px; 
-            border-radius: 10px; 
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.2s;
-            -webkit-tap-highlight-color: transparent; 
-            display: flex;
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .btn-product-link:active:not(.flagged) {
-            transform: translateY(2px);
-            filter: brightness(0.95);
-            border-color: var(--shopee-orange);
-        }
-
-        /* Kondisi Tombol saat di-Flag (Blokir) */
-        .btn-product-link.flagged {
-            background-color: #f1f1f1 !important;
-            filter: grayscale(100%);
-            opacity: 0.5;
-            cursor: not-allowed;
-            border: 1px dashed #ccc;
-        }
-
-        /* Nama Produk */
-        .product-title {
-            font-size: 13px;
-            font-weight: 700; 
-            text-align: center;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2; 
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            word-break: break-word;
-            margin: 0; 
-            width: 100%;
-            color: #2c3e50;
-        }
-
-        /* Harga Produk */
-        .product-price {
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--shopee-orange);
-            margin: 0;
-            background: rgba(238, 77, 45, 0.1);
-            padding: 3px 8px;
-            border-radius: 4px;
-        }
+        .product-title { font-size: 13px; font-weight: 700; text-align: center; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0; width: 100%; color: #2c3e50; }
+        .product-price { font-size: 12px; font-weight: 800; color: var(--shopee-orange); margin: 0; background: rgba(238, 77, 45, 0.1); padding: 3px 8px; border-radius: 4px; }
 
         /* TOMBOL X (FLAGGING) */
-        .btn-flag {
-            width: 30px;
-            border-radius: 8px;
-            border: 1px solid #ffcdd2;
-            background: #fff5f5;
-            color: var(--danger-red);
-            font-weight: 900;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-        }
-
+        .btn-flag { width: 30px; border-radius: 8px; border: 1px solid #ffcdd2; background: #fff5f5; color: var(--danger-red); font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .btn-flag:active { transform: scale(0.9); }
-        .btn-flag.active {
-            background: var(--danger-red);
-            color: white;
-            border-color: var(--danger-red);
-        }
+        .btn-flag.active { background: var(--danger-red); color: white; border-color: var(--danger-red); }
 
-        /* PROGRESS BAR CSS */
-        .progress-container {
-            width: 100%;
-            height: 18px;
-            background-color: #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 5px;
-            position: relative;
-        }
+        /* PROGRESS BAR */
+        .progress-container { width: 100%; height: 18px; background-color: #e0e0e0; border-radius: 10px; overflow: hidden; margin-bottom: 5px; position: relative; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: width 0.3s ease; width: 0%; }
+        .progress-text { font-size: 12px; font-weight: 800; color: var(--text-muted); text-align: center; margin-bottom: 15px; }
 
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #2ecc71, #27ae60);
-            transition: width 0.3s ease;
-            width: 0%;
-        }
-
-        .progress-text {
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--text-muted);
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .loading, .error {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 20px;
-            font-size: 14px;
-        }
+        .loading, .error { text-align: center; color: var(--text-muted); padding: 20px; font-size: 14px; }
         .error { color: var(--shopee-orange); }
 
         /* Toast Notification */
-        #toast {
-            visibility: hidden;
-            min-width: 200px;
-            background-color: rgba(0, 0, 0, 0.85);
-            color: #fff;
-            text-align: center;
-            border-radius: 30px;
-            padding: 12px 20px;
-            position: fixed;
-            z-index: 1000;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 13px;
-            font-weight: 500;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-        }
+        #toast { visibility: hidden; min-width: 200px; background-color: rgba(0, 0, 0, 0.85); color: #fff; text-align: center; border-radius: 30px; padding: 12px 20px; position: fixed; z-index: 1000; bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body>
@@ -360,15 +159,16 @@
 
         <div class="section-card">
             <h2 class="section-title">Generator Identitas & Alamat</h2>
-            <textarea id="resultArea" readonly placeholder="Klik tombol di bawah untuk membuat data acak..."></textarea>
-            <button class="btn-action" id="btnGenerate">🎲 Buat & Salin Data Otomatis</button>
+            <textarea id="resultArea" readonly placeholder="Tunggu, mengunduh database nama dari Firebase..."></textarea>
+            
+            <button class="btn-main-large btn-generate" id="btnGenerate" disabled>⏳ Memuat Database...</button>
         </div>
 
         <div class="section-card">
             <h2 class="section-title">Daftar Produk Affiliate</h2>
             
-            <button class="btn-action" id="btnRandomProduct" style="margin-bottom: 8px; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);" disabled>
-                📋 Salin Tautan Produk Acak Global
+            <button class="btn-main-large btn-global-random" id="btnRandomProduct" disabled>
+                📋 Salin Produk Acak Global
             </button>
 
             <div class="progress-container">
@@ -388,74 +188,57 @@
         // ================= FUNGSI BERSAMA =================
         function tampilkanToast(pesan) {
             const toast = document.getElementById("toast");
-            toast.innerText = pesan;
-            toast.className = "show";
+            toast.innerText = pesan; toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
         }
 
-        // ================= LOGIKA GENERATOR ALAMAT & NAMA =================
-        const maleFirst = [
-            "Adi","Aditya","Agung","Agus","Ahmad","Andi","Angga","Arief","Bagas","Bagus","Bambang","Bayu","Bima","Budi","Candra","Dedi","Denny","Dimas","Dwi","Eko","Fajar","Fahmi","Farhan","Ferry","Galih","Gilang","Hadi","Hasan","Hendra","Heru","Ibrahim","Ilham","Imam","Indra","Irfan","Iwan","Joko","Kevin","Kiki","Lukman","Maulana","Muhammad","Naufal","Nur","Pratama","Putra","Rafi","Rahmat","Rangga","Reza","Rian","Ridwan","Rizki","Rudi","Satria","Surya","Taufik","Tegar","Tri","Wahyudi","Yogi","Yusuf","Zainal",
-            "Abdul","Abid","Achmad","Adam","Adnan","Adrian","Afandi","Agil","Aksa","Alamsyah","Aldi","Aldo","Alfi","Alfin","Ali","Alif","Alvin","Ammar","Ananda","Andhika","Andre","Anton","Anwar","Ardi","Ardian","Aris","Arya","Asep","Azis","Bachtiar","Bagaskara","Bahar","Bani","Bara","Basri","Beni","Bintang","Boby","Boy","Cipto","Dadang","Daffa","Dani","Danu","Darmaji","David","Deka","Dendi","Derry","Dika","Diky","Dito","Doni","Dzaky","Edi","Edwin","Endra","Erik","Erwin","Fachri","Fadli","Fahreza","Faisal","Fandi","Faris","Fauzan","Febri","Felix","Firman","Frans","Gading","Galang","Gani","Garry","Gibran","Gino","Guntur","Hafiz","Haikal","Hakim","Halim","Hamzah","Hanafi","Hanif","Haris","Haryanto","Hasyim","Hendri","Hery","Husni","Ibnu","Ihsan","Ilyas","Iqbal","Irwan","Iskak","Ismail","Jafar","Jamal","Jati","Jauhari","Jefri","Junaidi","Kadir","Kamal","Kamil","Kardi","Krisna","Kurniawan","Kusuma","Latif","Leo","Lucky","Lutfi","Maman","Mario","Marwan","Nanda","Niko","Noval","Oka","Oki","Panca","Pandu","Panji","Raden","Raditya","Rafa","Raffi","Rama","Ramon","Rendy","Reno","Rendi","Reyhan","Rido","Rifai","Rizal","Romi","Roy","Rudy","Rusdi","Salman","Sandi","Satriyo","Sigit","Soleh","Soni","Sopian","Subagyo","Sugiarto","Sugito","Suhardi","Sukma","Sulaiman","Sandiaga","Syafiq","Syahrir","Tantowi","Taufiq","Tedi","Tirta","Tito","Tommy","Toni","Toto","Tyas","Umar","Usman","Vicky","Wawan","Wira","Wisnu","Yadi","Yanto","Yasser","Yuda","Yudi","Zaenal","Zaki","Zulfikar"
-        ];
+        // ================= INISIALISASI FIREBASE =================
+        const firebaseConfig = { 
+            apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", 
+            authDomain: "catatanku-app-ce60b.firebaseapp.com", 
+            databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", 
+            projectId: "catatanku-app-ce60b", 
+            storageBucket: "catatanku-app-ce60b.firebasestorage.app", 
+            messagingSenderId: "291744292263", 
+            appId: "1:291744292263:web:ab8d32ba52bc19cbffea82" 
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
 
-        const maleLast = [
-            "Saputra","Pratama","Wijaya","Setiawan","Nugroho","Santoso","Wibowo","Hidayat","Syahputra","Baskoro","Pangestu","Gunawan","Susanto","Ramadhan","Firmansyah","Mahendra","Fauzi","Kusuma","Riyadi","Irawan","Haryanto","Sanjaya","Prasetyo","Gumilar","Yulianto","Prakoso","Mulyadi","Rahardjo","Purnomo","Wicaksono","Suryono","Handoko","Yudhistira","Anggara","Permana","Lesmana","Setyawan","Prabowo","Suryadi","Budiman","Darmawan","Kusnadi","Suhendra","Widodo","Pramana","Mahardika","Nugraha","Anugrah","Ferdian","Iskandar","Rizal","Hakim","Maulana","Ibrahim","Ridwan","Ghozali","Fadillah",
-            "Abdullah","Affandi","Akbar","Alatas","Amin","Anas","Anwar","Ardiansyah","Arifin","Aryanto","Assegaf","Bachtiar","Baharudin","Bakti","Basuki","Budiyanto","Cahyadi","Cahyono","Damanik","Dananjaya","Djaja","Effendi","Fadhillah","Fahmi","Faisal","Firdaus","Gani","Ginting","Gunardi","Hadi","Halim","Hamzah","Hanafi","Hidayatullah","Hutagalung","Hutapea","Ilham","Ilyas","Jaelani","Jamaludin","Jaya","Kamal","Kurnia","Kurniawan","Kusnandar","Laksono","Latuconsina","Lukito","Mahmud","Mansyur","Mustofa","Mutaqin","Nasution","Naufal","Nurdin","Pamungkas","Pandjaitan","Pranata","Pranoto","Prawira","Prayoga","Prayogo","Purba","Purnama","Purwanto","Putra","Rachman","Rachmat","Riyanto","Rizki","Rohman","Rosyadi","Rusdi","Ruslan","Sadikin","Safri","Saleh","Salim","Sambas","Samosir","Santika","Sasmita","Setiadi","Sihombing","Silaban","Siregar","Situmorang","Slamet","Subagyo","Sudirman","Suganda","Sugeng","Suhardi","Suhari","Sukamto","Sulaiman","Sumarno","Sunardi","Supardi","Supriadi","Suryanto","Suwandi","Syarif","Syarief","Tambunan","Tampubolon","Tarigan","Taufiq","Utomo","Wahyudi","Wibisono","Widianto","Widjaja","Wiguna","Wijanarko","Winarto","Wirawan","Yudhoyono","Yuliyanto","Yusuf","Zaelani","Zainuddin","Zakaria","Zubair"
-        ];
+        // ================= LOGIKA GENERATOR ALAMAT (VIA FIREBASE) =================
+        const btnGenerate = document.getElementById("btnGenerate");
+        const resultArea = document.getElementById("resultArea");
+        let dbNames = null; // Menyimpan data nama dari Firebase
 
-        const femaleFirst = [
-            "Adelia","Agnes","Aisyah","Amelia","Anisa","Anita","Aprilia","Ayu","Bella","Cahaya","Cindy","Citra","Desi","Dewi","Dian","Dinda","Eka","Elisa","Endah","Fani","Farah","Fatimah","Fitri","Hani","Indah","Intan","Irma","Jessica","Jihan","Julia","Kartika","Laila","Lestari","Lia","Lina","Linda","Lisa","Maria","Maya","Mega","Melati","Mia","Mila","Mutia","Nadia","Nia","Nina","Nisa","Novi","Nur","Nurul","Putri","Rahma","Rani","Ratih","Ratna","Ria","Rina","Rini","Riska","Rita","Sarah","Sinta","Siska","Siti","Sri","Tiara","Tina","Vina","Wulan","Yani","Yanti","Yulia","Yuni","Zahra",
-            "Adel","Adinda","Afifah","Agatha","Alika","Aliyah","Amanda","Ambar","Andini","Anggun","Anindya","Annisa","Arum","Aulia","Aurel","Ayudia","Balqis","Bunga","Carissa","Chika","Cici","Cinta","Clara","Cut","Dania","Dara","Della","Desti","Dhea","Diah","Dina","Dita","Diandra","Elsa","Elvina","Ema","Emilia","Erina","Erna","Fadhila","Fadia","Fatin","Febby","Febrianti","Feni","Fika","Fira","Fitria","Fransiska","Galuh","Gita","Grace","Hana","Hapsari","Hasna","Helma","Hesti","Husna","Ika","Imas","Indri","Indriani","Inez","Ira","Iren","Iriana","Isma","Istiqomah","Ita","Jasmine","Jessy","Karina","Keke","Keshia","Khadijah","Kinanti","Kirana","Laras","Leny","Lidia","Lilis","Manda","Mawar","Mayang","Meilani","Melisa","Merry","Mey","Mita","Muna","Mutiara","Nabila","Nada","Nadhira","Nadya","Nafa","Najwa","Nanda","Nani","Neli","Nenden","Neta","Nimas","Nita","Novia","Novita","Octavia","Olivia","Poppy","Pratiwi","Prita","Puji","Puspa","Puspita","Qoriah","Rara","Ratu","Reka","Reni","Rere","Resi","Resti","Retno","Reza","Rika","Risa","Risma","Rossa","Rosita","Ruli","Rully","Sabrina","Safira","Salma","Salsabila","Santi","Santika","Sekar","Sela","Seli","Septi","Sherly","Shinta","Sifa","Silvi","Silvia","Suci","Sukma","Susi","Syifa","Tasya","Tati","Tika","Tini","Tita","Tiwi","Tuti","Uli","Ulfa","Umi","Vania","Vanya","Veni","Vera","Vika","Wafa","Wati","Wida","Widya","Wina","Winda","Windi","Yeni","Yola","Yovita","Yunita","Zahira","Zahrana","Zakia","Zalfa","Zara","Zaskia"
-        ];
-
-        const femaleLast = [
-            "Lestari","Sari","Putri","Anggraini","Maharani","Kusuma","Pertiwi","Susanti","Ningsih","Wati","Rahmawati","Novita","Fitriani","Handayani","Astuti","Wahyuni","Mulyani","Hapsari","Permatasari","Cahyani","Puspita","Kartika","Syafira","Nuraini","Amalia","Fatimah","Zahra","Aisyah","Nabila","Melati","Citra","Riana","Yuliana","Diana","Ratna","Larasati","Kirana","Pratiwi","Setiawati","Haryanti","Suryani","Widyastuti","Pujiastuti","Rahayu","Utami","Nugraheni","Widiyanti","Puspitasari","Wulandari","Safitri","Oktavia","Ramadhani","Kurniawati","Wardhani","Agustina","Salsabila","Azzahra","Nadhira","Ayunda","Amanda",
-            "Agustin","Alawiyah","Andriyani","Anggraeni","Anjani","Apriliani","Arifin","Aryani","Aulia","Azahra","Azizah","Bahar","Balqis","Bella","Cahyanti","Cantika","Damayanti","Darmawati","Dwi","Ekayanti","Elfira","Fauziah","Febrianti","Gunawan","Halimah","Hasanah","Hidayati","Indah","Indriani","Irawati","Islami","Latuconsina","Liana","Mahmudah","Mardiana","Mariana","Maryati","Maulida","Mayasari","Megawati","Melani","Mustika","Mutmainah","Nadira","Nirmala","Noviani","Novitasari","Nurhayati","Nurjannah","Oktaviani","Pahlawanti","Paramitha","Prabandari","Pramesti","Prastiwi","Purnama","Purnamasari","Purwanti","Rachmawati","Rengganis","Riyanti","Rizkia","Rohmah","Rosidah","Rosyidah","Saraswati","Sartika","Sasmita","Septiani","Setyowati","Shafira","Sihombing","Siregar","Siswanti","Sitompul","Sudiarti","Sulastri","Sulistyowati","Sumarni","Sunarni","Sundari","Susilowati","Syafitri","Syahputri","Tambunan","Wardani","Wibowo","Widiastuti","Wijayanti","Winarni","Yanti","Yulianti","Yuniar","Yunita","Zainab","Zakiyah","Zulaikha"
-        ];
-
-        const daftarJalan = [
-            "Jl. Jendral Sudirman", "Jl. Ahmad Yani", "Jl. Diponegoro", "Jl. Pahlawan", "Jl. Gajah Mada", "Jl. Hasanuddin", "Jl. Imam Bonjol", "Jl. Teuku Umar", "Jl. R.A. Kartini", "Jl. Ki Hajar Dewantara", "Jl. Gatot Subroto", "Jl. S. Parman", "Jl. M.T. Haryono", "Jl. Hayam Wuruk", "Jl. R.E. Martadinata", "Jl. Cut Nyak Dien",
-            "Jl. Mawar", "Jl. Melati", "Jl. Anggrek", "Jl. Cempaka", "Jl. Kenanga", "Jl. Bougenville", "Jl. Teratai", "Jl. Flamboyan", "Jl. Dahlia", "Jl. Kamboja", "Jl. Beringin", "Jl. Cemara", "Jl. Nusa Indah",
-            "Jl. Garuda", "Jl. Rajawali", "Jl. Cendrawasih", "Jl. Merpati", "Jl. Nuri", "Jl. Kutilang", "Jl. Kepodang", "Jl. Merak",
-            "Jl. Merdeka", "Jl. Veteran", "Jl. Pemuda", "Jl. Nusantara", "Jl. Perintis Kemerdekaan", "Jl. Pembangunan", "Jl. Sejahtera", "Jl. Makmur", "Jl. Karya", "Jl. Bhakti"
-        ];
-
-        const daftarGang = [
-            "Gg. 1", "Gg. 2", "Gg. 3", "Gg. 4", "Gg. 5", "Gg. 6", "Gg. 7", "Gg. 8", "Gg. 9", "Gg. 10", "Gg. 1A", "Gg. 2B",
-            "Gg. Mawar", "Gg. Melati", "Gg. Kenanga", "Gg. Teratai", "Gg. Anggrek", "Gg. Mangga", "Gg. Jambu",
-            "Gg. Buntu", "Gg. Makmur", "Gg. Damai", "Gg. Sejahtera", "Gg. Rukun", "Gg. Harapan", "Gg. Keluarga", "Gg. Masjid", "Gg. Langgar", "Gg. Musholla", "Gg. Pelajar", "Gg. Kancil", "Gg. Kelinci", "Gg. Senggol", "Gg. Swadaya"
-        ];
-
-        const daftarPatokan = [
-            "Depan SPBU", "Samping Indomaret", "Sebelah Alfamart", "Dekat Pasar", "Samping Klinik", "Depan SD Negeri", "Samping Puskesmas", "Depan Kantor Kepala Desa", "Sebelah Balai RW", "Belakang Kelurahan", "Samping Apotek", "Depan Toko Bangunan", "Seberang Fotokopi", "Samping Warkop", "Belakang Lapangan Futsal", "Dekat Pangkalan Ojek", "Depan Konter Pulsa", "Samping Bengkel Motor",
-            "Belakang Masjid", "Seberang Masjid Jami", "Samping Musholla", "Depan Gereja",
-            "Masuk gapura warna hijau", "Rumah pagar hitam", "Rumah cat biru", "Rumah tingkat cat putih", "Pagar warna merah", "Ada pohon mangga di depan", "Pintu gerbang coklat", "Rumah pojok", "Sebelah tanah kosong"
-        ];
+        // Unduh Database Nama dari Firebase saat halaman dimuat
+        db.ref('shopee_affiliate/address_db').on('value', snap => {
+            if(snap.exists()){
+                dbNames = snap.val();
+                btnGenerate.disabled = false;
+                btnGenerate.innerText = "🎲 Buat & Salin Data Otomatis";
+                resultArea.placeholder = "Klik tombol di bawah untuk membuat data acak...";
+            } else {
+                btnGenerate.disabled = true;
+                btnGenerate.innerText = "⚠️ Database Kosong";
+                resultArea.placeholder = "Data belum dimasukkan ke Firebase.";
+            }
+        });
 
         const BASE_API_URL = 'https://ibnux.github.io/data-indonesia';
 
-        const btnGenerate = document.getElementById("btnGenerate");
-        const resultArea = document.getElementById("resultArea");
-
         function getRandomItem(array) {
+            if(!array || array.length === 0) return "";
             return array[Math.floor(Math.random() * array.length)];
         }
 
-        function toTitleCase(str) {
-            return str.replace(/\w\S*/g, function(txt) {
-                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-            });
-        }
+        function toTitleCase(str) { return str.replace(/\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); }); }
 
         function generateName() {
             let poolFirst, poolLast;
             if (Math.random() < 0.5) { 
-                poolFirst = maleFirst; 
-                poolLast = maleLast; 
+                poolFirst = dbNames.maleFirst || ["Budi"]; poolLast = dbNames.maleLast || ["Santoso"]; 
             } else { 
-                poolFirst = femaleFirst; 
-                poolLast = femaleLast; 
+                poolFirst = dbNames.femaleFirst || ["Siti"]; poolLast = dbNames.femaleLast || ["Aminah"]; 
             }
             let firstName = getRandomItem(poolFirst);
             let lastName = getRandomItem(poolLast);
@@ -464,20 +247,16 @@
         }
 
         async function generateCompleteData() {
+            if(!dbNames) return tampilkanToast("Menunggu data Firebase...");
             try {
-                btnGenerate.disabled = true;
-                btnGenerate.innerText = "⏳ Memproses...";
+                btnGenerate.disabled = true; btnGenerate.innerText = "⏳ Memproses...";
 
                 const namaLengkap = generateName();
-
                 const resProv = await fetch(`${BASE_API_URL}/provinsi.json`);
                 const allProvinces = await resProv.json();
 
                 const targetProvinces = ["BANTEN", "JAKARTA", "JAWA BARAT", "JAWA TENGAH", "YOGYAKARTA", "JAWA TIMUR", "BALI"];
-                const javaBaliProvinces = allProvinces.filter(p => 
-                    targetProvinces.some(target => p.nama.toUpperCase().includes(target))
-                );
-
+                const javaBaliProvinces = allProvinces.filter(p => targetProvinces.some(target => p.nama.toUpperCase().includes(target)));
                 const randomProv = getRandomItem(javaBaliProvinces);
 
                 const resKota = await fetch(`${BASE_API_URL}/kabupaten/${randomProv.id}.json`);
@@ -491,217 +270,124 @@
                 const kotaFinal = toTitleCase(kotaBersih);
                 const kecFinal = toTitleCase(randomKec.nama);
 
-                const namaJalan = getRandomItem(daftarJalan);
+                const namaJalan = getRandomItem(dbNames.daftarJalan || ["Jl. Sudirman"]);
                 let nomorRumah = Math.floor(Math.random() * 100) + 1;
                 if (Math.random() > 0.7) nomorRumah += ["A", "B", "C"][Math.floor(Math.random() * 3)];
-                let namaGang = Math.random() > 0.5 ? `, ${getRandomItem(daftarGang)}` : "";
-                
-                const patokan = getRandomItem(daftarPatokan);
+                let namaGang = Math.random() > 0.5 ? `, ${getRandomItem(dbNames.daftarGang || ["Gg. 1"])}` : "";
+                const patokan = getRandomItem(dbNames.daftarPatokan || ["Depan SPBU"]);
 
                 const stringFinal = `${namaLengkap}, ${namaJalan} No. ${nomorRumah}${namaGang}, ${patokan}, ${kecFinal}, ${kotaFinal}, ${provFinal}`;
                 
                 resultArea.value = stringFinal;
-                
-                resultArea.select();
-                resultArea.setSelectionRange(0, 99999); 
-                document.execCommand('copy');
-                
-                window.getSelection().removeAllRanges();
+                resultArea.select(); document.execCommand('copy'); window.getSelection().removeAllRanges();
                 tampilkanToast("✅ Data berhasil dibuat & disalin!");
 
             } catch (error) {
-                console.error(error);
                 resultArea.value = "Gagal mengambil data wilayah. Pastikan internet Anda aktif.";
                 tampilkanToast("❌ Gagal memproses data");
             } finally {
-                btnGenerate.disabled = false;
-                btnGenerate.innerText = "🎲 Buat & Salin Data Otomatis";
+                btnGenerate.disabled = false; btnGenerate.innerText = "🎲 Buat & Salin Data Otomatis";
             }
         }
 
         btnGenerate.addEventListener("click", generateCompleteData);
 
-        // ================= LOGIKA CATATAN AFFILIATE & FIREBASE (15 HP SYNC) =================
-        
-        const firebaseConfig = { 
-            apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", 
-            authDomain: "catatanku-app-ce60b.firebaseapp.com", 
-            databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", 
-            projectId: "catatanku-app-ce60b", 
-            storageBucket: "catatanku-app-ce60b.firebasestorage.app", 
-            messagingSenderId: "291744292263", 
-            appId: "1:291744292263:web:ab8d32ba52bc19cbffea82" 
-        };
-        
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        
-        const db = firebase.database();
+        // ================= LOGIKA PRODUK AFFILIATE (15 HP SYNC) =================
         const syncRef = db.ref('shopee_affiliate/link_pool_master');
         const flagRef = db.ref('shopee_affiliate/flagged_links');
-
         const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
+        
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
         const btnRandomProduct = document.getElementById('btnRandomProduct');
         
-        let allAffiliateLinks = []; 
-        let groupedProducts = []; 
-        let flaggedSet = new Set(); // Menyimpan data produk yang diblokir/diberi bendera (X)
+        let allAffiliateLinks = []; let groupedProducts = []; let flaggedSet = new Set(); 
 
-        // Helper untuk membuat ID aman di Firebase dari URL yang panjang
-        function encodeFirebaseKey(str) { 
-            return btoa(str).replace(/[=\+\/]/g, 'A').substring(0, 50); 
-        }
+        function encodeFirebaseKey(str) { return btoa(str).replace(/[=\+\/]/g, 'A').substring(0, 50); }
 
         function salinTautanAffiliate(url) {
-            const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = url;
-            tempTextArea.style.position = "absolute";
-            tempTextArea.style.left = "-9999px";
-            document.body.appendChild(tempTextArea);
-            
-            tempTextArea.select();
-            tempTextArea.setSelectionRange(0, 99999);
-            
-            try {
-                document.execCommand('copy');
-                tampilkanToast("✅ Link berhasil disalin!");
-            } catch (err) {
-                console.error("Gagal menyalin:", err);
-                tampilkanToast("❌ Gagal menyalin link");
-            }
-            
-            document.body.removeChild(tempTextArea);
-            window.getSelection().removeAllRanges();
+            const tempTextArea = document.createElement("textarea"); tempTextArea.value = url;
+            tempTextArea.style.position = "absolute"; tempTextArea.style.left = "-9999px";
+            document.body.appendChild(tempTextArea); tempTextArea.select(); tempTextArea.setSelectionRange(0, 99999);
+            try { document.execCommand('copy'); tampilkanToast("✅ Link berhasil disalin!"); } 
+            catch (err) { tampilkanToast("❌ Gagal menyalin link"); }
+            document.body.removeChild(tempTextArea); window.getSelection().removeAllRanges();
         }
 
         async function fetchProducts() {
             try {
                 const response = await fetch(GIST_URL);
-                if (!response.ok) throw new Error('Gagal mengambil data');
-                
+                if (!response.ok) throw new Error('Gagal');
                 const textData = await response.text();
                 statusDiv.style.display = 'none'; 
 
-                const lines = textData.split('\n');
-                let currentGroup = null;
-
+                const lines = textData.split('\n'); let currentGroup = null;
                 lines.forEach(line => {
-                    line = line.trim();
-                    if (line === '') return;
-
-                    if (!line.includes('|')) {
-                        currentGroup = { name: line, products: [] };
-                        groupedProducts.push(currentGroup);
-                    } 
+                    line = line.trim(); if (line === '') return;
+                    if (!line.includes('|')) { currentGroup = { name: line, products: [] }; groupedProducts.push(currentGroup); } 
                     else if (currentGroup) {
                         const parts = line.split('|');
                         if (parts.length >= 2) {
-                            const nama = parts[0].trim();
-                            const link = parts[1].trim();
-                            
-                            // Tambahkan ID hash unik untuk sistem Flagging
+                            const nama = parts[0].trim(); const link = parts[1].trim();
                             currentGroup.products.push({ nama, link, id: encodeFirebaseKey(link) });
                             allAffiliateLinks.push(link); 
                         }
                     }
                 });
 
-                if (allAffiliateLinks.length > 0) {
-                    btnRandomProduct.disabled = false;
-                }
-
-                // Mulai menguping (mendengarkan) status blokir (flag) dari Firebase secara realtime
-                listenToFlags();
-                // Mulai menguping pergerakan progress bar 
-                listenToProgress();
-
-            } catch (error) {
-                statusDiv.className = 'error';
-                statusDiv.innerText = 'Gagal memuat produk. Cek koneksi internetmu.';
-            }
+                if (allAffiliateLinks.length > 0) btnRandomProduct.disabled = false;
+                listenToFlags(); listenToProgress();
+            } catch (error) { statusDiv.className = 'error'; statusDiv.innerText = 'Gagal memuat produk.'; }
         }
 
-        // ================= LOGIKA FLAGGING (TOMBOL X) =================
         function listenToFlags() {
             flagRef.on('value', snap => {
                 flaggedSet.clear();
-                if(snap.exists()){
-                    snap.forEach(child => { flaggedSet.add(child.key); });
-                }
-                // Jika ada perubahan dari HP lain, UI akan langsung otomatis digambar ulang
+                if(snap.exists()){ snap.forEach(child => { flaggedSet.add(child.key); }); }
                 renderColumns(); 
             });
         }
 
         window.toggleFlag = function(linkId, isCurrentlyFlagged) {
-            if(isCurrentlyFlagged) {
-                flagRef.child(linkId).remove(); // Cabut bendera
-            } else {
-                flagRef.child(linkId).set(true); // Pasang bendera (Blokir)
-            }
+            if(isCurrentlyFlagged) flagRef.child(linkId).remove(); 
+            else flagRef.child(linkId).set(true); 
         }
 
-        // ================= RENDER TAMPILAN TOKO & PRODUK =================
         function renderColumns() {
             productList.innerHTML = '';
             const bgColors = ['#dbeafe', '#fce7f3', '#dcfce7', '#ffedd5', '#f3e8ff'];
 
             groupedProducts.forEach((group, index) => {
-                const columnLi = document.createElement('li');
-                columnLi.className = 'product-column';
+                const columnLi = document.createElement('li'); columnLi.className = 'product-column';
                 const colorBg = bgColors[index % bgColors.length];
+                columnLi.innerHTML = `<div class="column-header"><div class="column-number">${group.name}</div><button class="btn-open-column" onclick="salinAcakDariGrup(${index})">📋 SALIN ACAK</button></div>`;
 
-                columnLi.innerHTML = `
-                    <div class="column-header">
-                        <div class="column-number">${group.name}</div>
-                        <button class="btn-open-column" onclick="salinAcakDariGrup(${index})">
-                            📋 SALIN ACAK
-                        </button>
-                    </div>
-                `;
-
-                // URUTKAN: Produk aktif di bagian atas, Produk Flagged (X) di paling bawah
                 let sortedProducts = [...group.products].sort((a, b) => {
-                    let aFlag = flaggedSet.has(a.id) ? 1 : 0;
-                    let bFlag = flaggedSet.has(b.id) ? 1 : 0;
+                    let aFlag = flaggedSet.has(a.id) ? 1 : 0; let bFlag = flaggedSet.has(b.id) ? 1 : 0;
                     return aFlag - bFlag;
                 });
 
                 sortedProducts.forEach(prod => {
                     const isFlagged = flaggedSet.has(prod.id);
-                    const prodDiv = document.createElement('div');
-                    prodDiv.className = 'product-item';
+                    const prodDiv = document.createElement('div'); prodDiv.className = 'product-item';
 
-                    let rawName = prod.nama;
-                    let displayName = rawName;
-                    let displayPrice = "";
+                    let displayName = prod.nama; let displayPrice = "";
+                    let priceMatch = prod.nama.match(/(?:-?\s*)?(Rp\s*[\d\.]+.*)$/i);
+                    if (priceMatch) { displayPrice = priceMatch[1]; displayName = prod.nama.replace(priceMatch[0], '').trim(); }
 
-                    let priceMatch = rawName.match(/(?:-?\s*)?(Rp\s*[\d\.]+.*)$/i);
-                    if (priceMatch) {
-                        displayPrice = priceMatch[1];
-                        displayName = rawName.replace(priceMatch[0], '').trim();
-                    }
-
-                    let priceHtml = displayPrice ? `<div class="product-price">${displayPrice}</div>` : '';
-
-                    // Gaya CSS tergantung status Flagging
                     let btnClass = isFlagged ? "btn-product-link flagged" : "btn-product-link";
-                    let clickEvent = isFlagged ? "tampilkanToast('❌ Produk ini sedang diblokir atau habis!')" : `salinTautanAffiliate('${prod.link}')`;
+                    let clickEvent = isFlagged ? "tampilkanToast('❌ Produk ini diblokir/habis!')" : `salinTautanAffiliate('${prod.link}')`;
                     let flagBtnClass = isFlagged ? "btn-flag active" : "btn-flag";
 
                     prodDiv.innerHTML = `
                         <button class="${btnClass}" style="background-color: ${isFlagged ? '' : colorBg};" onclick="${clickEvent}">
                             <span class="product-title">${displayName}</span>
-                            ${priceHtml}
+                            ${displayPrice ? `<div class="product-price">${displayPrice}</div>` : ''}
                         </button>
                         <button class="${flagBtnClass}" onclick="toggleFlag('${prod.id}', ${isFlagged})">${isFlagged ? '❌' : '✖'}</button>
                     `;
                     columnLi.appendChild(prodDiv);
                 });
-
                 productList.appendChild(columnLi);
             });
         }
@@ -709,33 +395,22 @@
         window.salinAcakDariGrup = function(groupIndex) {
             const group = groupedProducts[groupIndex];
             if (group && group.products.length > 0) {
-                // Jangan memilih produk yang diblokir
                 let activeProds = group.products.filter(p => !flaggedSet.has(p.id));
-                if(activeProds.length === 0) {
-                    return tampilkanToast("Semua produk di toko ini habis/diblokir!");
-                }
+                if(activeProds.length === 0) return tampilkanToast("Semua produk habis/diblokir!");
                 const randomItem = activeProds[Math.floor(Math.random() * activeProds.length)];
                 salinTautanAffiliate(randomItem.link);
             }
         };
 
-        // ================= PROGRESS BAR (REALTIME LISTENER) =================
         function listenToProgress() {
             syncRef.on('value', snap => {
-                const data = snap.val();
-                let sisa = 0;
-                
-                // Hitung total link AKTIF yang tidak masuk daftar blokir (Flag)
+                const data = snap.val(); let sisa = 0;
                 let activeLinksTotal = allAffiliateLinks.filter(url => !flaggedSet.has(encodeFirebaseKey(url))).length;
                 
-                if (data && data.available) { 
-                    sisa = data.available.length; 
-                } else { 
-                    sisa = activeLinksTotal; // Jika belum ada transaksi/baru direset
-                } 
+                if (data && data.available) sisa = data.available.length; 
+                else sisa = activeLinksTotal; 
 
-                if(activeLinksTotal === 0) activeLinksTotal = 1; // Menghindari error pembagian 0
-                
+                if(activeLinksTotal === 0) activeLinksTotal = 1; 
                 let percentage = (sisa / activeLinksTotal) * 100;
                 
                 document.getElementById('progressBar').style.width = percentage + '%';
@@ -743,76 +418,45 @@
             });
         }
 
-        // ================= SALIN ACAK GLOBAL (ANTI DOUBLE UNTUK 15 HP) =================
         btnRandomProduct.addEventListener('click', () => {
             if (allAffiliateLinks.length === 0) return;
 
-            btnRandomProduct.disabled = true;
-            const originalText = btnRandomProduct.innerHTML;
+            btnRandomProduct.disabled = true; const originalText = btnRandomProduct.innerHTML;
             btnRandomProduct.innerText = "⏳ Sinkronisasi...";
 
-            // Filter nomor index (urutan) dari daftar global yang TIDAK DIBLOKIR
             let validIndices = [];
-            allAffiliateLinks.forEach((link, idx) => {
-                if(!flaggedSet.has(encodeFirebaseKey(link))) {
-                    validIndices.push(idx);
-                }
-            });
+            allAffiliateLinks.forEach((link, idx) => { if(!flaggedSet.has(encodeFirebaseKey(link))) validIndices.push(idx); });
 
             if(validIndices.length === 0) {
                 tampilkanToast("Semua produk ditandai habis atau error!");
-                btnRandomProduct.disabled = false;
-                btnRandomProduct.innerHTML = originalText;
-                return;
+                btnRandomProduct.disabled = false; btnRandomProduct.innerHTML = originalText; return;
             }
 
-            // Sidik jari: Termasuk jumlah array, panjang karakter text, & sisa yg tidak diblokir
             const currentSignature = allAffiliateLinks.length + "_" + allAffiliateLinks.join("").length + "_" + validIndices.length;
 
             syncRef.transaction((currentData) => {
-                
                 if (!currentData || currentData.signature !== currentSignature) {
                     let newAvailable = [...validIndices];
-                    
                     let randomIndex = Math.floor(Math.random() * newAvailable.length);
                     let pickedIndex = newAvailable.splice(randomIndex, 1)[0];
-                    
-                    return {
-                        signature: currentSignature,
-                        available: newAvailable,
-                        lastPicked: pickedIndex
-                    };
+                    return { signature: currentSignature, available: newAvailable, lastPicked: pickedIndex };
                 }
 
                 let available = currentData.available || [];
-                
-                // Amankan: Hapus index jika tiba-tiba index tsb diblokir oleh HP lain saat proses transaksi berjalan
                 available = available.filter(idx => validIndices.includes(idx));
-
-                if (available.length === 0) {
-                    available = [...validIndices];
-                }
+                if (available.length === 0) available = [...validIndices];
 
                 let randomIndex = Math.floor(Math.random() * available.length);
                 let pickedIndex = available.splice(randomIndex, 1)[0];
 
-                return {
-                    signature: currentData.signature,
-                    available: available,
-                    lastPicked: pickedIndex
-                };
+                return { signature: currentData.signature, available: available, lastPicked: pickedIndex };
 
             }, (error, committed, snapshot) => {
-                btnRandomProduct.disabled = false;
-                btnRandomProduct.innerHTML = originalText;
-
-                if (error) {
-                    tampilkanToast("❌ Gagal sinkronisasi antar HP");
-                } else if (committed) {
+                btnRandomProduct.disabled = false; btnRandomProduct.innerHTML = originalText;
+                if (error) tampilkanToast("❌ Gagal sinkronisasi antar HP");
+                else if (committed) {
                     let data = snapshot.val();
-                    if (data && data.lastPicked !== undefined) {
-                        salinTautanAffiliate(allAffiliateLinks[data.lastPicked]);
-                    }
+                    if (data && data.lastPicked !== undefined) salinTautanAffiliate(allAffiliateLinks[data.lastPicked]);
                 }
             });
         });
