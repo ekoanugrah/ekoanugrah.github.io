@@ -18,6 +18,7 @@
             --border-color: #e0e0e0;
             --success-green: #2ecc71;
             --action-blue: #3498db;
+            --danger-red: #e74c3c;
         }
         
         body {
@@ -148,7 +149,6 @@
             min-width: unset;
             background: #fff;
             border-radius: 12px;
-            /* Padding kiri-kanan diperkecil menjadi 6px agar tombol di dalamnya bisa lebih lebar */
             padding: 12px 6px; 
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 6px rgba(0,0,0,0.03);
@@ -174,15 +174,15 @@
             text-align: center;
         }
 
-        /* Tombol Buka Acak Khusus per Kolom (DIPERLEBAR & DIPERBESAR) */
+        /* Tombol Buka Acak Khusus per Kolom */
         .btn-open-column {
             width: 100%;
             background-color: var(--action-blue);
             color: white;
             border: none;
-            padding: 14px 4px; /* Padding vertikal ditambah */
+            padding: 14px 4px;
             border-radius: 8px;
-            font-size: 13px; /* Font lebih besar */
+            font-size: 13px;
             font-weight: 800;
             cursor: pointer;
             text-transform: uppercase;
@@ -195,17 +195,20 @@
             transform: scale(0.96);
         }
 
-        /* Container Tombol Link Produk */
+        /* ITEM PRODUK & FLAGGING CSS */
         .product-item {
             display: flex;
+            align-items: stretch;
             width: 100%;
             margin-bottom: 10px;
+            position: relative;
+            gap: 4px;
         }
 
-        /* Desain Baru Tombol Link Produk (Rata Tengah) */
+        /* Desain Tombol Link Produk */
         .btn-product-link {
+            flex: 1;
             box-sizing: border-box; 
-            width: 100%;
             min-height: 65px;
             border: 1px solid rgba(0,0,0,0.08);
             color: var(--text-main);
@@ -213,26 +216,35 @@
             border-radius: 10px; 
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.2s;
             -webkit-tap-highlight-color: transparent; 
             display: flex;
             flex-direction: column; 
-            align-items: center; /* Rata Tengah Horizontal */
+            align-items: center; 
             justify-content: center;
             gap: 6px;
         }
 
-        .btn-product-link:active {
+        .btn-product-link:active:not(.flagged) {
             transform: translateY(2px);
             filter: brightness(0.95);
             border-color: var(--shopee-orange);
         }
 
-        /* Nama Produk (Rata Tengah) */
+        /* Kondisi Tombol saat di-Flag (Blokir) */
+        .btn-product-link.flagged {
+            background-color: #f1f1f1 !important;
+            filter: grayscale(100%);
+            opacity: 0.5;
+            cursor: not-allowed;
+            border: 1px dashed #ccc;
+        }
+
+        /* Nama Produk */
         .product-title {
             font-size: 13px;
             font-weight: 700; 
-            text-align: center; /* Teks Rata Tengah */
+            text-align: center;
             line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2; 
@@ -253,6 +265,54 @@
             background: rgba(238, 77, 45, 0.1);
             padding: 3px 8px;
             border-radius: 4px;
+        }
+
+        /* TOMBOL X (FLAGGING) */
+        .btn-flag {
+            width: 30px;
+            border-radius: 8px;
+            border: 1px solid #ffcdd2;
+            background: #fff5f5;
+            color: var(--danger-red);
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .btn-flag:active { transform: scale(0.9); }
+        .btn-flag.active {
+            background: var(--danger-red);
+            color: white;
+            border-color: var(--danger-red);
+        }
+
+        /* PROGRESS BAR CSS */
+        .progress-container {
+            width: 100%;
+            height: 18px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 15px;
         }
 
         .loading, .error {
@@ -295,7 +355,7 @@
 
     <div class="app-container">
         <div class="shopee-header">
-            <h1>Catatan Affiliate</h1>
+            <h1>Catatan Affiliate (15 Devices Sync)</h1>
         </div>
 
         <div class="section-card">
@@ -307,9 +367,15 @@
         <div class="section-card">
             <h2 class="section-title">Daftar Produk Affiliate</h2>
             
-            <button class="btn-action" id="btnRandomProduct" style="margin-bottom: 15px; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);" disabled>
+            <button class="btn-action" id="btnRandomProduct" style="margin-bottom: 8px; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);" disabled>
                 📋 Salin Tautan Produk Acak Global
             </button>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">Menyinkronkan status link...</div>
+
             <div id="status" class="loading">Memuat produk...</div>
             
             <div class="scroll-wrapper">
@@ -455,7 +521,7 @@
 
         btnGenerate.addEventListener("click", generateCompleteData);
 
-        // ================= LOGIKA CATATAN AFFILIATE & SALIN LINK DENGAN SINKRONISASI FIREBASE =================
+        // ================= LOGIKA CATATAN AFFILIATE & FIREBASE (15 HP SYNC) =================
         
         const firebaseConfig = { 
             apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", 
@@ -473,6 +539,7 @@
         
         const db = firebase.database();
         const syncRef = db.ref('shopee_affiliate/link_pool_master');
+        const flagRef = db.ref('shopee_affiliate/flagged_links');
 
         const GIST_URL = 'https://gist.githubusercontent.com/ekoanugrah/c7befa717592cbcfd2d1235c7ec4c7cd/raw/produkaffiliate.txt';
         const productList = document.getElementById('productList');
@@ -481,6 +548,12 @@
         
         let allAffiliateLinks = []; 
         let groupedProducts = []; 
+        let flaggedSet = new Set(); // Menyimpan data produk yang diblokir/diberi bendera (X)
+
+        // Helper untuk membuat ID aman di Firebase dari URL yang panjang
+        function encodeFirebaseKey(str) { 
+            return btoa(str).replace(/[=\+\/]/g, 'A').substring(0, 50); 
+        }
 
         function salinTautanAffiliate(url) {
             const tempTextArea = document.createElement("textarea");
@@ -529,17 +602,21 @@
                             const nama = parts[0].trim();
                             const link = parts[1].trim();
                             
-                            currentGroup.products.push({ nama, link });
+                            // Tambahkan ID hash unik untuk sistem Flagging
+                            currentGroup.products.push({ nama, link, id: encodeFirebaseKey(link) });
                             allAffiliateLinks.push(link); 
                         }
                     }
                 });
 
-                renderColumns();
-
                 if (allAffiliateLinks.length > 0) {
                     btnRandomProduct.disabled = false;
                 }
+
+                // Mulai menguping (mendengarkan) status blokir (flag) dari Firebase secara realtime
+                listenToFlags();
+                // Mulai menguping pergerakan progress bar 
+                listenToProgress();
 
             } catch (error) {
                 statusDiv.className = 'error';
@@ -547,9 +624,29 @@
             }
         }
 
+        // ================= LOGIKA FLAGGING (TOMBOL X) =================
+        function listenToFlags() {
+            flagRef.on('value', snap => {
+                flaggedSet.clear();
+                if(snap.exists()){
+                    snap.forEach(child => { flaggedSet.add(child.key); });
+                }
+                // Jika ada perubahan dari HP lain, UI akan langsung otomatis digambar ulang
+                renderColumns(); 
+            });
+        }
+
+        window.toggleFlag = function(linkId, isCurrentlyFlagged) {
+            if(isCurrentlyFlagged) {
+                flagRef.child(linkId).remove(); // Cabut bendera
+            } else {
+                flagRef.child(linkId).set(true); // Pasang bendera (Blokir)
+            }
+        }
+
+        // ================= RENDER TAMPILAN TOKO & PRODUK =================
         function renderColumns() {
             productList.innerHTML = '';
-            // WARNA PASTEL BARU YANG LEBIH NYATA UNTUK MASING-MASING TOKO
             const bgColors = ['#dbeafe', '#fce7f3', '#dcfce7', '#ffedd5', '#f3e8ff'];
 
             groupedProducts.forEach((group, index) => {
@@ -566,7 +663,15 @@
                     </div>
                 `;
 
-                group.products.forEach(prod => {
+                // URUTKAN: Produk aktif di bagian atas, Produk Flagged (X) di paling bawah
+                let sortedProducts = [...group.products].sort((a, b) => {
+                    let aFlag = flaggedSet.has(a.id) ? 1 : 0;
+                    let bFlag = flaggedSet.has(b.id) ? 1 : 0;
+                    return aFlag - bFlag;
+                });
+
+                sortedProducts.forEach(prod => {
+                    const isFlagged = flaggedSet.has(prod.id);
                     const prodDiv = document.createElement('div');
                     prodDiv.className = 'product-item';
 
@@ -582,11 +687,17 @@
 
                     let priceHtml = displayPrice ? `<div class="product-price">${displayPrice}</div>` : '';
 
+                    // Gaya CSS tergantung status Flagging
+                    let btnClass = isFlagged ? "btn-product-link flagged" : "btn-product-link";
+                    let clickEvent = isFlagged ? "tampilkanToast('❌ Produk ini sedang diblokir atau habis!')" : `salinTautanAffiliate('${prod.link}')`;
+                    let flagBtnClass = isFlagged ? "btn-flag active" : "btn-flag";
+
                     prodDiv.innerHTML = `
-                        <button class="btn-product-link" style="background-color: ${colorBg};" onclick="salinTautanAffiliate('${prod.link}')">
+                        <button class="${btnClass}" style="background-color: ${isFlagged ? '' : colorBg};" onclick="${clickEvent}">
                             <span class="product-title">${displayName}</span>
                             ${priceHtml}
                         </button>
+                        <button class="${flagBtnClass}" onclick="toggleFlag('${prod.id}', ${isFlagged})">${isFlagged ? '❌' : '✖'}</button>
                     `;
                     columnLi.appendChild(prodDiv);
                 });
@@ -598,11 +709,41 @@
         window.salinAcakDariGrup = function(groupIndex) {
             const group = groupedProducts[groupIndex];
             if (group && group.products.length > 0) {
-                const randomItem = group.products[Math.floor(Math.random() * group.products.length)];
+                // Jangan memilih produk yang diblokir
+                let activeProds = group.products.filter(p => !flaggedSet.has(p.id));
+                if(activeProds.length === 0) {
+                    return tampilkanToast("Semua produk di toko ini habis/diblokir!");
+                }
+                const randomItem = activeProds[Math.floor(Math.random() * activeProds.length)];
                 salinTautanAffiliate(randomItem.link);
             }
         };
 
+        // ================= PROGRESS BAR (REALTIME LISTENER) =================
+        function listenToProgress() {
+            syncRef.on('value', snap => {
+                const data = snap.val();
+                let sisa = 0;
+                
+                // Hitung total link AKTIF yang tidak masuk daftar blokir (Flag)
+                let activeLinksTotal = allAffiliateLinks.filter(url => !flaggedSet.has(encodeFirebaseKey(url))).length;
+                
+                if (data && data.available) { 
+                    sisa = data.available.length; 
+                } else { 
+                    sisa = activeLinksTotal; // Jika belum ada transaksi/baru direset
+                } 
+
+                if(activeLinksTotal === 0) activeLinksTotal = 1; // Menghindari error pembagian 0
+                
+                let percentage = (sisa / activeLinksTotal) * 100;
+                
+                document.getElementById('progressBar').style.width = percentage + '%';
+                document.getElementById('progressText').innerText = `Tersisa ${sisa} dari ${activeLinksTotal} Link Aktif (Sync 15 HP)`;
+            });
+        }
+
+        // ================= SALIN ACAK GLOBAL (ANTI DOUBLE UNTUK 15 HP) =================
         btnRandomProduct.addEventListener('click', () => {
             if (allAffiliateLinks.length === 0) return;
 
@@ -610,15 +751,28 @@
             const originalText = btnRandomProduct.innerHTML;
             btnRandomProduct.innerText = "⏳ Sinkronisasi...";
 
-            const currentSignature = allAffiliateLinks.length + "_" + allAffiliateLinks.join("").length;
+            // Filter nomor index (urutan) dari daftar global yang TIDAK DIBLOKIR
+            let validIndices = [];
+            allAffiliateLinks.forEach((link, idx) => {
+                if(!flaggedSet.has(encodeFirebaseKey(link))) {
+                    validIndices.push(idx);
+                }
+            });
+
+            if(validIndices.length === 0) {
+                tampilkanToast("Semua produk ditandai habis atau error!");
+                btnRandomProduct.disabled = false;
+                btnRandomProduct.innerHTML = originalText;
+                return;
+            }
+
+            // Sidik jari: Termasuk jumlah array, panjang karakter text, & sisa yg tidak diblokir
+            const currentSignature = allAffiliateLinks.length + "_" + allAffiliateLinks.join("").length + "_" + validIndices.length;
 
             syncRef.transaction((currentData) => {
                 
                 if (!currentData || currentData.signature !== currentSignature) {
-                    let newAvailable = [];
-                    for(let i = 0; i < allAffiliateLinks.length; i++) {
-                        newAvailable.push(i);
-                    }
+                    let newAvailable = [...validIndices];
                     
                     let randomIndex = Math.floor(Math.random() * newAvailable.length);
                     let pickedIndex = newAvailable.splice(randomIndex, 1)[0];
@@ -632,10 +786,11 @@
 
                 let available = currentData.available || [];
                 
+                // Amankan: Hapus index jika tiba-tiba index tsb diblokir oleh HP lain saat proses transaksi berjalan
+                available = available.filter(idx => validIndices.includes(idx));
+
                 if (available.length === 0) {
-                    for(let i = 0; i < allAffiliateLinks.length; i++) {
-                        available.push(i);
-                    }
+                    available = [...validIndices];
                 }
 
                 let randomIndex = Math.floor(Math.random() * available.length);
