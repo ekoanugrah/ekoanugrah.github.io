@@ -82,7 +82,7 @@
         }
         #resultArea:focus { border-color: var(--shopee-orange); }
 
-        /* TOMBOL UTAMA (DIPERBESAR) */
+        /* TOMBOL UTAMA */
         .btn-main-large {
             width: 100%;
             padding: 16px 8px;
@@ -319,16 +319,17 @@
 
         // ================= LOGIKA PRODUK AFFILIATE =================
         const productsRef = db.ref('shopee_affiliate/products_db');
-        const syncRef = db.ref('shopee_affiliate/link_pool_master');
         const flagRef = db.ref('shopee_affiliate/flagged_links');
+        const usedLinksRef = db.ref('shopee_affiliate/used_links'); // NODE BARU PENGGANTI TRANSAKSI LAMA
         
         const productList = document.getElementById('productList');
         const statusDiv = document.getElementById('status');
         const btnRandomProduct = document.getElementById('btnRandomProduct');
         
-        let allAffiliateLinks = []; 
+        let allAffiliateLinks = []; // Sekarang isinya array Object [{id, link, nama}]
         let groupedProducts = []; 
         let flaggedSet = new Set(); 
+        let usedLinksObj = {}; // Object untuk mengingat ID mana yang sudah disalin global
 
         function encodeFirebaseKey(str) { return btoa(str).replace(/[=\+\/]/g, 'A').substring(0, 50); }
 
@@ -352,7 +353,7 @@
                     if(!group.products) group.products = []; 
                     group.products.forEach(prod => {
                         prod.id = encodeFirebaseKey(prod.link);
-                        allAffiliateLinks.push(prod.link);
+                        allAffiliateLinks.push(prod); // Masukkan Object
                     });
                 });
 
@@ -365,7 +366,7 @@
                 }
 
                 renderColumns();
-                syncRef.once('value').then(s => updateProgressBar(s.val()));
+                updateProgressBar(); // Progress Bar akan selalu disinkronkan saat Database Berubah
             });
         }
 
@@ -375,7 +376,10 @@
                 flaggedSet.clear();
                 if(snap.exists()){ snap.forEach(child => { flaggedSet.add(child.key); }); }
                 renderColumns(); 
-                syncRef.once('value').then(s => updateProgressBar(s.val()));
+                if(document.getElementById('editorModal').classList.contains('hidden') === false) {
+                    renderEditorUI(); // Refresh tampilan editor juga jika sedang dibuka
+                }
+                updateProgressBar(); // Progress Bar update jika ada produk yg di flag
             });
         }
 
@@ -433,64 +437,81 @@
             }
         };
 
-        // ================= PROGRESS BAR & TRANSAKSI SINKRONISASI =================
-        function updateProgressBar(data) {
-            let sisa = 0;
-            let activeLinksTotal = allAffiliateLinks.filter(url => !flaggedSet.has(encodeFirebaseKey(url))).length;
-            
-            if (data && data.available) sisa = data.available.length; 
-            else sisa = activeLinksTotal; 
+        // ================= PROGRESS BAR & TRANSAKSI DINAMIS (ID TRACKING) =================
+        function updateProgressBar() {
+            // 1. Hitung total link AKTIF (Ada di DB dan Tidak di Flag)
+            let activeLinksTotal = allAffiliateLinks.filter(prod => !flaggedSet.has(prod.id)).length;
+            if (activeLinksTotal === 0) activeLinksTotal = 1; // Cegah error dibagi 0
 
-            if(activeLinksTotal === 0) activeLinksTotal = 1; 
-            let percentage = (sisa / activeLinksTotal) * 100;
+            // 2. Hitung berapa link aktif yang sudah TERPAKAI di cycle ini
+            let usedCount = 0;
+            allAffiliateLinks.forEach(prod => {
+                if (!flaggedSet.has(prod.id) && usedLinksObj[prod.id]) {
+                    usedCount++;
+                }
+            });
+
+            // 3. Jumlah Sisa Persis
+            let sisa = activeLinksTotal - usedCount;
+            if(sisa < 0) sisa = 0;
             
+            let percentage = (sisa / activeLinksTotal) * 100;
             document.getElementById('progressBar').style.width = percentage + '%';
             document.getElementById('progressText').innerText = `Tersisa ${sisa} dari ${activeLinksTotal} Link Aktif (Sync 15 HP)`;
         }
 
         function listenToProgress() {
-            syncRef.on('value', snap => updateProgressBar(snap.val()));
+            usedLinksRef.on('value', snap => {
+                usedLinksObj = snap.val() || {};
+                updateProgressBar();
+            });
         }
 
         btnRandomProduct.addEventListener('click', () => {
             if (allAffiliateLinks.length === 0) return;
 
-            btnRandomProduct.disabled = true; const originalText = btnRandomProduct.innerHTML;
+            btnRandomProduct.disabled = true; 
+            const originalText = btnRandomProduct.innerHTML;
             btnRandomProduct.innerText = "⏳ Sinkronisasi...";
 
-            let validIndices = [];
-            allAffiliateLinks.forEach((link, idx) => { if(!flaggedSet.has(encodeFirebaseKey(link))) validIndices.push(idx); });
+            // Filter produk yang benar-benar Valid saat ini
+            let validProds = allAffiliateLinks.filter(p => !flaggedSet.has(p.id));
 
-            if(validIndices.length === 0) {
+            if(validProds.length === 0) {
                 tampilkanToast("Semua produk ditandai habis atau error!");
                 btnRandomProduct.disabled = false; btnRandomProduct.innerHTML = originalText; return;
             }
 
-            const currentSignature = allAffiliateLinks.length + "_" + allAffiliateLinks.join("").length + "_" + validIndices.length;
+            usedLinksRef.transaction((currentUsed) => {
+                let used = currentUsed || {};
+                
+                // Cari produk Valid yang BELUM ada di daftar used
+                let availableProds = validProds.filter(p => !used[p.id]);
 
-            syncRef.transaction((currentData) => {
-                if (!currentData || currentData.signature !== currentSignature) {
-                    let newAvailable = [...validIndices];
-                    let randomIndex = Math.floor(Math.random() * newAvailable.length);
-                    let pickedIndex = newAvailable.splice(randomIndex, 1)[0];
-                    return { signature: currentSignature, available: newAvailable, lastPicked: pickedIndex };
+                // Jika sudah habis semua, RESET Gudang
+                if (availableProds.length === 0) {
+                    used = {}; // Kosongkan database yang dipakai
+                    availableProds = validProds; // Isi kembali
                 }
 
-                let available = currentData.available || [];
-                available = available.filter(idx => validIndices.includes(idx));
-                if (available.length === 0) available = [...validIndices];
+                // Pilih 1 acak dari yang available
+                let randomIndex = Math.floor(Math.random() * availableProds.length);
+                let pickedProd = availableProds[randomIndex];
 
-                let randomIndex = Math.floor(Math.random() * available.length);
-                let pickedIndex = available.splice(randomIndex, 1)[0];
+                // Tandai ID ini sudah dipakai
+                used[pickedProd.id] = true;
+                
+                // Simpan history terakhir untuk disalin di client
+                used['_lastPickedLink'] = pickedProd.link;
 
-                return { signature: currentData.signature, available: available, lastPicked: pickedIndex };
+                return used;
 
             }, (error, committed, snapshot) => {
                 btnRandomProduct.disabled = false; btnRandomProduct.innerHTML = originalText;
                 if (error) tampilkanToast("❌ Gagal sinkronisasi antar HP");
                 else if (committed) {
                     let data = snapshot.val();
-                    if (data && data.lastPicked !== undefined) salinTautanAffiliate(allAffiliateLinks[data.lastPicked]);
+                    if (data && data._lastPickedLink) salinTautanAffiliate(data._lastPickedLink);
                 }
             });
         });
@@ -523,11 +544,20 @@
                 let productsHtml = '';
                 if(store.products && store.products.length > 0) {
                     store.products.forEach((p, pIdx) => {
+                        let pId = encodeFirebaseKey(p.link);
+                        let isFlagged = flaggedSet.has(pId);
+                        
+                        // Gaya Tampilan khusus untuk Produk Flagged di Editor
+                        let titleStyle = isFlagged ? "text-decoration: line-through; color: #aaa;" : "color: #333;";
+                        let linkStyle = isFlagged ? "color: #aaa;" : "color: var(--action-blue);";
+                        let bgStyle = isFlagged ? "#f0f0f0" : "#f9f9f9";
+                        let flagBadge = isFlagged ? `<span style="background: var(--danger-red); color: white; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 5px;">DIBLOKIR</span>` : '';
+
                         productsHtml += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; background: #f9f9f9; padding: 8px; border-radius: 6px; border: 1px solid #eee;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; background: ${bgStyle}; padding: 8px; border-radius: 6px; border: 1px solid #eee;">
                             <div style="font-size: 12px; line-height: 1.4; width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                <strong style="color: #333;">${p.nama}</strong><br>
-                                <span style="color: var(--action-blue); font-size: 10px;">${p.link}</span>
+                                <strong style="${titleStyle}">${p.nama}</strong> ${flagBadge}<br>
+                                <span style="${linkStyle} font-size: 10px;">${p.link}</span>
                             </div>
                             <div style="min-width: 60px; text-align: right;">
                                 <button class="editor-btn" onclick="editProduct(${sIdx}, ${pIdx})" style="margin-right: 4px;">✏️</button>
@@ -593,9 +623,7 @@
         }
 
         window.saveEditorData = function() {
-            // Pastikan tidak ada array toko yang tidak memiliki property products
             editorData.forEach(store => { if (!store.products) store.products = []; });
-            
             productsRef.set(editorData).then(() => {
                 tampilkanToast("✅ Database berhasil disimpan & tersinkronisasi!");
                 closeEditorModal();
