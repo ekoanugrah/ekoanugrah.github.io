@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Generator Identitas & Alamat</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --shopee-orange: #ee4d2d; 
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-main: rgba(0,0,0,.8);
+            --border-color: #e0e0e0;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header */
+        .shopee-header {
+            background-color: var(--shopee-orange);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .shopee-header h1 { margin: 0; font-size: 18px; font-weight: 500; letter-spacing: 0.5px; }
+
+        /* Card Section Umum */
+        .section-card {
+            background-color: var(--card-bg);
+            margin: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .section-title { font-size: 15px; color: var(--text-main); margin: 0 0 12px 0; font-weight: 600; }
+
+        /* Generator Alamat Textarea */
+        #resultArea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-main);
+            background-color: #fafafa;
+            box-sizing: border-box;
+            min-height: 110px;
+            resize: none;
+            line-height: 1.5;
+            outline: none;
+        }
+        #resultArea:focus { border-color: var(--shopee-orange); }
+
+        /* Checkbox Container */
+        .options-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--shopee-orange);
+            cursor: pointer;
+        }
+
+        /* TOMBOL UTAMA */
+        .btn-main-large {
+            width: 100%;
+            padding: 16px 8px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: transform 0.1s, filter 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background-color: var(--shopee-orange);
+        }
+        .btn-main-large:active { transform: scale(0.97); }
+        .btn-main-large:disabled { background-color: #cccccc !important; cursor: not-allowed; box-shadow: none !important; transform: none !important; }
+
+        /* Toast Notification */
+        #toast { visibility: hidden; min-width: 200px; background-color: rgba(0, 0, 0, 0.85); color: #fff; text-align: center; border-radius: 30px; padding: 12px 20px; position: fixed; z-index: 1500; bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div id="toast">Berhasil</div>
+
+    <div class="app-container">
+        <div class="shopee-header">
+            <h1>Generator Identitas & Alamat</h1>
+        </div>
+
+        <div class="section-card">
+            <h2 class="section-title">Buat Data Acak</h2>
+            <textarea id="resultArea" readonly placeholder="Tunggu, mengunduh database nama dari Firebase..."></textarea>
+            
+            <div class="options-group">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="includePhone" checked>
+                    <label for="includePhone" style="cursor: pointer;">Sertakan Nomor HP (Provider Indonesia)</label>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="includePatokan" checked>
+                    <label for="includePatokan" style="cursor: pointer;">Sertakan Patokan Alamat</label>
+                </div>
+            </div>
+
+            <button class="btn-main-large btn-generate" id="btnGenerate" disabled>⏳ Memuat Database...</button>
+        </div>
+    </div>
+
+    <script>
+        // ================= FUNGSI TOAST =================
+        function tampilkanToast(pesan) {
+            const toast = document.getElementById("toast");
+            toast.innerText = pesan; toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
+        }
+
+        // ================= INISIALISASI FIREBASE =================
+        const firebaseConfig = { 
+            apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", 
+            authDomain: "catatanku-app-ce60b.firebaseapp.com", 
+            databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", 
+            projectId: "catatanku-app-ce60b", 
+            storageBucket: "catatanku-app-ce60b.firebasestorage.app", 
+            messagingSenderId: "291744292263", 
+            appId: "1:291744292263:web:ab8d32ba52bc19cbffea82" 
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        // ================= LOGIKA GENERATOR ALAMAT =================
+        const btnGenerate = document.getElementById("btnGenerate");
+        const resultArea = document.getElementById("resultArea");
+        const includePhoneCheckbox = document.getElementById("includePhone");
+        const includePatokanCheckbox = document.getElementById("includePatokan"); // Deklarasi checkbox patokan
+        let dbNames = null; 
+
+        db.ref('shopee_affiliate/address_db').on('value', snap => {
+            if(snap.exists()){
+                dbNames = snap.val();
+                btnGenerate.disabled = false;
+                btnGenerate.innerText = "🎲 Buat & Salin Data Otomatis";
+                resultArea.placeholder = "Klik tombol di bawah untuk membuat data acak...";
+            } else {
+                btnGenerate.disabled = true;
+                btnGenerate.innerText = "⚠️ Database Kosong";
+                resultArea.placeholder = "Data alamat belum dimasukkan ke Firebase.";
+            }
+        });
+
+        const BASE_API_URL = 'https://ibnux.github.io/data-indonesia';
+
+        function getRandomItem(array) {
+            if(!array || array.length === 0) return "";
+            return array[Math.floor(Math.random() * array.length)];
+        }
+        function toTitleCase(str) { return str.replace(/\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); }); }
+
+        function generateName() {
+            let poolFirst, poolLast;
+            if (Math.random() < 0.5) { 
+                poolFirst = dbNames.maleFirst || ["Budi"]; poolLast = dbNames.maleLast || ["Santoso"]; 
+            } else { 
+                poolFirst = dbNames.femaleFirst || ["Siti"]; poolLast = dbNames.femaleLast || ["Aminah"]; 
+            }
+            let firstName = getRandomItem(poolFirst);
+            let lastName = getRandomItem(poolLast);
+            while (firstName === lastName) lastName = getRandomItem(poolLast);
+            return `${firstName} ${lastName}`;
+        }
+
+        function generateIndonesianPhone() {
+            const prefixes = [
+                '0811', '0812', '0813', '0852', '0853', '0821', '0822', '0823', // Telkomsel
+                '0815', '0816', '0858', '0855', '0856', '0857', // Indosat
+                '0817', '0818', '0819', '0859', '0877', '0878', '0831', '0832', '0838', // XL & Axis
+                '0895', '0896', '0897', '0898', '0899', // Tri
+                '0881', '0882', '0883', '0884', '0885', '0886' // Smartfren
+            ];
+            
+            const selectedPrefix = getRandomItem(prefixes);
+            const remainingDigitsLength = Math.floor(Math.random() * 3) + 7; 
+            
+            let phoneNumber = selectedPrefix;
+            for (let i = 0; i < remainingDigitsLength; i++) {
+                phoneNumber += Math.floor(Math.random() * 10).toString();
+            }
+            
+            return phoneNumber;
+        }
+
+        async function generateCompleteData() {
+            if(!dbNames) return tampilkanToast("Menunggu data Firebase...");
+            try {
+                btnGenerate.disabled = true; btnGenerate.innerText = "⏳ Memproses...";
+
+                const namaLengkap = generateName();
+                
+                // 1. Ambil Provinsi
+                const resProv = await fetch(`${BASE_API_URL}/provinsi.json`);
+                const allProvinces = await resProv.json();
+                const targetProvinces = ["BANTEN", "JAKARTA", "JAWA BARAT", "JAWA TENGAH", "YOGYAKARTA", "JAWA TIMUR", "BALI"];
+                const javaBaliProvinces = allProvinces.filter(p => targetProvinces.some(target => p.nama.toUpperCase().includes(target)));
+                const randomProv = getRandomItem(javaBaliProvinces);
+
+                // 2. Ambil Kabupaten/Kota
+                const resKota = await fetch(`${BASE_API_URL}/kabupaten/${randomProv.id}.json`);
+                const randomKota = getRandomItem(await resKota.json());
+
+                // 3. Ambil Kecamatan
+                const resKec = await fetch(`${BASE_API_URL}/kecamatan/${randomKota.id}.json`);
+                const randomKec = getRandomItem(await resKec.json());
+
+                // 4. Ambil Kelurahan/Desa
+                const resKel = await fetch(`${BASE_API_URL}/kelurahan/${randomKec.id}.json`);
+                const randomKel = getRandomItem(await resKel.json());
+
+                // --- PEMBERSIHAN & PENYINGKATAN NAMA ---
+                let kotaBersih = randomKota.nama.replace(/^(KAB\.|KOTA ADMINISTRASI|KOTA|KABUPATEN)\s+/i, '');
+                
+                const kotaFinal = toTitleCase(kotaBersih);
+                const kecFinal = toTitleCase(randomKec.nama);
+                const kelFinal = toTitleCase(randomKel.nama);
+                
+                let provFinal = toTitleCase(randomProv.nama);
+                provFinal = provFinal.replace("Daerah Khusus Ibukota Jakarta", "DKI Jakarta")
+                                     .replace("Daerah Istimewa Yogyakarta", "DI Yogyakarta");
+
+                // 5. Generate RT dan RW acak
+                const rt = String(Math.floor(Math.random() * 15) + 1).padStart(2, '0');
+                const rw = String(Math.floor(Math.random() * 15) + 1).padStart(2, '0');
+
+                // Komponen Jalan & Rumah
+                const namaJalan = getRandomItem(dbNames.daftarJalan || ["Jl. Sudirman"]);
+                let nomorRumah = Math.floor(Math.random() * 100) + 1;
+                if (Math.random() > 0.7) nomorRumah += ["A", "B", "C"][Math.floor(Math.random() * 3)];
+                let namaGang = Math.random() > 0.5 ? `, ${getRandomItem(dbNames.daftarGang || ["Gg. 1"])}` : "";
+
+                // --- PENYUSUNAN FORMAT STRING FINAL ---
+                // Menyusun dasar alamat tanpa patokan
+                let stringFinal = `${namaLengkap}\n${namaJalan} No. ${nomorRumah}${namaGang}, RT.${rt}/RW.${rw}, Kel/Desa. ${kelFinal}, Kec. ${kecFinal}, Kab/Kota. ${kotaFinal}, Prov. ${provFinal}`;
+                
+                // Tambahkan Patokan jika Checkbox dicentang (tanpa tulisan "Patokan:")
+                if (includePatokanCheckbox.checked) {
+                    const patokan = getRandomItem(dbNames.daftarPatokan || ["Depan SPBU"]);
+                    stringFinal += `\n${patokan}`;
+                }
+
+                // Tambahkan Nomor HP jika Checkbox dicentang
+                if (includePhoneCheckbox.checked) {
+                    const randomPhone = generateIndonesianPhone();
+                    stringFinal += `\nTelp: ${randomPhone}`;
+                }
+                
+                resultArea.value = stringFinal;
+                resultArea.select(); document.execCommand('copy'); window.getSelection().removeAllRanges();
+                tampilkanToast("✅ Data berhasil dibuat & disalin!");
+
+            } catch (error) {
+                console.error(error);
+                resultArea.value = "Gagal mengambil data wilayah. Pastikan internet Anda aktif.";
+                tampilkanToast("❌ Gagal memproses data");
+            } finally {
+                btnGenerate.disabled = false; btnGenerate.innerText = "🎲 Buat & Salin Data Otomatis";
+            }
+        }
+        
+        btnGenerate.addEventListener("click", generateCompleteData);
+    </script>
+</body>
+</html>
