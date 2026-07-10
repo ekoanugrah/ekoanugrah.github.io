@@ -14,15 +14,12 @@ let orderHistory = []; let usedNumbersDB = new Set(); let isUsedNumbersLoaded = 
 const productList = document.getElementById('productList'); const btnOrder = document.getElementById('btnOrder'); const activeOrdersContainer = document.getElementById('activeOrdersContainer'); const activeCount = document.getElementById('activeCount'); const balanceDisplay = document.getElementById('balanceDisplay'); const exitModal = document.getElementById('exitModal'); 
 
 // ==========================================
-// ADAPTER API (Ubah bagian ini jika format provider beda)
+// ADAPTER API (Diperbarui untuk Parsing Angka)
 // ==========================================
 function parseBalance(res) {
     if (!res) return null;
-    if (res.balance !== undefined) return res.balance;
-    if (res.saldo !== undefined) return res.saldo;
-    if (res.data && res.data.balance !== undefined) return res.data.balance;
-    if (res.data && res.data.saldo !== undefined) return res.data.saldo;
-    return null; // Format tidak dikenali
+    let bal = res.balance ?? res.saldo ?? res.amount ?? (res.data && res.data.balance) ?? (res.data && res.data.saldo);
+    return bal !== undefined && bal !== null && !isNaN(parseFloat(bal)) ? parseFloat(bal) : null;
 }
 
 function parseProducts(res) {
@@ -201,7 +198,10 @@ window.clearHistory = function() { if(confirm("Hapus semua riwayat pesanan?")) {
 function loginAccount(accountName) { 
     activeAccountName = accountName; 
     const badge = document.getElementById('currentApiBadge');
-    if (badge) badge.innerText = accountName;
+    if (badge) {
+        badge.innerText = accountName;
+        badge.title = accountName; // Menambahkan tooltips untuk teks panjang
+    }
     
     setAccountViewingStatus(true); 
     const now = Date.now(); const rawOrders = JSON.parse(localStorage.getItem(`orders_${accountName}`)) || []; activeOrders = rawOrders.filter(o => o.expiresAt > now); 
@@ -242,19 +242,31 @@ async function loadShopeeIndonesia() {
     try {
         if (productList) productList.innerHTML = '<div class="status-text">Mencari Server...</div>';
         
-        // Membaca katalog dari API - Akan mencari array data dengan pola yang umum
+        // Membaca katalog
         const productsRes = await apiCall(`/catalog/products`);
         const extractedProducts = parseProducts(productsRes);
         
         if (extractedProducts && extractedProducts.length > 0) {
-            availableProducts = extractedProducts.sort((a, b) => parseFloat(a.price || 0) - parseFloat(b.price || 0));
+            // Sort berdasarkan harga termurah
+            availableProducts = extractedProducts.sort((a, b) => {
+                let priceA = parseFloat(a.price || a.cost || a.rate || a.amount || 0);
+                let priceB = parseFloat(b.price || b.cost || b.rate || b.amount || 0);
+                return priceA - priceB;
+            });
+            
             if (productList) productList.innerHTML = ""; 
             if (availableProducts.length > 0) { selectedProductId = availableProducts[0].id; if (btnOrder) btnOrder.disabled = false; }
             
             availableProducts.forEach(product => {
                 const card = document.createElement("div"); card.className = "product-card"; if (selectedProductId === product.id) { card.classList.add('selected'); }
+                
+                // Mendapatkan angka dengan aman untuk menghindari NaN
+                let rawPrice = product.price || product.cost || product.rate || product.amount || 0;
+                let parsedPrice = parseFloat(rawPrice);
+                
                 const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
-                const displayPrice = formatter.format(product.price || 0);
+                const displayPrice = isNaN(parsedPrice) ? "Rp -" : formatter.format(parsedPrice);
+                
                 card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${product.available || product.qty || 'Tersedia'}</p></div><div class="product-price">${displayPrice}</div>`;
                 card.onclick = () => { document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); selectedProductId = product.id; if (btnOrder) btnOrder.disabled = false; };
                 if (productList) productList.appendChild(card);
@@ -274,7 +286,6 @@ if (btnOrder) {
         try {
             const res = await apiCall('/orders/create', 'POST', { product_id: parseInt(selectedProductId), quantity: 1 });
             
-            // Mencoba mendapatkan data order dari format umum API
             let orderData = null;
             if (res && res.data && res.data.orders) orderData = res.data.orders[0];
             else if (res && res.order) orderData = res.order;
@@ -282,7 +293,11 @@ if (btnOrder) {
             
             if (orderData && orderData.id) {
                 const productInfo = availableProducts.find(p => String(p.id) === String(selectedProductId));
-                const finalPrice = orderData.price || orderData.cost || orderData.amount || (productInfo ? productInfo.price : 0);
+                let productFinalPrice = productInfo ? parseFloat(productInfo.price || productInfo.cost || productInfo.rate || 0) : 0;
+                
+                let orderPrice = parseFloat(orderData.price || orderData.cost || orderData.amount);
+                const finalPrice = !isNaN(orderPrice) ? orderPrice : (!isNaN(productFinalPrice) ? productFinalPrice : 0);
+                
                 const expiresAtMs = orderData.expires_at ? new Date(orderData.expires_at).getTime() : Date.now() + (20 * 60 * 1000); const createdAtMs = orderData.created_at ? new Date(orderData.created_at).getTime() : Date.now();
                 activeOrders.unshift({ id: orderData.id, productId: parseInt(selectedProductId), phone: orderData.phone_number || orderData.phone, price: finalPrice, otp: null, status: "ACTIVE", expiresAt: expiresAtMs, cancelUnlockTime: createdAtMs + (120 * 1000), isAutoCanceling: false });
                 saveToStorage(); startPollingAndTimer(); fetchBalance(); window.scrollTo({ top: 0, behavior: 'smooth' }); copyToClipboard(orderData.phone_number || orderData.phone);
@@ -315,7 +330,8 @@ function renderOrders() {
             cancelBtnAttr = "disabled"; replaceBtnAttr = "disabled"; resendBtnAttr = "disabled"; 
         }
 
-        const displayPrice = (order.price && order.price != 0) ? `Rp ${order.price}` : 'Rp -';
+        let parsedDisplayPrice = parseFloat(order.price);
+        const displayPrice = (!isNaN(parsedDisplayPrice) && parsedDisplayPrice !== 0) ? `Rp ${parsedDisplayPrice}` : 'Rp -';
 
         card.innerHTML = `
             <div class="order-header">
@@ -364,7 +380,6 @@ function startPollingAndTimer() {
             try {
                 const res = await apiCall(`/orders/${order.id}`);
                 
-                // Menarik data status dan OTP dari API
                 let statusInfo = null;
                 let otpCode = null;
                 
@@ -392,7 +407,6 @@ window.cancelSpecificOrder = async function(id, auto = false) {
     recordStat('failed');
     try { 
         const res = await apiCall('/orders/cancel', 'POST', { id: id }); 
-        // Menganggap API berhasil membatalkan jika response diterima dan bukan error krusial
         if (res && (!res.error || res.error.code === 'NOT_FOUND')) { 
             activeOrders = activeOrders.filter(o => o.id !== id); saveToStorage(); fetchBalance(); if(auto) showToast("Otomatis dibatalkan (Waktu Sisa 10 Menit)", "error"); 
         } else { 
