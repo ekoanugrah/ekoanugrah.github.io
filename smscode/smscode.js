@@ -14,7 +14,7 @@ let orderHistory = []; let usedNumbersDB = new Set(); let isUsedNumbersLoaded = 
 const productList = document.getElementById('productList'); const btnOrder = document.getElementById('btnOrder'); const activeOrdersContainer = document.getElementById('activeOrdersContainer'); const activeCount = document.getElementById('activeCount'); const balanceDisplay = document.getElementById('balanceDisplay'); const exitModal = document.getElementById('exitModal'); 
 
 // ==========================================
-// 🚀 AUTO-DETEKTIF & PARSER ANGKA
+// 🚀 DEEP SCANNER
 // ==========================================
 function extractNumber(val) {
     if (val === undefined || val === null) return null;
@@ -37,37 +37,18 @@ function deepFind(obj, keys, depth = 0) {
     }
     return null;
 }
-// ==========================================
 
-window.openApiModal = function() {
-    document.getElementById('apiBaseUrl').value = apiConfig.baseUrl;
-    document.getElementById('apiAccountName').value = apiConfig.accountName;
-    document.getElementById('apiModal').classList.remove('hidden');
-    history.pushState(null, null, "#api");
-}
-
+window.openApiModal = function() { document.getElementById('apiBaseUrl').value = apiConfig.baseUrl; document.getElementById('apiAccountName').value = apiConfig.accountName; document.getElementById('apiModal').classList.remove('hidden'); history.pushState(null, null, "#api"); }
 window.closeApiModal = function() { document.getElementById('apiModal').classList.add('hidden'); }
-
 window.saveApiConfig = function() {
-    const newBase = document.getElementById('apiBaseUrl').value.trim();
-    const newAcc = document.getElementById('apiAccountName').value.trim();
+    const newBase = document.getElementById('apiBaseUrl').value.trim(); const newAcc = document.getElementById('apiAccountName').value.trim();
     if (!newBase || !newAcc) return showToast("Semua kolom API harus diisi!", "error");
-    
-    apiConfig.baseUrl = newBase;
-    apiConfig.accountName = newAcc;
-    localStorage.setItem('smscode_api_config', JSON.stringify(apiConfig));
-    BASE_URL = newBase;
-    
-    closeApiModal();
-    showToast("API berhasil dikoneksikan!");
-    
-    if (timerInterval) clearInterval(timerInterval); 
-    if (pollingInterval) clearInterval(pollingInterval);
+    apiConfig.baseUrl = newBase; apiConfig.accountName = newAcc; localStorage.setItem('smscode_api_config', JSON.stringify(apiConfig)); BASE_URL = newBase;
+    closeApiModal(); showToast("API dikoneksikan!");
+    if (timerInterval) clearInterval(timerInterval); if (pollingInterval) clearInterval(pollingInterval);
     setAccountViewingStatus(false);
-    
     if (activeOrdersContainer) activeOrdersContainer.innerHTML = '<div class="status-text">Memuat pesanan...</div>';
     if (balanceDisplay) balanceDisplay.innerText = "..."; 
-    
     loginAccount(newAcc);
 }
 
@@ -75,19 +56,10 @@ function openSettingsModal() { document.getElementById('settingsPassword').value
 function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
 window.saveSettings = function() { appSettings.password = document.getElementById('settingsPassword').value; appSettings.autoCopy = document.getElementById('settingsAutoCopy').checked; localStorage.setItem('app_settings', JSON.stringify(appSettings)); closeSettingsModal(); showToast("Pengaturan disimpan!"); renderMainButtons(); }
 function renderMainButtons() { const extraBtnWrapper = document.getElementById('extraBtnWrapper'); if (!extraBtnWrapper) return; if (appSettings.autoCopy) { extraBtnWrapper.innerHTML = `<button onclick="copyToClipboard('${appSettings.password}')" class="btn-primary" style="background-color: var(--info-color); margin-top: 12px; width: 100%; border-radius: 12px;"><i class="fas fa-copy"></i> Salin Sandi</button>`; } else { extraBtnWrapper.innerHTML = `<button class="btn-primary" disabled style="background-color: var(--bg-card); color: var(--text-secondary); margin-top: 12px; width: 100%; border-radius: 12px;"><i class="fas fa-check"></i> Selesai (Nonaktif)</button>`; } }
-
 function normalizePhone(phone) { if (!phone) return ""; let p = String(phone).replace(/\D/g, ""); if (p.startsWith("0")) { p = "62" + p.substring(1); } return p; }
 function formatPhoneNumber(phone) { if (!phone) return ""; let p = String(phone); if (p.startsWith("62")) { p = "0" + p.substring(2); } return p.replace(/(.{4})/g, '$1 ').trim(); }
 function formatOTP(otp) { if (!otp) return ""; const otpStr = String(otp); if (otpStr.length >= 6) { return otpStr.slice(0, 3) + "&nbsp;&nbsp;" + otpStr.slice(3); } return otpStr; }
-function getProviderName(phone) {
-    let p = String(phone); if (p.startsWith("62")) p = "0" + p.substring(2); const prefix = p.substring(0, 4);
-    if (['0811','0812','0813','0821','0822','0852','0853','0851'].includes(prefix)) return "Telkomsel";
-    if (['0814','0815','0816','0855','0856','0857','0858'].includes(prefix)) return "Indosat";
-    if (['0817','0818','0819','0859','0877','0878','0838','0831','0832','0833'].includes(prefix)) return "XL/Axis";
-    if (['0895','0896','0897','0898','0899'].includes(prefix)) return "Tri";
-    if (['0881','0882','0883','0884','0885','0886','0887','0888','0889'].includes(prefix)) return "Smartfren"; return "Acak"; 
-}
-
+function getProviderName(phone) { let p = String(phone); if (p.startsWith("62")) p = "0" + p.substring(2); const prefix = p.substring(0, 4); if (['0811','0812','0813','0821','0822','0852','0853','0851'].includes(prefix)) return "Telkomsel"; if (['0814','0815','0816','0855','0856','0857','0858'].includes(prefix)) return "Indosat"; if (['0817','0818','0819','0859','0877','0878','0838','0831','0832','0833'].includes(prefix)) return "XL/Axis"; if (['0895','0896','0897','0898','0899'].includes(prefix)) return "Tri"; if (['0881','0882','0883','0884','0885','0886','0887','0888','0889'].includes(prefix)) return "Smartfren"; return "Acak"; }
 function relocateBalanceUI() { const headerContainer = document.querySelector('.app-header-container'); const balanceContainer = document.querySelector('.balance-container'); if(headerContainer && balanceContainer && !document.getElementById('newBalanceDisplay')) { balanceContainer.style.display = 'none'; const newBalanceDiv = document.createElement('div'); newBalanceDiv.style.textAlign = 'right'; newBalanceDiv.innerHTML = `<span style="font-size: 11px; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; display: block;">Saldo</span><span id="newBalanceDisplay" style="font-size: 18px; font-weight: 900; color: var(--primary-color);">...</span>`; headerContainer.appendChild(newBalanceDiv); const oldBalance = document.getElementById('balanceDisplay'); if(oldBalance) oldBalance.removeAttribute('id'); newBalanceDiv.querySelector('span:last-child').id = 'balanceDisplay'; } }
 
 let isExitModalOpen = false;
@@ -117,24 +89,21 @@ window.clearHistory = function() { if(confirm("Hapus semua riwayat pesanan?")) {
 function loginAccount(accountName) { 
     activeAccountName = accountName; 
     const badge = document.getElementById('currentApiBadge');
-    if (badge) {
-        const displayAcc = accountName.length > 12 ? accountName.substring(0, 10) + '...' : accountName;
-        badge.innerText = displayAcc; badge.title = accountName; 
-    }
+    if (badge) { const displayAcc = accountName.length > 12 ? accountName.substring(0, 10) + '...' : accountName; badge.innerText = displayAcc; badge.title = accountName; }
     setAccountViewingStatus(true); 
     const now = Date.now(); const rawOrders = JSON.parse(localStorage.getItem(`orders_${accountName}`)) || []; activeOrders = rawOrders.filter(o => o.expiresAt > now); 
     if (rawOrders.length !== activeOrders.length) saveToStorage(); 
     loadHistory(); initMainApp(); 
 }
 
-// 🚀 PERBAIKAN FINAL: Dibuat sangat bersih agar tidak memicu blokir Proxy
+// 🚀 CORE API CALL (Format asli dari proxy lama)
 async function apiCall(endpoint, method = "GET", body = null) { 
     const cleanBaseUrl = BASE_URL.replace(/\/+$/, ''); 
     const options = { 
         method: method, 
         headers: { 
             "Content-Type": "application/json", 
-            "X-Account-Name": activeAccountName // Satu-satunya header yang dikirim
+            "X-Account-Name": activeAccountName // Header wajib agar lolos Proxy
         } 
     }; 
     if (body) options.body = JSON.stringify(body); 
@@ -154,15 +123,17 @@ function showToast(pesan, type = "success") { const toast = document.getElementB
 function copyToClipboard(text) { if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(() => { showToast("Berhasil disalin!"); }).catch(err => { copyFallback(text); }); } else { copyFallback(text); } }
 function copyFallback(text) { const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = "absolute"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999); try { document.execCommand('copy'); showToast("Berhasil disalin!"); } catch (err) { showToast("Gagal menyalin.", "error"); } document.body.removeChild(ta); }
 
+// ==========================================
+// 🚀 X-RAY DEBUG: TAMPILKAN JSON RAW KE LAYAR
+// ==========================================
 async function fetchBalance() { 
     const bDisplay = document.getElementById('balanceDisplay'); 
     try {
         const res = await apiCall('/balance');
         if (res && res._error) {
-            if (bDisplay) { bDisplay.innerText = res._error; bDisplay.style.color = "var(--danger-color)"; }
-            return;
+            if (bDisplay) { bDisplay.innerText = res._error; bDisplay.style.color = "var(--danger-color)"; } return;
         }
-
+        
         let bal = deepFind(res, ['balance', 'saldo', 'amount', 'credit', 'credits', 'wallet']);
         let parsedBal = extractNumber(bal);
         
@@ -170,10 +141,10 @@ async function fetchBalance() {
             const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
             if (bDisplay) { bDisplay.innerText = formatter.format(parsedBal); bDisplay.style.color = "var(--primary-color)"; }
         } else {
+            // CETAK JSON PENUH UNTUK SALDO
             if (bDisplay) { 
-                let keysInfo = Object.keys(res).join(',');
-                if(res.data && typeof res.data === 'object') Object.keys(res.data).join(',');
-                bDisplay.innerHTML = `<span style="font-size:10px; color:var(--warning-color);">Err: ${keysInfo.substring(0,25)}</span>`; 
+                let rawBal = JSON.stringify(res).replace(/["{}]/g, '');
+                bDisplay.innerHTML = `<span style="font-size:10px; color:#f59e0b;">${rawBal.substring(0, 40)}</span>`; 
             }
         }
     } catch (error) {
@@ -187,8 +158,7 @@ async function loadShopeeIndonesia() {
         
         const countriesRes = await apiCall('/catalog/countries'); 
         if (countriesRes && countriesRes._error) {
-            if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">${countriesRes._error}</div>`;
-            return;
+            if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">${countriesRes._error}</div>`; return;
         }
 
         let indoId = null; let shopeeId = null;
@@ -209,8 +179,7 @@ async function loadShopeeIndonesia() {
         const productsRes = await apiCall(productsEndpoint);
         
         if (productsRes && productsRes._error) {
-            if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">${productsRes._error}</div>`;
-            return;
+            if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">${productsRes._error}</div>`; return;
         }
 
         let extractedProducts = [];
@@ -219,16 +188,14 @@ async function loadShopeeIndonesia() {
             else if (productsRes.data && Array.isArray(productsRes.data)) extractedProducts = productsRes.data;
             else if (productsRes.products && Array.isArray(productsRes.products)) extractedProducts = productsRes.products;
             else if (typeof productsRes === 'object') {
-                for(let key in productsRes) {
-                    if (Array.isArray(productsRes[key])) { extractedProducts = productsRes[key]; break; }
-                }
+                for(let key in productsRes) { if (Array.isArray(productsRes[key])) { extractedProducts = productsRes[key]; break; } }
             }
         }
 
         if (extractedProducts && extractedProducts.length > 0) {
             availableProducts = extractedProducts.sort((a, b) => {
-                let pA = extractNumber(deepFind(a, ['price', 'cost', 'rate', 'amount', 'harga'])) || 0;
-                let pB = extractNumber(deepFind(b, ['price', 'cost', 'rate', 'amount', 'harga'])) || 0;
+                let pA = extractNumber(deepFind(a, ['price', 'cost', 'rate', 'amount', 'harga', 'nominal'])) || 0;
+                let pB = extractNumber(deepFind(b, ['price', 'cost', 'rate', 'amount', 'harga', 'nominal'])) || 0;
                 return pA - pB;
             });
             
@@ -237,7 +204,8 @@ async function loadShopeeIndonesia() {
             availableProducts.forEach(product => {
                 const card = document.createElement("div"); card.className = "product-card"; if (selectedProductId === product.id) { card.classList.add('selected'); }
                 
-                let rawPrice = deepFind(product, ['price', 'cost', 'rate', 'amount', 'harga']);
+                // Cari angka harga
+                let rawPrice = deepFind(product, ['price', 'cost', 'rate', 'amount', 'harga', 'nominal', 'rp']);
                 let parsedPrice = extractNumber(rawPrice);
                 let rawStok = deepFind(product, ['available', 'qty', 'stock', 'count']) ?? 'Tersedia';
                 
@@ -246,10 +214,12 @@ async function loadShopeeIndonesia() {
                     const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
                     displayPrice = formatter.format(parsedPrice);
                 } else {
-                    displayPrice = `<span style="font-size:9px;">K: ${Object.keys(product).join(',').substring(0,15)}</span>`;
+                    // CETAK JSON PENUH UNTUK HARGA
+                    let rawJson = JSON.stringify(product).replace(/["{}]/g, '').replace(/,/g, ', ');
+                    displayPrice = `<span style="font-size:8px; line-height:1.2; display:block; max-width:120px; text-align:right; color:#f59e0b; word-wrap:break-word;">${rawJson}</span>`;
                 }
                 
-                card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${rawStok}</p></div><div class="product-price">${displayPrice}</div>`;
+                card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${rawStok}</p></div><div class="product-price" style="background:transparent; box-shadow:none;">${displayPrice}</div>`;
                 card.onclick = () => { document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); selectedProductId = product.id; if (btnOrder) btnOrder.disabled = false; };
                 if (productList) productList.appendChild(card);
             });
