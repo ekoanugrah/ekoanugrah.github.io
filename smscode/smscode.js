@@ -3,7 +3,7 @@ let BASE_URL = apiConfig.baseUrl;
 let activeAccountName = apiConfig.accountName;
 
 const notifSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-const firebaseConfig = { apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", authDomain: "catatanku-app-ce60b.firebaseapp.com", databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "catatanku-app-ce60b", storageBucket: "catatanku-app-ce60b.firebasestorage.app", messagingSenderId: "291744292263", appId: "1:291744292263:web:ab8d32ba52bc19cbffea82" };
+const firebaseConfig = { apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", authDomain: "catatanku-app-ce60b.firebaseapp.com", databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "catatanku-app-ce60b" };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -12,6 +12,27 @@ let viewingPresenceRef = null; let activeOrders = []; let availableProducts = []
 let orderHistory = []; let usedNumbersDB = new Set(); let isUsedNumbersLoaded = false; 
 
 const productList = document.getElementById('productList'); const btnOrder = document.getElementById('btnOrder'); const activeOrdersContainer = document.getElementById('activeOrdersContainer'); const activeCount = document.getElementById('activeCount'); const balanceDisplay = document.getElementById('balanceDisplay'); const exitModal = document.getElementById('exitModal'); 
+
+// ==========================================
+// ADAPTER API (Ubah bagian ini jika format provider beda)
+// ==========================================
+function parseBalance(res) {
+    if (!res) return null;
+    if (res.balance !== undefined) return res.balance;
+    if (res.saldo !== undefined) return res.saldo;
+    if (res.data && res.data.balance !== undefined) return res.data.balance;
+    if (res.data && res.data.saldo !== undefined) return res.data.saldo;
+    return null; // Format tidak dikenali
+}
+
+function parseProducts(res) {
+    if (!res) return [];
+    if (Array.isArray(res)) return res;
+    if (res.data && Array.isArray(res.data)) return res.data;
+    if (res.services && Array.isArray(res.services)) return res.services;
+    return [];
+}
+// ==========================================
 
 // --- API MODAL CONFIGURATION ---
 window.openApiModal = function() {
@@ -26,7 +47,6 @@ window.closeApiModal = function() { document.getElementById('apiModal').classLis
 window.saveApiConfig = function() {
     const newBase = document.getElementById('apiBaseUrl').value.trim();
     const newAcc = document.getElementById('apiAccountName').value.trim();
-    
     if (!newBase || !newAcc) return showToast("Semua kolom API harus diisi!", "error");
     
     apiConfig.baseUrl = newBase;
@@ -189,32 +209,62 @@ function loginAccount(accountName) {
     loadHistory(); initMainApp(); 
 }
 
-async function apiCall(endpoint, method = "GET", body = null) { const options = { method: method, headers: { "Content-Type": "application/json", "X-Account-Name": activeAccountName } }; if (body) options.body = JSON.stringify(body); const response = await fetch(`${BASE_URL}${endpoint}`, options); return await response.json(); }
+async function apiCall(endpoint, method = "GET", body = null) { 
+    const options = { method: method, headers: { "Content-Type": "application/json", "X-Account-Name": activeAccountName } }; 
+    if (body) options.body = JSON.stringify(body); 
+    try {
+        const response = await fetch(`${BASE_URL}${endpoint}`, options); 
+        return await response.json(); 
+    } catch (e) {
+        console.error("API Call Error:", e);
+        return null;
+    }
+}
 function saveToStorage() { localStorage.setItem(`orders_${activeAccountName}`, JSON.stringify(activeOrders)); updateAccountOrdersStatus(); renderOrders(); }
 function showToast(pesan, type = "success") { const toast = document.getElementById("toast"); if (!toast) return; toast.innerHTML = pesan; if (type === "error") { toast.style.backgroundColor = "var(--danger-color)"; toast.style.color = "#ffffff"; } else { toast.style.backgroundColor = "var(--success-color)"; toast.style.color = "#ffffff"; } toast.classList.add("show"); setTimeout(() => { toast.classList.remove("show"); }, 3000); }
 function copyToClipboard(text) { if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(() => { showToast("Berhasil disalin!"); }).catch(err => { copyFallback(text); }); } else { copyFallback(text); } }
 function copyFallback(text) { const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = "absolute"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999); try { document.execCommand('copy'); showToast("Berhasil disalin!"); } catch (err) { showToast("Gagal menyalin.", "error"); } document.body.removeChild(ta); }
 
-async function fetchBalance() { try { const res = await apiCall('/balance'); if (res.success) { const bDisplay = document.getElementById('balanceDisplay'); const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); if (bDisplay) bDisplay.innerText = formatter.format(res.data.balance); } } catch (error) { const bDisplay = document.getElementById('balanceDisplay'); if (bDisplay) bDisplay.innerText = "Error"; } }
+async function fetchBalance() { 
+    const res = await apiCall('/balance');
+    const balanceValue = parseBalance(res);
+    
+    const bDisplay = document.getElementById('balanceDisplay'); 
+    if (balanceValue !== null) { 
+        const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
+        if (bDisplay) bDisplay.innerText = formatter.format(balanceValue); 
+    } else {
+        if (bDisplay) bDisplay.innerText = "Error Data"; 
+    }
+}
 
 async function loadShopeeIndonesia() {
     try {
         if (productList) productList.innerHTML = '<div class="status-text">Mencari Server...</div>';
-        const countriesRes = await apiCall('/catalog/countries'); const indo = countriesRes.data.find(c => c.name.toLowerCase() === 'indonesia');
-        const servicesRes = await apiCall(`/catalog/services?country_id=${indo.id}`); const shopee = servicesRes.data.find(s => s.name.toLowerCase().includes('shopee'));
-        const productsRes = await apiCall(`/catalog/products?country_id=${indo.id}&platform_id=${shopee.id}`);
-        if (productsRes.success && productsRes.data.length > 0) {
-            availableProducts = productsRes.data.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-            if (productList) productList.innerHTML = ""; if (availableProducts.length > 0) { selectedProductId = availableProducts[0].id; if (btnOrder) btnOrder.disabled = false; }
+        
+        // Membaca katalog dari API - Akan mencari array data dengan pola yang umum
+        const productsRes = await apiCall(`/catalog/products`);
+        const extractedProducts = parseProducts(productsRes);
+        
+        if (extractedProducts && extractedProducts.length > 0) {
+            availableProducts = extractedProducts.sort((a, b) => parseFloat(a.price || 0) - parseFloat(b.price || 0));
+            if (productList) productList.innerHTML = ""; 
+            if (availableProducts.length > 0) { selectedProductId = availableProducts[0].id; if (btnOrder) btnOrder.disabled = false; }
+            
             availableProducts.forEach(product => {
                 const card = document.createElement("div"); card.className = "product-card"; if (selectedProductId === product.id) { card.classList.add('selected'); }
-                const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); const displayPrice = formatter.format(product.price);
-                card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${product.available}</p></div><div class="product-price">${displayPrice}</div>`;
+                const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
+                const displayPrice = formatter.format(product.price || 0);
+                card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${product.available || product.qty || 'Tersedia'}</p></div><div class="product-price">${displayPrice}</div>`;
                 card.onclick = () => { document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); selectedProductId = product.id; if (btnOrder) btnOrder.disabled = false; };
                 if (productList) productList.appendChild(card);
             });
-        } else { if (productList) productList.innerHTML = '<div class="status-text">Server sedang kosong.</div>'; }
-    } catch (error) { if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">Error koneksi ke API</div>`; }
+        } else { 
+            if (productList) productList.innerHTML = '<div class="status-text">Format Data Katalog Tidak Dikenali / Kosong.</div>'; 
+        }
+    } catch (error) { 
+        if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">Error koneksi ke API</div>`; 
+    }
 }
 
 if (btnOrder) {
@@ -223,13 +273,20 @@ if (btnOrder) {
         if (!selectedProductId) return; btnOrder.disabled = true; const originalText = btnOrder.innerText; btnOrder.innerText = "Memproses...";
         try {
             const res = await apiCall('/orders/create', 'POST', { product_id: parseInt(selectedProductId), quantity: 1 });
-            if (res.success) {
-                const orderData = res.data.orders[0]; const productInfo = availableProducts.find(p => String(p.id) === String(selectedProductId));
+            
+            // Mencoba mendapatkan data order dari format umum API
+            let orderData = null;
+            if (res && res.data && res.data.orders) orderData = res.data.orders[0];
+            else if (res && res.order) orderData = res.order;
+            else if (res && res.id) orderData = res;
+            
+            if (orderData && orderData.id) {
+                const productInfo = availableProducts.find(p => String(p.id) === String(selectedProductId));
                 const finalPrice = orderData.price || orderData.cost || orderData.amount || (productInfo ? productInfo.price : 0);
                 const expiresAtMs = orderData.expires_at ? new Date(orderData.expires_at).getTime() : Date.now() + (20 * 60 * 1000); const createdAtMs = orderData.created_at ? new Date(orderData.created_at).getTime() : Date.now();
-                activeOrders.unshift({ id: orderData.id, productId: parseInt(selectedProductId), phone: orderData.phone_number, price: finalPrice, otp: null, status: "ACTIVE", expiresAt: expiresAtMs, cancelUnlockTime: createdAtMs + (120 * 1000), isAutoCanceling: false });
-                saveToStorage(); startPollingAndTimer(); fetchBalance(); window.scrollTo({ top: 0, behavior: 'smooth' }); copyToClipboard(orderData.phone_number);
-            } else { showToast(`Gagal: ${res.error.message}`, "error"); }
+                activeOrders.unshift({ id: orderData.id, productId: parseInt(selectedProductId), phone: orderData.phone_number || orderData.phone, price: finalPrice, otp: null, status: "ACTIVE", expiresAt: expiresAtMs, cancelUnlockTime: createdAtMs + (120 * 1000), isAutoCanceling: false });
+                saveToStorage(); startPollingAndTimer(); fetchBalance(); window.scrollTo({ top: 0, behavior: 'smooth' }); copyToClipboard(orderData.phone_number || orderData.phone);
+            } else { showToast(`Gagal: Format Order Tidak Dikenali`, "error"); }
         } catch (error) { showToast("Kesalahan jaringan.", "error"); }
         btnOrder.innerText = originalText; btnOrder.disabled = false;
     };
@@ -306,75 +363,42 @@ function startPollingAndTimer() {
             let order = activeOrders[i]; if (order.status === "OTP_RECEIVED") continue;
             try {
                 const res = await apiCall(`/orders/${order.id}`);
-                if (res.success) {
-                    if (res.data.status === "OTP_RECEIVED") { 
+                
+                // Menarik data status dan OTP dari API
+                let statusInfo = null;
+                let otpCode = null;
+                
+                if (res && res.data) { statusInfo = res.data.status; otpCode = res.data.otp_code || res.data.code; }
+                else if (res) { statusInfo = res.status; otpCode = res.otp || res.code; }
+
+                if (statusInfo) {
+                    if (statusInfo === "OTP_RECEIVED" || statusInfo === "SUCCESS" || otpCode) { 
                         notifSound.play().catch(e => console.log("Sound error:", e));
-                        activeOrders[i].status = "OTP_RECEIVED"; activeOrders[i].otp = res.data.otp_code; saveToStorage(); fetchBalance();
+                        activeOrders[i].status = "OTP_RECEIVED"; activeOrders[i].otp = otpCode; saveToStorage(); fetchBalance();
                         const phoneStr = normalizePhone(activeOrders[i].phone);
                         if (!usedNumbersDB.has(phoneStr)) { db.ref('used_numbers/smscode').push({ phone: phoneStr, timestamp: Date.now() }); usedNumbersDB.add(phoneStr); }
-                    } else if (res.data.status !== "ACTIVE" && res.data.status !== "PENDING") { activeOrders = activeOrders.filter(o => o.id !== order.id); saveToStorage(); fetchBalance(); }
+                    } else if (statusInfo !== "ACTIVE" && statusInfo !== "PENDING" && statusInfo !== "WAITING") { 
+                        activeOrders = activeOrders.filter(o => o.id !== order.id); saveToStorage(); fetchBalance(); 
+                    }
                 }
             } catch (e) {}
         }
     }, 3000);
 }
 
-async function syncServerOrders() {
-    try {
-        const res = await apiCall('/orders'); 
-        if (res.success && res.data) {
-            let serverOrders = Array.isArray(res.data) ? res.data : (res.data.data || []);
-            serverOrders = serverOrders.filter(o => o.status === 'ACTIVE' || o.status === 'OTP_RECEIVED' || o.status === 'PENDING');
-            serverOrders.forEach(order => {
-                if (!activeOrders.find(o => o.id === order.id)) {
-                    let syncedPrice = order.price || order.cost || order.amount || 0;
-                    if (syncedPrice == 0 && order.product_id && availableProducts.length > 0) { const matchProduct = availableProducts.find(p => String(p.id) === String(order.product_id)); if (matchProduct) syncedPrice = matchProduct.price; }
-                    const exp = order.expires_at ? new Date(order.expires_at).getTime() : Date.now() + (20*60*1000);
-                    const cTime = order.created_at ? new Date(order.created_at).getTime() : (exp - (20*60*1000));
-                    activeOrders.unshift({ id: order.id, productId: order.product_id || order.service_id, phone: order.phone_number || order.phone, price: syncedPrice, otp: order.otp_code, status: order.status, expiresAt: exp, cancelUnlockTime: cTime + (120*1000), isAutoCanceling: false });
-                }
-            });
-            saveToStorage(); startPollingAndTimer(); fetchBalance();
-        }
-    } catch (e) {}
-}
-
-window.replaceSpecificOrder = async function(orderId, productId) {
-    if (!isUsedNumbersLoaded) { showToast("Sabar, sedang mensinkronkan database nomor...", "warning"); return; }
-    const btn = document.getElementById(`btn-replace-${orderId}`); if (!productId || productId === 'null') return showToast("Pilih server manual.", "error"); if (btn) { btn.disabled = true; btn.innerHTML = '<div class="loader"></div>'; }
-    const oldOrder = activeOrders.find(o => String(o.id) === String(orderId)); if (oldOrder) saveToHistory(oldOrder, "GANTI");
-    try {
-        const c = await apiCall('/orders/cancel', 'POST', { id: orderId });
-        if (c.success || (c.error && c.error.code === 'NOT_FOUND')) {
-            activeOrders = activeOrders.filter(o => o.id !== orderId);
-            const n = await apiCall('/orders/create', 'POST', { product_id: parseInt(productId), quantity: 1 });
-            if (n.success) {
-                const od = n.data.orders[0]; const pInfo = availableProducts.find(p => String(p.id) === String(productId)); const finalPrice = od.price || od.cost || od.amount || (pInfo ? pInfo.price : 0);
-                activeOrders.unshift({ id: od.id, productId: parseInt(productId), phone: od.phone_number, price: finalPrice, otp: null, status: "ACTIVE", expiresAt: new Date(od.expires_at).getTime(), cancelUnlockTime: Date.now() + (120*1000), isAutoCanceling: false });
-                saveToStorage(); startPollingAndTimer(); fetchBalance(); window.scrollTo({ top: 0, behavior: 'smooth' }); copyToClipboard(od.phone_number); showToast("Nomor diganti!");
-            } else { saveToStorage(); fetchBalance(); showToast("Gagal pesan baru.", "error"); }
-        } else { showToast("Gagal batal lama.", "error"); if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Ganti'; } }
-    } catch (e) { showToast("Error Jaringan.", "error"); if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Ganti'; } }
-};
-
-window.resendSpecificOrder = async function(orderId) {
-    const idStr = String(orderId); const btn = document.getElementById(`btn-resend-${idStr}`); 
-    if (btn) { btn.disabled = true; btn.innerHTML = '<div class="loader"></div>'; }
-    try {
-        const res = await apiCall('/orders/resend', 'POST', { id: idStr });
-        if (res.success) { 
-            showToast("Meminta kode baru..."); 
-            let idx = activeOrders.findIndex(o => String(o.id) === idStr);
-            if (idx !== -1) { saveToHistory(activeOrders[idx], "MINTA ULANG"); activeOrders[idx].status = "ACTIVE"; activeOrders[idx].otp = null; saveToStorage(); }
-        } else { showToast(res.error ? res.error.message : "Gagal meminta ulang.", "error"); if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-envelope"></i> Ulang'; } }
-    } catch (e) { showToast("Kesalahan jaringan.", "error"); if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-envelope"></i> Ulang'; } }
-};
-
 window.cancelSpecificOrder = async function(id, auto = false) {
     const btnCancel = document.getElementById(`btn-cancel-${id}`); if (btnCancel) { btnCancel.disabled = true; btnCancel.innerHTML = '<div class="loader"></div>'; }
     const oldOrder = activeOrders.find(o => String(o.id) === String(id)); if (oldOrder) saveToHistory(oldOrder, "BATAL");
     recordStat('failed');
-    try { const res = await apiCall('/orders/cancel', 'POST', { id: id }); if (res.success || (res.error && res.error.code === 'NOT_FOUND')) { activeOrders = activeOrders.filter(o => o.id !== id); saveToStorage(); fetchBalance(); if(auto) showToast("Otomatis dibatalkan (Waktu Sisa 10 Menit)", "error"); } else { showToast("Gagal dibatalkan.", "error"); if (btnCancel) { btnCancel.disabled = false; btnCancel.innerHTML = '<i class="fas fa-times"></i> Batal'; } } } catch (e) { if (btnCancel) { btnCancel.disabled = false; btnCancel.innerHTML = '<i class="fas fa-times"></i> Batal'; } }
+    try { 
+        const res = await apiCall('/orders/cancel', 'POST', { id: id }); 
+        // Menganggap API berhasil membatalkan jika response diterima dan bukan error krusial
+        if (res && (!res.error || res.error.code === 'NOT_FOUND')) { 
+            activeOrders = activeOrders.filter(o => o.id !== id); saveToStorage(); fetchBalance(); if(auto) showToast("Otomatis dibatalkan (Waktu Sisa 10 Menit)", "error"); 
+        } else { 
+            showToast("Gagal dibatalkan.", "error"); if (btnCancel) { btnCancel.disabled = false; btnCancel.innerHTML = '<i class="fas fa-times"></i> Batal'; } 
+        } 
+    } catch (e) { if (btnCancel) { btnCancel.disabled = false; btnCancel.innerHTML = '<i class="fas fa-times"></i> Batal'; } }
 };
 
 window.finishSpecificOrder = async function(id) {
@@ -387,7 +411,7 @@ window.finishSpecificOrder = async function(id) {
     try { await apiCall('/orders/finish', 'POST', { id: id }); } catch (e) {} activeOrders = activeOrders.filter(o => o.id !== id); saveToStorage();
 };
 
-async function initMainApp() { const bDisplay = document.getElementById('balanceDisplay'); if (bDisplay) bDisplay.innerText = "..."; await loadShopeeIndonesia(); renderOrders(); if (activeOrders.length > 0) startPollingAndTimer(); syncServerOrders(); }
+async function initMainApp() { const bDisplay = document.getElementById('balanceDisplay'); if (bDisplay) bDisplay.innerText = "..."; await loadShopeeIndonesia(); renderOrders(); if (activeOrders.length > 0) startPollingAndTimer(); }
 
 window.onload = () => { 
     relocateBalanceUI(); 
