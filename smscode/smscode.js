@@ -1,4 +1,4 @@
-let apiConfig = JSON.parse(localStorage.getItem('smscode_api_config')) || { baseUrl: "https://smscode.masreno6pro.workers.dev", accountName: "" };
+let apiConfig = JSON.parse(localStorage.getItem('smscode_api_config')) || { baseUrl: "https://shopee-otp-proxy.masreno6pro.workers.dev", accountName: "" };
 let BASE_URL = apiConfig.baseUrl; 
 let activeAccountName = apiConfig.accountName;
 
@@ -14,39 +14,47 @@ let orderHistory = []; let usedNumbersDB = new Set(); let isUsedNumbersLoaded = 
 const productList = document.getElementById('productList'); const btnOrder = document.getElementById('btnOrder'); const activeOrdersContainer = document.getElementById('activeOrdersContainer'); const activeCount = document.getElementById('activeCount'); const balanceDisplay = document.getElementById('balanceDisplay'); const exitModal = document.getElementById('exitModal'); 
 
 // ==========================================
-// 🚀 DEEP SCANNER
+// 🚀 DEEP SCANNER (Pencari Angka Universal)
 // ==========================================
 function extractNumber(val) {
-    if (val === undefined || val === null) return null;
+    if (val === undefined || val === null || val === '') return null;
     if (typeof val === 'number') return val;
-    let str = String(val).replace(/[^0-9.-]+/g, ""); 
-    let num = parseFloat(str);
-    return isNaN(num) ? null : num;
+    let str = String(val).trim().replace(/[Rp\sA-Za-z]/g, '');
+    if (str.includes('.') && str.split('.')[1].length === 3) str = str.replace(/\./g, '');
+    if (str.includes(',') && str.split(',')[1].length === 3) str = str.replace(/,/g, '');
+    let num = parseFloat(str); return isNaN(num) ? null : num;
 }
 
-function deepFind(obj, keys, depth = 0) {
-    if (!obj || typeof obj !== 'object' || depth > 5) return null;
-    for (let k of Object.keys(obj)) { 
-        if (keys.includes(k.toLowerCase())) return obj[k]; 
+function getAnyNumber(obj, keywords) {
+    if (!obj || typeof obj !== 'object') return null;
+    for (let k of Object.keys(obj)) {
+        if (keywords.some(kw => k.toLowerCase().includes(kw))) {
+            let num = extractNumber(obj[k]); if (num !== null) return num;
+        }
     }
     for (let k of Object.keys(obj)) {
         if (typeof obj[k] === 'object' && !Array.isArray(obj[k])) {
-            let res = deepFind(obj[k], keys, depth + 1);
-            if (res !== null && res !== undefined) return res;
+            let num = getAnyNumber(obj[k], keywords); if (num !== null) return num;
         }
     }
     return null;
 }
+// ==========================================
 
 window.openApiModal = function() { document.getElementById('apiBaseUrl').value = apiConfig.baseUrl; document.getElementById('apiAccountName').value = apiConfig.accountName; document.getElementById('apiModal').classList.remove('hidden'); history.pushState(null, null, "#api"); }
 window.closeApiModal = function() { document.getElementById('apiModal').classList.add('hidden'); }
+
 window.saveApiConfig = function() {
     const newBase = document.getElementById('apiBaseUrl').value.trim(); const newAcc = document.getElementById('apiAccountName').value.trim();
     if (!newBase || !newAcc) return showToast("Semua kolom API harus diisi!", "error");
-    apiConfig.baseUrl = newBase; apiConfig.accountName = newAcc; localStorage.setItem('smscode_api_config', JSON.stringify(apiConfig)); BASE_URL = newBase;
+    
+    apiConfig.baseUrl = newBase; apiConfig.accountName = newAcc;
+    localStorage.setItem('smscode_api_config', JSON.stringify(apiConfig)); BASE_URL = newBase;
+    
     closeApiModal(); showToast("API dikoneksikan!");
     if (timerInterval) clearInterval(timerInterval); if (pollingInterval) clearInterval(pollingInterval);
     setAccountViewingStatus(false);
+    
     if (activeOrdersContainer) activeOrdersContainer.innerHTML = '<div class="status-text">Memuat pesanan...</div>';
     if (balanceDisplay) balanceDisplay.innerText = "..."; 
     loginAccount(newAcc);
@@ -55,11 +63,13 @@ window.saveApiConfig = function() {
 function openSettingsModal() { document.getElementById('settingsPassword').value = appSettings.password; document.getElementById('settingsAutoCopy').checked = appSettings.autoCopy; document.getElementById('settingsModal').classList.remove('hidden'); history.pushState(null, null, "#settings"); }
 function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
 window.saveSettings = function() { appSettings.password = document.getElementById('settingsPassword').value; appSettings.autoCopy = document.getElementById('settingsAutoCopy').checked; localStorage.setItem('app_settings', JSON.stringify(appSettings)); closeSettingsModal(); showToast("Pengaturan disimpan!"); renderMainButtons(); }
+
 function renderMainButtons() { const extraBtnWrapper = document.getElementById('extraBtnWrapper'); if (!extraBtnWrapper) return; if (appSettings.autoCopy) { extraBtnWrapper.innerHTML = `<button onclick="copyToClipboard('${appSettings.password}')" class="btn-primary" style="background-color: var(--info-color); margin-top: 12px; width: 100%; border-radius: 12px;"><i class="fas fa-copy"></i> Salin Sandi</button>`; } else { extraBtnWrapper.innerHTML = `<button class="btn-primary" disabled style="background-color: var(--bg-card); color: var(--text-secondary); margin-top: 12px; width: 100%; border-radius: 12px;"><i class="fas fa-check"></i> Selesai (Nonaktif)</button>`; } }
 function normalizePhone(phone) { if (!phone) return ""; let p = String(phone).replace(/\D/g, ""); if (p.startsWith("0")) { p = "62" + p.substring(1); } return p; }
 function formatPhoneNumber(phone) { if (!phone) return ""; let p = String(phone); if (p.startsWith("62")) { p = "0" + p.substring(2); } return p.replace(/(.{4})/g, '$1 ').trim(); }
 function formatOTP(otp) { if (!otp) return ""; const otpStr = String(otp); if (otpStr.length >= 6) { return otpStr.slice(0, 3) + "&nbsp;&nbsp;" + otpStr.slice(3); } return otpStr; }
 function getProviderName(phone) { let p = String(phone); if (p.startsWith("62")) p = "0" + p.substring(2); const prefix = p.substring(0, 4); if (['0811','0812','0813','0821','0822','0852','0853','0851'].includes(prefix)) return "Telkomsel"; if (['0814','0815','0816','0855','0856','0857','0858'].includes(prefix)) return "Indosat"; if (['0817','0818','0819','0859','0877','0878','0838','0831','0832','0833'].includes(prefix)) return "XL/Axis"; if (['0895','0896','0897','0898','0899'].includes(prefix)) return "Tri"; if (['0881','0882','0883','0884','0885','0886','0887','0888','0889'].includes(prefix)) return "Smartfren"; return "Acak"; }
+
 function relocateBalanceUI() { const headerContainer = document.querySelector('.app-header-container'); const balanceContainer = document.querySelector('.balance-container'); if(headerContainer && balanceContainer && !document.getElementById('newBalanceDisplay')) { balanceContainer.style.display = 'none'; const newBalanceDiv = document.createElement('div'); newBalanceDiv.style.textAlign = 'right'; newBalanceDiv.innerHTML = `<span style="font-size: 11px; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; display: block;">Saldo</span><span id="newBalanceDisplay" style="font-size: 18px; font-weight: 900; color: var(--primary-color);">...</span>`; headerContainer.appendChild(newBalanceDiv); const oldBalance = document.getElementById('balanceDisplay'); if(oldBalance) oldBalance.removeAttribute('id'); newBalanceDiv.querySelector('span:last-child').id = 'balanceDisplay'; } }
 
 let isExitModalOpen = false;
@@ -96,25 +106,34 @@ function loginAccount(accountName) {
     loadHistory(); initMainApp(); 
 }
 
-// 🚀 CORE API CALL (Format asli dari proxy lama)
+// 🚀 FUNGSI API HYBRID: BISA LAMA & BISA BARU (Universal)
 async function apiCall(endpoint, method = "GET", body = null) { 
     const cleanBaseUrl = BASE_URL.replace(/\/+$/, ''); 
     const options = { 
         method: method, 
         headers: { 
-            "Content-Type": "application/json", 
-            "X-Account-Name": activeAccountName // Header wajib agar lolos Proxy
+            "Content-Type": "application/json"
         } 
     }; 
+    
+    // Deteksi cerdas: Jika URL adalah proxy lama, gunakan Header lama. Jika tidak, gunakan Header standar modern.
+    if (cleanBaseUrl.includes("masreno6pro")) {
+        options.headers["X-Account-Name"] = activeAccountName;
+    } else {
+        options.headers["Authorization"] = `Bearer ${activeAccountName}`;
+        options.headers["X-Api-Key"] = activeAccountName;
+    }
+
     if (body) options.body = JSON.stringify(body); 
+    
     try {
         const response = await fetch(`${cleanBaseUrl}${endpoint}`, options); 
-        if (!response.ok) { return { _error: `HTTP ${response.status} Gagal` }; }
+        if (!response.ok) { return { _error: `HTTP Error: ${response.status}` }; }
         const text = await response.text();
         try { return JSON.parse(text); } 
         catch (e) { return { _error: "Bukan Format JSON API" }; }
     } catch (e) {
-        return { _error: "Koneksi Diblokir" };
+        return { _error: "Koneksi Diblokir Browser (CORS)" };
     }
 }
 
@@ -124,34 +143,41 @@ function copyToClipboard(text) { if (navigator.clipboard && window.isSecureConte
 function copyFallback(text) { const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = "absolute"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999); try { document.execCommand('copy'); showToast("Berhasil disalin!"); } catch (err) { showToast("Gagal menyalin.", "error"); } document.body.removeChild(ta); }
 
 // ==========================================
-// 🚀 X-RAY DEBUG: TAMPILKAN JSON RAW KE LAYAR
+// PENCARIAN SALDO HYBRID
 // ==========================================
 async function fetchBalance() { 
     const bDisplay = document.getElementById('balanceDisplay'); 
     try {
-        const res = await apiCall('/balance');
+        let res = await apiCall('/balance');
+        if (res && res._error) res = await apiCall('/profile'); // Auto-fallback rute
+        
         if (res && res._error) {
             if (bDisplay) { bDisplay.innerText = res._error; bDisplay.style.color = "var(--danger-color)"; } return;
         }
-        
-        let bal = deepFind(res, ['balance', 'saldo', 'amount', 'credit', 'credits', 'wallet']);
-        let parsedBal = extractNumber(bal);
+
+        let parsedBal = null;
+        // Prioritaskan format lama masreno6pro
+        if (res.success && res.data && res.data.balance !== undefined) {
+            parsedBal = extractNumber(res.data.balance);
+        } else {
+            // Jika beda format, gunakan Scanner
+            parsedBal = getAnyNumber(res, ['bal', 'sal', 'amount', 'cred', 'wall', 'point', 'uang', 'dana']);
+        }
         
         if (parsedBal !== null) { 
             const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
             if (bDisplay) { bDisplay.innerText = formatter.format(parsedBal); bDisplay.style.color = "var(--primary-color)"; }
         } else {
-            // CETAK JSON PENUH UNTUK SALDO
-            if (bDisplay) { 
-                let rawBal = JSON.stringify(res).replace(/["{}]/g, '');
-                bDisplay.innerHTML = `<span style="font-size:10px; color:#f59e0b;">${rawBal.substring(0, 40)}</span>`; 
-            }
+            if (bDisplay) { bDisplay.innerText = "Data Kosong"; bDisplay.style.color = "var(--warning-color)"; }
         }
     } catch (error) {
-        if (bDisplay) { bDisplay.innerText = "Error Sistem"; bDisplay.style.color = "var(--danger-color)"; }
+        if (bDisplay) { bDisplay.innerText = "Gagal"; bDisplay.style.color = "var(--danger-color)"; }
     }
 }
 
+// ==========================================
+// PENCARIAN PRODUK HYBRID
+// ==========================================
 async function loadShopeeIndonesia() {
     try {
         if (productList) productList.innerHTML = '<div class="status-text">Mencari Server...</div>';
@@ -163,14 +189,14 @@ async function loadShopeeIndonesia() {
 
         let indoId = null; let shopeeId = null;
         if (countriesRes) {
-            let extractedCountries = Array.isArray(countriesRes) ? countriesRes : (countriesRes.data || []);
+            let extractedCountries = (countriesRes.success && countriesRes.data) ? countriesRes.data : (Array.isArray(countriesRes) ? countriesRes : []);
             const indo = extractedCountries.find(c => c && c.name && c.name.toLowerCase() === 'indonesia');
             if (indo) indoId = indo.id;
         }
         
         if (indoId) {
             const servicesRes = await apiCall(`/catalog/services?country_id=${indoId}`); 
-            let extractedServices = Array.isArray(servicesRes) ? servicesRes : (servicesRes.data || []);
+            let extractedServices = (servicesRes.success && servicesRes.data) ? servicesRes.data : (Array.isArray(servicesRes) ? servicesRes : []);
             const shopee = extractedServices.find(s => s && s.name && s.name.toLowerCase().includes('shopee'));
             if (shopee) shopeeId = shopee.id;
         }
@@ -184,18 +210,15 @@ async function loadShopeeIndonesia() {
 
         let extractedProducts = [];
         if (productsRes) {
-            if (Array.isArray(productsRes)) extractedProducts = productsRes;
-            else if (productsRes.data && Array.isArray(productsRes.data)) extractedProducts = productsRes.data;
+            if (productsRes.success && productsRes.data) extractedProducts = productsRes.data;
+            else if (Array.isArray(productsRes)) extractedProducts = productsRes;
             else if (productsRes.products && Array.isArray(productsRes.products)) extractedProducts = productsRes.products;
-            else if (typeof productsRes === 'object') {
-                for(let key in productsRes) { if (Array.isArray(productsRes[key])) { extractedProducts = productsRes[key]; break; } }
-            }
         }
 
         if (extractedProducts && extractedProducts.length > 0) {
             availableProducts = extractedProducts.sort((a, b) => {
-                let pA = extractNumber(deepFind(a, ['price', 'cost', 'rate', 'amount', 'harga', 'nominal'])) || 0;
-                let pB = extractNumber(deepFind(b, ['price', 'cost', 'rate', 'amount', 'harga', 'nominal'])) || 0;
+                let pA = getAnyNumber(a, ['pric', 'cost', 'rate', 'fee', 'harg', 'rp', 'amount']) || 0;
+                let pB = getAnyNumber(b, ['pric', 'cost', 'rate', 'fee', 'harg', 'rp', 'amount']) || 0;
                 return pA - pB;
             });
             
@@ -204,27 +227,22 @@ async function loadShopeeIndonesia() {
             availableProducts.forEach(product => {
                 const card = document.createElement("div"); card.className = "product-card"; if (selectedProductId === product.id) { card.classList.add('selected'); }
                 
-                // Cari angka harga
-                let rawPrice = deepFind(product, ['price', 'cost', 'rate', 'amount', 'harga', 'nominal', 'rp']);
-                let parsedPrice = extractNumber(rawPrice);
-                let rawStok = deepFind(product, ['available', 'qty', 'stock', 'count']) ?? 'Tersedia';
+                let parsedPrice = getAnyNumber(product, ['pric', 'cost', 'rate', 'fee', 'harg', 'rp', 'amount']);
+                let parsedStok = getAnyNumber(product, ['avail', 'qty', 'stock', 'count', 'stok', 'sisa']);
+                let rawStok = parsedStok !== null ? parsedStok : 'Tersedia';
                 
                 let displayPrice;
                 if (parsedPrice !== null) {
                     const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
                     displayPrice = formatter.format(parsedPrice);
-                } else {
-                    // CETAK JSON PENUH UNTUK HARGA
-                    let rawJson = JSON.stringify(product).replace(/["{}]/g, '').replace(/,/g, ', ');
-                    displayPrice = `<span style="font-size:8px; line-height:1.2; display:block; max-width:120px; text-align:right; color:#f59e0b; word-wrap:break-word;">${rawJson}</span>`;
-                }
+                } else { displayPrice = `<span style="font-size:10px; color:var(--danger-color);">Format Baru</span>`; }
                 
-                card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${rawStok}</p></div><div class="product-price" style="background:transparent; box-shadow:none;">${displayPrice}</div>`;
+                card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${rawStok}</p></div><div class="product-price" style="background:transparent; box-shadow:none; padding:0; display:flex; align-items:center; justify-content:flex-end; text-align:right;">${displayPrice}</div>`;
                 card.onclick = () => { document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); selectedProductId = product.id; if (btnOrder) btnOrder.disabled = false; };
                 if (productList) productList.appendChild(card);
             });
         } else { 
-            if (productList) productList.innerHTML = '<div class="status-text">Format Data Katalog Tidak Dikenali / Kosong.</div>'; 
+            if (productList) productList.innerHTML = '<div class="status-text">Katalog Tidak Tersedia / Kosong.</div>'; 
         }
     } catch (error) { 
         if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">Error koneksi API</div>`; 
@@ -240,15 +258,14 @@ if (btnOrder) {
             if (res && res._error) { showToast(`Gagal: ${res._error}`, "error"); btnOrder.innerText = originalText; btnOrder.disabled = false; return; }
 
             let orderData = null;
-            if (res && res.data && res.data.orders) orderData = res.data.orders[0];
+            if (res && res.success && res.data && res.data.orders) orderData = res.data.orders[0];
             else if (res && res.order) orderData = res.order;
             else if (res && res.id) orderData = res;
             
             if (orderData && orderData.id) {
                 const productInfo = availableProducts.find(p => String(p.id) === String(selectedProductId));
-                let productFinalPrice = productInfo ? extractNumber(deepFind(productInfo, ['price', 'cost', 'rate', 'amount', 'harga'])) : 0;
-                
-                let orderPrice = extractNumber(deepFind(orderData, ['price', 'cost', 'amount', 'harga']));
+                let productFinalPrice = productInfo ? getAnyNumber(productInfo, ['pric', 'cost', 'rate', 'fee', 'harg', 'rp', 'amount']) : 0;
+                let orderPrice = getAnyNumber(orderData, ['pric', 'cost', 'rate', 'fee', 'harg', 'rp', 'amount']);
                 const finalPrice = orderPrice !== null ? orderPrice : (productFinalPrice !== null ? productFinalPrice : 0);
                 
                 const expiresAtMs = orderData.expires_at ? new Date(orderData.expires_at).getTime() : Date.now() + (20 * 60 * 1000); const createdAtMs = orderData.created_at ? new Date(orderData.created_at).getTime() : Date.now();
@@ -307,8 +324,11 @@ function startPollingAndTimer() {
             try {
                 const res = await apiCall(`/orders/${order.id}`);
                 if (res && res._error) continue;
+                
                 let statusInfo = null; let otpCode = null;
-                if (res && res.data) { statusInfo = res.data.status; otpCode = res.data.otp_code || res.data.code; } else if (res) { statusInfo = res.status; otpCode = res.otp || res.code; }
+                if (res.success && res.data) { statusInfo = res.data.status; otpCode = res.data.otp_code; } 
+                else if (res) { statusInfo = res.status; otpCode = res.otp || res.code; }
+                
                 if (statusInfo) {
                     if (statusInfo === "OTP_RECEIVED" || statusInfo === "SUCCESS" || otpCode) { notifSound.play().catch(e => console.log("Sound error:", e)); activeOrders[i].status = "OTP_RECEIVED"; activeOrders[i].otp = otpCode; saveToStorage(); fetchBalance(); const phoneStr = normalizePhone(activeOrders[i].phone); if (!usedNumbersDB.has(phoneStr)) { db.ref('used_numbers/smscode').push({ phone: phoneStr, timestamp: Date.now() }); usedNumbersDB.add(phoneStr); } } else if (statusInfo !== "ACTIVE" && statusInfo !== "PENDING" && statusInfo !== "WAITING") { activeOrders = activeOrders.filter(o => o.id !== order.id); saveToStorage(); fetchBalance(); }
                 }
@@ -321,7 +341,7 @@ window.cancelSpecificOrder = async function(id, auto = false) {
     const btnCancel = document.getElementById(`btn-cancel-${id}`); if (btnCancel) { btnCancel.disabled = true; btnCancel.innerHTML = '<div class="loader"></div>'; }
     const oldOrder = activeOrders.find(o => String(o.id) === String(id)); if (oldOrder) saveToHistory(oldOrder, "BATAL");
     recordStat('failed');
-    try { const res = await apiCall('/orders/cancel', 'POST', { id: id }); if (res && (!res.error || res.error.code === 'NOT_FOUND')) { activeOrders = activeOrders.filter(o => o.id !== id); saveToStorage(); fetchBalance(); if(auto) showToast("Otomatis dibatalkan (Waktu Sisa 10 Menit)", "error"); } else { showToast("Gagal dibatalkan.", "error"); if (btnCancel) { btnCancel.disabled = false; btnCancel.innerHTML = '<i class="fas fa-times"></i> Batal'; } } } catch (e) { if (btnCancel) { btnCancel.disabled = false; btnCancel.innerHTML = '<i class="fas fa-times"></i> Batal'; } }
+    try { const res = await apiCall('/orders/cancel', 'POST', { id: id }); if (res && ((res.success) || (!res.error || res.error.code === 'NOT_FOUND'))) { activeOrders = activeOrders.filter(o => o.id !== id); saveToStorage(); fetchBalance(); if(auto) showToast("Otomatis dibatalkan (Waktu Sisa 10 Menit)", "error"); } else { showToast("Gagal dibatalkan.", "error"); if (btnCancel) { btnCancel.disabled = false; btnCancel.innerHTML = '<i class="fas fa-times"></i> Batal'; } } } catch (e) { if (btnCancel) { btnCancel.disabled = false; btnCancel.innerHTML = '<i class="fas fa-times"></i> Batal'; } }
 };
 
 window.finishSpecificOrder = async function(id) {
