@@ -3,7 +3,7 @@ let BASE_URL = apiConfig.baseUrl;
 let activeAccountName = apiConfig.accountName;
 
 const notifSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-const firebaseConfig = { apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", authDomain: "catatanku-app-ce60b.firebaseapp.com", databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "catatanku-app-ce60b" };
+const firebaseConfig = { apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", authDomain: "catatanku-app-ce60b.firebaseapp.com", databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "catatanku-app-ce60b", storageBucket: "catatanku-app-ce60b.firebasestorage.app", messagingSenderId: "291744292263", appId: "1:291744292263:web:ab8d32ba52bc19cbffea82" };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -14,20 +14,27 @@ let orderHistory = []; let usedNumbersDB = new Set(); let isUsedNumbersLoaded = 
 const productList = document.getElementById('productList'); const btnOrder = document.getElementById('btnOrder'); const activeOrdersContainer = document.getElementById('activeOrdersContainer'); const activeCount = document.getElementById('activeCount'); const balanceDisplay = document.getElementById('balanceDisplay'); const exitModal = document.getElementById('exitModal'); 
 
 // ==========================================
-// ADAPTER API (Diperbarui untuk Parsing Angka)
+// 🚀 DEEP SCANNER & PARSER (Fungsi Deteksi Auto)
 // ==========================================
-function parseBalance(res) {
-    if (!res) return null;
-    let bal = res.balance ?? res.saldo ?? res.amount ?? (res.data && res.data.balance) ?? (res.data && res.data.saldo);
-    return bal !== undefined && bal !== null && !isNaN(parseFloat(bal)) ? parseFloat(bal) : null;
+function extractNumber(val) {
+    if (val === undefined || val === null) return null;
+    if (typeof val === 'number') return val;
+    let str = String(val).replace(/[^0-9.-]+/g, ""); 
+    let num = parseFloat(str);
+    return isNaN(num) ? null : num;
 }
-
-function parseProducts(res) {
-    if (!res) return [];
-    if (Array.isArray(res)) return res;
-    if (res.data && Array.isArray(res.data)) return res.data;
-    if (res.services && Array.isArray(res.services)) return res.services;
-    return [];
+function deepFind(obj, keys, depth = 0) {
+    if (!obj || typeof obj !== 'object' || depth > 5) return null;
+    for (let k of Object.keys(obj)) { 
+        if (keys.includes(k.toLowerCase())) return obj[k]; 
+    }
+    for (let k of Object.keys(obj)) {
+        if (typeof obj[k] === 'object' && !Array.isArray(obj[k])) {
+            let res = deepFind(obj[k], keys, depth + 1);
+            if (res !== null) return res;
+        }
+    }
+    return null;
 }
 // ==========================================
 
@@ -200,7 +207,7 @@ function loginAccount(accountName) {
     const badge = document.getElementById('currentApiBadge');
     if (badge) {
         badge.innerText = accountName;
-        badge.title = accountName; // Menambahkan tooltips untuk teks panjang
+        badge.title = accountName; 
     }
     
     setAccountViewingStatus(true); 
@@ -209,8 +216,17 @@ function loginAccount(accountName) {
     loadHistory(); initMainApp(); 
 }
 
+// 🚀 AUTO-MULTI HEADERS UNTUK MENCEGAH DITOLAK SERVER
 async function apiCall(endpoint, method = "GET", body = null) { 
-    const options = { method: method, headers: { "Content-Type": "application/json", "X-Account-Name": activeAccountName } }; 
+    const options = { 
+        method: method, 
+        headers: { 
+            "Content-Type": "application/json", 
+            "X-Account-Name": activeAccountName,
+            "Authorization": `Bearer ${activeAccountName}`,
+            "X-Api-Key": activeAccountName
+        } 
+    }; 
     if (body) options.body = JSON.stringify(body); 
     try {
         const response = await fetch(`${BASE_URL}${endpoint}`, options); 
@@ -220,21 +236,28 @@ async function apiCall(endpoint, method = "GET", body = null) {
         return null;
     }
 }
+
 function saveToStorage() { localStorage.setItem(`orders_${activeAccountName}`, JSON.stringify(activeOrders)); updateAccountOrdersStatus(); renderOrders(); }
 function showToast(pesan, type = "success") { const toast = document.getElementById("toast"); if (!toast) return; toast.innerHTML = pesan; if (type === "error") { toast.style.backgroundColor = "var(--danger-color)"; toast.style.color = "#ffffff"; } else { toast.style.backgroundColor = "var(--success-color)"; toast.style.color = "#ffffff"; } toast.classList.add("show"); setTimeout(() => { toast.classList.remove("show"); }, 3000); }
 function copyToClipboard(text) { if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(() => { showToast("Berhasil disalin!"); }).catch(err => { copyFallback(text); }); } else { copyFallback(text); } }
 function copyFallback(text) { const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = "absolute"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999); try { document.execCommand('copy'); showToast("Berhasil disalin!"); } catch (err) { showToast("Gagal menyalin.", "error"); } document.body.removeChild(ta); }
 
 async function fetchBalance() { 
-    const res = await apiCall('/balance');
-    const balanceValue = parseBalance(res);
-    
-    const bDisplay = document.getElementById('balanceDisplay'); 
-    if (balanceValue !== null) { 
-        const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
-        if (bDisplay) bDisplay.innerText = formatter.format(balanceValue); 
-    } else {
-        if (bDisplay) bDisplay.innerText = "Error Data"; 
+    try {
+        const res = await apiCall('/balance');
+        let bal = deepFind(res, ['balance', 'saldo', 'amount', 'credit', 'credits', 'wallet']);
+        let parsedBal = extractNumber(bal);
+        
+        const bDisplay = document.getElementById('balanceDisplay'); 
+        if (parsedBal !== null) { 
+            const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
+            if (bDisplay) bDisplay.innerText = formatter.format(parsedBal); 
+        } else {
+            if (bDisplay) bDisplay.innerText = "Error Data"; 
+        }
+    } catch (error) {
+        const bDisplay = document.getElementById('balanceDisplay'); 
+        if (bDisplay) bDisplay.innerText = "Error API"; 
     }
 }
 
@@ -242,16 +265,22 @@ async function loadShopeeIndonesia() {
     try {
         if (productList) productList.innerHTML = '<div class="status-text">Mencari Server...</div>';
         
-        // Membaca katalog
+        // Membaca katalog dari API dengan Deep Scanner
         const productsRes = await apiCall(`/catalog/products`);
-        const extractedProducts = parseProducts(productsRes);
+        
+        let extractedProducts = [];
+        if (productsRes) {
+            if (Array.isArray(productsRes)) extractedProducts = productsRes;
+            else if (productsRes.data && Array.isArray(productsRes.data)) extractedProducts = productsRes.data;
+            else if (productsRes.products && Array.isArray(productsRes.products)) extractedProducts = productsRes.products;
+        }
         
         if (extractedProducts && extractedProducts.length > 0) {
             // Sort berdasarkan harga termurah
             availableProducts = extractedProducts.sort((a, b) => {
-                let priceA = parseFloat(a.price || a.cost || a.rate || a.amount || 0);
-                let priceB = parseFloat(b.price || b.cost || b.rate || b.amount || 0);
-                return priceA - priceB;
+                let pA = extractNumber(deepFind(a, ['price', 'cost', 'rate', 'amount', 'harga'])) || 0;
+                let pB = extractNumber(deepFind(b, ['price', 'cost', 'rate', 'amount', 'harga'])) || 0;
+                return pA - pB;
             });
             
             if (productList) productList.innerHTML = ""; 
@@ -261,13 +290,14 @@ async function loadShopeeIndonesia() {
                 const card = document.createElement("div"); card.className = "product-card"; if (selectedProductId === product.id) { card.classList.add('selected'); }
                 
                 // Mendapatkan angka dengan aman untuk menghindari NaN
-                let rawPrice = product.price || product.cost || product.rate || product.amount || 0;
-                let parsedPrice = parseFloat(rawPrice);
+                let rawPrice = deepFind(product, ['price', 'cost', 'rate', 'amount', 'harga']);
+                let parsedPrice = extractNumber(rawPrice);
+                let rawStok = deepFind(product, ['available', 'qty', 'stock', 'count']) ?? 'Tersedia';
                 
                 const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
-                const displayPrice = isNaN(parsedPrice) ? "Rp -" : formatter.format(parsedPrice);
+                const displayPrice = parsedPrice === null ? "Rp -" : formatter.format(parsedPrice);
                 
-                card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${product.available || product.qty || 'Tersedia'}</p></div><div class="product-price">${displayPrice}</div>`;
+                card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${rawStok}</p></div><div class="product-price">${displayPrice}</div>`;
                 card.onclick = () => { document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); selectedProductId = product.id; if (btnOrder) btnOrder.disabled = false; };
                 if (productList) productList.appendChild(card);
             });
@@ -293,10 +323,10 @@ if (btnOrder) {
             
             if (orderData && orderData.id) {
                 const productInfo = availableProducts.find(p => String(p.id) === String(selectedProductId));
-                let productFinalPrice = productInfo ? parseFloat(productInfo.price || productInfo.cost || productInfo.rate || 0) : 0;
+                let productFinalPrice = productInfo ? extractNumber(deepFind(productInfo, ['price', 'cost', 'rate', 'amount', 'harga'])) : 0;
                 
-                let orderPrice = parseFloat(orderData.price || orderData.cost || orderData.amount);
-                const finalPrice = !isNaN(orderPrice) ? orderPrice : (!isNaN(productFinalPrice) ? productFinalPrice : 0);
+                let orderPrice = extractNumber(deepFind(orderData, ['price', 'cost', 'amount', 'harga']));
+                const finalPrice = orderPrice !== null ? orderPrice : (productFinalPrice !== null ? productFinalPrice : 0);
                 
                 const expiresAtMs = orderData.expires_at ? new Date(orderData.expires_at).getTime() : Date.now() + (20 * 60 * 1000); const createdAtMs = orderData.created_at ? new Date(orderData.created_at).getTime() : Date.now();
                 activeOrders.unshift({ id: orderData.id, productId: parseInt(selectedProductId), phone: orderData.phone_number || orderData.phone, price: finalPrice, otp: null, status: "ACTIVE", expiresAt: expiresAtMs, cancelUnlockTime: createdAtMs + (120 * 1000), isAutoCanceling: false });
@@ -330,8 +360,8 @@ function renderOrders() {
             cancelBtnAttr = "disabled"; replaceBtnAttr = "disabled"; resendBtnAttr = "disabled"; 
         }
 
-        let parsedDisplayPrice = parseFloat(order.price);
-        const displayPrice = (!isNaN(parsedDisplayPrice) && parsedDisplayPrice !== 0) ? `Rp ${parsedDisplayPrice}` : 'Rp -';
+        let parsedDisplayPrice = extractNumber(order.price);
+        const displayPrice = (parsedDisplayPrice !== null && parsedDisplayPrice !== 0) ? `Rp ${parsedDisplayPrice}` : 'Rp -';
 
         card.innerHTML = `
             <div class="order-header">

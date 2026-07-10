@@ -45,6 +45,8 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-b
 .app-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); flex-wrap: nowrap; gap: 8px; }
 .header-titles h1 { font-size: clamp(20px, 5vw, 24px); font-weight: 900; color: var(--primary-color); margin: 0 0 2px 0; letter-spacing: -0.5px; white-space: nowrap; }
 .header-titles .subtitle { font-size: 12px; color: var(--text-secondary); margin: 0; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+
+/* FIX UI MELEBAR: Pembatasan lebar maksimal untuk tombol API dan Teks */
 .account-selector-btn { background: var(--bg-body); color: var(--text-primary); border: 2px solid var(--border-color); border-radius: 10px; padding: 8px 10px; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); flex-shrink: 1; max-width: 140px; }
 .account-selector-btn:hover { border-color: var(--primary-color); background: var(--bg-card); }
 .account-selector-btn:active { transform: scale(0.95); }
