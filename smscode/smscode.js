@@ -3,7 +3,7 @@ let BASE_URL = apiConfig.baseUrl;
 let activeAccountName = apiConfig.accountName;
 
 const notifSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-const firebaseConfig = { apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", authDomain: "catatanku-app-ce60b.firebaseapp.com", databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "catatanku-app-ce60b", storageBucket: "catatanku-app-ce60b.firebasestorage.app", messagingSenderId: "291744292263", appId: "1:291744292263:web:ab8d32ba52bc19cbffea82" };
+const firebaseConfig = { apiKey: "AIzaSyD8oux4DDAE8xB5EaQpnlhosUkK3HVlWL0", authDomain: "catatanku-app-ce60b.firebaseapp.com", databaseURL: "https://catatanku-app-ce60b-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "catatanku-app-ce60b" };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -14,7 +14,7 @@ let orderHistory = []; let usedNumbersDB = new Set(); let isUsedNumbersLoaded = 
 const productList = document.getElementById('productList'); const btnOrder = document.getElementById('btnOrder'); const activeOrdersContainer = document.getElementById('activeOrdersContainer'); const activeCount = document.getElementById('activeCount'); const balanceDisplay = document.getElementById('balanceDisplay'); const exitModal = document.getElementById('exitModal'); 
 
 // ==========================================
-// 🚀 DEEP SCANNER & PARSER (Fungsi Deteksi Auto)
+// 🚀 DEEP SCANNER & PARSER
 // ==========================================
 function extractNumber(val) {
     if (val === undefined || val === null) return null;
@@ -38,7 +38,6 @@ function deepFind(obj, keys, depth = 0) {
 }
 // ==========================================
 
-// --- API MODAL CONFIGURATION ---
 window.openApiModal = function() {
     document.getElementById('apiBaseUrl').value = apiConfig.baseUrl;
     document.getElementById('apiAccountName').value = apiConfig.accountName;
@@ -71,7 +70,6 @@ window.saveApiConfig = function() {
     loginAccount(newAcc);
 }
 
-// --- SETTINGS ---
 function openSettingsModal() {
     document.getElementById('settingsPassword').value = appSettings.password;
     document.getElementById('settingsAutoCopy').checked = appSettings.autoCopy;
@@ -96,7 +94,6 @@ function renderMainButtons() {
     }
 }
 
-// --- UTILITIES ---
 function normalizePhone(phone) { if (!phone) return ""; let p = String(phone).replace(/\D/g, ""); if (p.startsWith("0")) { p = "62" + p.substring(1); } return p; }
 function formatPhoneNumber(phone) { if (!phone) return ""; let p = String(phone); if (p.startsWith("62")) { p = "0" + p.substring(2); } return p.replace(/(.{4})/g, '$1 ').trim(); }
 function formatOTP(otp) { if (!otp) return ""; const otpStr = String(otp); if (otpStr.length >= 6) { return otpStr.slice(0, 3) + "&nbsp;&nbsp;" + otpStr.slice(3); } return otpStr; }
@@ -121,7 +118,6 @@ function relocateBalanceUI() {
     }
 }
 
-// --- POPSTATE & NAVIGATION ---
 let isExitModalOpen = false;
 window.addEventListener('popstate', (e) => {
     const blM = document.getElementById('blacklistModal'); const histM = document.getElementById('historyModal'); const statsM = document.getElementById('statsModal'); 
@@ -140,7 +136,6 @@ function confirmExit() { setAccountViewingStatus(false); window.close(); if (nav
 function setAccountViewingStatus(isViewing) { if (!activeAccountName) return; if (isViewing) { const connectedRef = db.ref('.info/connected'); viewingPresenceRef = db.ref(`presence/${activeAccountName}/is_viewing`); connectedRef.on('value', (snap) => { if (snap.val() === true) { viewingPresenceRef.onDisconnect().set(false); viewingPresenceRef.set(true); } }); } else { if (viewingPresenceRef) { viewingPresenceRef.set(false); viewingPresenceRef.onDisconnect().cancel(); } } }
 function updateAccountOrdersStatus() { if (!activeAccountName) return; db.ref(`presence/${activeAccountName}/has_orders`).set(activeOrders.length > 0); }
 
-// --- STATS & BLACKLIST ---
 function initUsedNumbersSync() {
     db.ref('used_numbers/smscode').on('value', snapshot => {
         usedNumbersDB.clear(); let operatorCounts = {}; let totalBlacklist = 0;
@@ -164,7 +159,6 @@ document.getElementById('statDate').addEventListener('change', loadStatsData);
 window.openBlacklistModal = function() { document.getElementById('blacklistModal').classList.remove('hidden'); history.pushState(null, null, "#blacklist"); }
 window.closeBlacklistModal = function() { document.getElementById('blacklistModal').classList.add('hidden'); }
 
-// --- HISTORY ---
 function loadHistory() { orderHistory = JSON.parse(localStorage.getItem(`smscode_history_${activeAccountName}`)) || []; renderHistory(); }
 function saveToHistory(order, status) {
     if (!order) return;
@@ -201,7 +195,6 @@ window.openHistoryModal = function() { document.getElementById('historyModal').c
 window.closeHistoryModal = function() { document.getElementById('historyModal').classList.add('hidden'); }
 window.clearHistory = function() { if(confirm("Hapus semua riwayat pesanan?")) { orderHistory = []; localStorage.removeItem(`smscode_history_${activeAccountName}`); renderHistory(); } }
 
-// --- LOGIN & CORE DATA ---
 function loginAccount(accountName) { 
     activeAccountName = accountName; 
     const badge = document.getElementById('currentApiBadge');
@@ -216,15 +209,13 @@ function loginAccount(accountName) {
     loadHistory(); initMainApp(); 
 }
 
-// 🚀 AUTO-MULTI HEADERS UNTUK MENCEGAH DITOLAK SERVER
+// PERBAIKAN: Menghapus header aneh (Authorization) yang diblokir oleh sistem Cloudflare lama Anda
 async function apiCall(endpoint, method = "GET", body = null) { 
     const options = { 
         method: method, 
         headers: { 
             "Content-Type": "application/json", 
-            "X-Account-Name": activeAccountName,
-            "Authorization": `Bearer ${activeAccountName}`,
-            "X-Api-Key": activeAccountName
+            "X-Account-Name": activeAccountName 
         } 
     }; 
     if (body) options.body = JSON.stringify(body); 
@@ -265,8 +256,25 @@ async function loadShopeeIndonesia() {
     try {
         if (productList) productList.innerHTML = '<div class="status-text">Mencari Server...</div>';
         
-        // Membaca katalog dari API dengan Deep Scanner
-        const productsRes = await apiCall(`/catalog/products`);
+        // PERBAIKAN: Mengembalikan logika pencarian ID Indonesia & Shopee
+        const countriesRes = await apiCall('/catalog/countries'); 
+        let indoId = null; let shopeeId = null;
+        
+        if (countriesRes) {
+            let extractedCountries = Array.isArray(countriesRes) ? countriesRes : (countriesRes.data || []);
+            const indo = extractedCountries.find(c => c && c.name && c.name.toLowerCase() === 'indonesia');
+            if (indo) indoId = indo.id;
+        }
+
+        if (indoId) {
+            const servicesRes = await apiCall(`/catalog/services?country_id=${indoId}`); 
+            let extractedServices = Array.isArray(servicesRes) ? servicesRes : (servicesRes.data || []);
+            const shopee = extractedServices.find(s => s && s.name && s.name.toLowerCase().includes('shopee'));
+            if (shopee) shopeeId = shopee.id;
+        }
+        
+        const productsEndpoint = (indoId && shopeeId) ? `/catalog/products?country_id=${indoId}&platform_id=${shopeeId}` : `/catalog/products`;
+        const productsRes = await apiCall(productsEndpoint);
         
         let extractedProducts = [];
         if (productsRes) {
@@ -274,22 +282,19 @@ async function loadShopeeIndonesia() {
             else if (productsRes.data && Array.isArray(productsRes.data)) extractedProducts = productsRes.data;
             else if (productsRes.products && Array.isArray(productsRes.products)) extractedProducts = productsRes.products;
         }
-        
+
         if (extractedProducts && extractedProducts.length > 0) {
-            // Sort berdasarkan harga termurah
             availableProducts = extractedProducts.sort((a, b) => {
                 let pA = extractNumber(deepFind(a, ['price', 'cost', 'rate', 'amount', 'harga'])) || 0;
                 let pB = extractNumber(deepFind(b, ['price', 'cost', 'rate', 'amount', 'harga'])) || 0;
                 return pA - pB;
             });
             
-            if (productList) productList.innerHTML = ""; 
-            if (availableProducts.length > 0) { selectedProductId = availableProducts[0].id; if (btnOrder) btnOrder.disabled = false; }
+            if (productList) productList.innerHTML = ""; if (availableProducts.length > 0) { selectedProductId = availableProducts[0].id; if (btnOrder) btnOrder.disabled = false; }
             
             availableProducts.forEach(product => {
                 const card = document.createElement("div"); card.className = "product-card"; if (selectedProductId === product.id) { card.classList.add('selected'); }
                 
-                // Mendapatkan angka dengan aman untuk menghindari NaN
                 let rawPrice = deepFind(product, ['price', 'cost', 'rate', 'amount', 'harga']);
                 let parsedPrice = extractNumber(rawPrice);
                 let rawStok = deepFind(product, ['available', 'qty', 'stock', 'count']) ?? 'Tersedia';
@@ -305,7 +310,7 @@ async function loadShopeeIndonesia() {
             if (productList) productList.innerHTML = '<div class="status-text">Format Data Katalog Tidak Dikenali / Kosong.</div>'; 
         }
     } catch (error) { 
-        if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">Error koneksi ke API</div>`; 
+        if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">Error koneksi API</div>`; 
     }
 }
 
