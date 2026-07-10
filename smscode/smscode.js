@@ -26,11 +26,9 @@ function extractNumber(val) {
 
 function deepFind(obj, keys, depth = 0) {
     if (!obj || typeof obj !== 'object' || depth > 5) return null;
-    // Cek key di level saat ini
     for (let k of Object.keys(obj)) { 
         if (keys.includes(k.toLowerCase())) return obj[k]; 
     }
-    // Gali ke dalam jika belum ketemu
     for (let k of Object.keys(obj)) {
         if (typeof obj[k] === 'object' && !Array.isArray(obj[k])) {
             let res = deepFind(obj[k], keys, depth + 1);
@@ -119,24 +117,24 @@ window.clearHistory = function() { if(confirm("Hapus semua riwayat pesanan?")) {
 function loginAccount(accountName) { 
     activeAccountName = accountName; 
     const badge = document.getElementById('currentApiBadge');
-    if (badge) { badge.innerText = accountName; badge.title = accountName; }
+    if (badge) {
+        const displayAcc = accountName.length > 12 ? accountName.substring(0, 10) + '...' : accountName;
+        badge.innerText = displayAcc; badge.title = accountName; 
+    }
     setAccountViewingStatus(true); 
     const now = Date.now(); const rawOrders = JSON.parse(localStorage.getItem(`orders_${accountName}`)) || []; activeOrders = rawOrders.filter(o => o.expiresAt > now); 
     if (rawOrders.length !== activeOrders.length) saveToStorage(); 
     loadHistory(); initMainApp(); 
 }
 
-// 🚀 PERBAIKAN: Pembersih Slash (/) dan Pengembalian Header X-Account-Name
+// 🚀 PERBAIKAN FINAL: Dibuat sangat bersih agar tidak memicu blokir Proxy
 async function apiCall(endpoint, method = "GET", body = null) { 
-    const cleanBaseUrl = BASE_URL.replace(/\/+$/, ''); // Mencegah error double slash "dev//balance"
-    
+    const cleanBaseUrl = BASE_URL.replace(/\/+$/, ''); 
     const options = { 
         method: method, 
         headers: { 
             "Content-Type": "application/json", 
-            "X-Account-Name": activeAccountName, // Header vital yang diminta worker proxy Anda
-            "Authorization": `Bearer ${activeAccountName}`,
-            "X-Api-Key": activeAccountName
+            "X-Account-Name": activeAccountName // Satu-satunya header yang dikirim
         } 
     }; 
     if (body) options.body = JSON.stringify(body); 
@@ -145,7 +143,7 @@ async function apiCall(endpoint, method = "GET", body = null) {
         if (!response.ok) { return { _error: `HTTP ${response.status} Gagal` }; }
         const text = await response.text();
         try { return JSON.parse(text); } 
-        catch (e) { return { _error: "Bukan Format JSON" }; }
+        catch (e) { return { _error: "Bukan Format JSON API" }; }
     } catch (e) {
         return { _error: "Koneksi Diblokir" };
     }
@@ -172,10 +170,9 @@ async function fetchBalance() {
             const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
             if (bDisplay) { bDisplay.innerText = formatter.format(parsedBal); bDisplay.style.color = "var(--primary-color)"; }
         } else {
-            // JIKA NAMA DATA SALDO ANEH, TAMPILKAN NAMANYA KE LAYAR UNTUK DEBUG
             if (bDisplay) { 
                 let keysInfo = Object.keys(res).join(',');
-                if(res.data) keysInfo += "|d:" + Object.keys(res.data).join(',');
+                if(res.data && typeof res.data === 'object') Object.keys(res.data).join(',');
                 bDisplay.innerHTML = `<span style="font-size:10px; color:var(--warning-color);">Err: ${keysInfo.substring(0,25)}</span>`; 
             }
         }
@@ -249,7 +246,6 @@ async function loadShopeeIndonesia() {
                     const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
                     displayPrice = formatter.format(parsedPrice);
                 } else {
-                    // TAMPILKAN NAMA DATA JIKA HARGA GAGAL TERDETEKSI
                     displayPrice = `<span style="font-size:9px;">K: ${Object.keys(product).join(',').substring(0,15)}</span>`;
                 }
                 
