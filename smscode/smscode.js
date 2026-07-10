@@ -1,4 +1,4 @@
-let apiConfig = JSON.parse(localStorage.getItem('smscode_api_config')) || { baseUrl: "https://shopee-otp-proxy.masreno6pro.workers.dev", accountName: "" };
+let apiConfig = JSON.parse(localStorage.getItem('smscode_api_config')) || { baseUrl: "https://smscode.masreno6pro.workers.dev", accountName: "" };
 let BASE_URL = apiConfig.baseUrl; 
 let activeAccountName = apiConfig.accountName;
 
@@ -13,6 +13,9 @@ let orderHistory = []; let usedNumbersDB = new Set(); let isUsedNumbersLoaded = 
 
 const productList = document.getElementById('productList'); const btnOrder = document.getElementById('btnOrder'); const activeOrdersContainer = document.getElementById('activeOrdersContainer'); const activeCount = document.getElementById('activeCount'); const balanceDisplay = document.getElementById('balanceDisplay'); const exitModal = document.getElementById('exitModal'); 
 
+// ==========================================
+// 🚀 AUTO-DETEKTIF & PARSER ANGKA
+// ==========================================
 function extractNumber(val) {
     if (val === undefined || val === null) return null;
     if (typeof val === 'number') return val;
@@ -20,19 +23,23 @@ function extractNumber(val) {
     let num = parseFloat(str);
     return isNaN(num) ? null : num;
 }
+
 function deepFind(obj, keys, depth = 0) {
     if (!obj || typeof obj !== 'object' || depth > 5) return null;
+    // Cek key di level saat ini
     for (let k of Object.keys(obj)) { 
         if (keys.includes(k.toLowerCase())) return obj[k]; 
     }
+    // Gali ke dalam jika belum ketemu
     for (let k of Object.keys(obj)) {
         if (typeof obj[k] === 'object' && !Array.isArray(obj[k])) {
             let res = deepFind(obj[k], keys, depth + 1);
-            if (res !== null) return res;
+            if (res !== null && res !== undefined) return res;
         }
     }
     return null;
 }
+// ==========================================
 
 window.openApiModal = function() {
     document.getElementById('apiBaseUrl').value = apiConfig.baseUrl;
@@ -40,19 +47,29 @@ window.openApiModal = function() {
     document.getElementById('apiModal').classList.remove('hidden');
     history.pushState(null, null, "#api");
 }
+
 window.closeApiModal = function() { document.getElementById('apiModal').classList.add('hidden'); }
+
 window.saveApiConfig = function() {
     const newBase = document.getElementById('apiBaseUrl').value.trim();
     const newAcc = document.getElementById('apiAccountName').value.trim();
     if (!newBase || !newAcc) return showToast("Semua kolom API harus diisi!", "error");
-    apiConfig.baseUrl = newBase; apiConfig.accountName = newAcc;
+    
+    apiConfig.baseUrl = newBase;
+    apiConfig.accountName = newAcc;
     localStorage.setItem('smscode_api_config', JSON.stringify(apiConfig));
     BASE_URL = newBase;
-    closeApiModal(); showToast("API berhasil dikoneksikan!");
-    if (timerInterval) clearInterval(timerInterval); if (pollingInterval) clearInterval(pollingInterval);
+    
+    closeApiModal();
+    showToast("API berhasil dikoneksikan!");
+    
+    if (timerInterval) clearInterval(timerInterval); 
+    if (pollingInterval) clearInterval(pollingInterval);
     setAccountViewingStatus(false);
+    
     if (activeOrdersContainer) activeOrdersContainer.innerHTML = '<div class="status-text">Memuat pesanan...</div>';
-    const bDisplay = document.getElementById('balanceDisplay'); if (bDisplay) bDisplay.innerText = "..."; 
+    if (balanceDisplay) balanceDisplay.innerText = "..."; 
+    
     loginAccount(newAcc);
 }
 
@@ -109,18 +126,28 @@ function loginAccount(accountName) {
     loadHistory(); initMainApp(); 
 }
 
-// 🚀 KODE DETEKTIF API (Akan memunculkan error detail di layar)
+// 🚀 PERBAIKAN: Pembersih Slash (/) dan Pengembalian Header X-Account-Name
 async function apiCall(endpoint, method = "GET", body = null) { 
-    const options = { method: method, headers: { "Content-Type": "application/json", "X-Account-Name": activeAccountName } }; 
+    const cleanBaseUrl = BASE_URL.replace(/\/+$/, ''); // Mencegah error double slash "dev//balance"
+    
+    const options = { 
+        method: method, 
+        headers: { 
+            "Content-Type": "application/json", 
+            "X-Account-Name": activeAccountName, // Header vital yang diminta worker proxy Anda
+            "Authorization": `Bearer ${activeAccountName}`,
+            "X-Api-Key": activeAccountName
+        } 
+    }; 
     if (body) options.body = JSON.stringify(body); 
     try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, options); 
-        if (!response.ok) { return { _error: `HTTP ${response.status}` }; }
+        const response = await fetch(`${cleanBaseUrl}${endpoint}`, options); 
+        if (!response.ok) { return { _error: `HTTP ${response.status} Gagal` }; }
         const text = await response.text();
         try { return JSON.parse(text); } 
-        catch (e) { return { _error: "Bukan Format Data (JSON)" }; }
+        catch (e) { return { _error: "Bukan Format JSON" }; }
     } catch (e) {
-        return { _error: "Blocked / Failed to Fetch" };
+        return { _error: "Koneksi Diblokir" };
     }
 }
 
@@ -133,7 +160,6 @@ async function fetchBalance() {
     const bDisplay = document.getElementById('balanceDisplay'); 
     try {
         const res = await apiCall('/balance');
-        // Pengecekan Error Detektif
         if (res && res._error) {
             if (bDisplay) { bDisplay.innerText = res._error; bDisplay.style.color = "var(--danger-color)"; }
             return;
@@ -146,10 +172,15 @@ async function fetchBalance() {
             const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
             if (bDisplay) { bDisplay.innerText = formatter.format(parsedBal); bDisplay.style.color = "var(--primary-color)"; }
         } else {
-            if (bDisplay) { bDisplay.innerText = "Error Struktur"; bDisplay.style.color = "var(--warning-color)"; console.log("Response aslinya:", res); }
+            // JIKA NAMA DATA SALDO ANEH, TAMPILKAN NAMANYA KE LAYAR UNTUK DEBUG
+            if (bDisplay) { 
+                let keysInfo = Object.keys(res).join(',');
+                if(res.data) keysInfo += "|d:" + Object.keys(res.data).join(',');
+                bDisplay.innerHTML = `<span style="font-size:10px; color:var(--warning-color);">Err: ${keysInfo.substring(0,25)}</span>`; 
+            }
         }
     } catch (error) {
-        if (bDisplay) { bDisplay.innerText = "Error API"; bDisplay.style.color = "var(--danger-color)"; }
+        if (bDisplay) { bDisplay.innerText = "Error Sistem"; bDisplay.style.color = "var(--danger-color)"; }
     }
 }
 
@@ -159,7 +190,7 @@ async function loadShopeeIndonesia() {
         
         const countriesRes = await apiCall('/catalog/countries'); 
         if (countriesRes && countriesRes._error) {
-            if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">${countriesRes._error} (Katalog)</div>`;
+            if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">${countriesRes._error}</div>`;
             return;
         }
 
@@ -169,6 +200,7 @@ async function loadShopeeIndonesia() {
             const indo = extractedCountries.find(c => c && c.name && c.name.toLowerCase() === 'indonesia');
             if (indo) indoId = indo.id;
         }
+        
         if (indoId) {
             const servicesRes = await apiCall(`/catalog/services?country_id=${indoId}`); 
             let extractedServices = Array.isArray(servicesRes) ? servicesRes : (servicesRes.data || []);
@@ -180,7 +212,7 @@ async function loadShopeeIndonesia() {
         const productsRes = await apiCall(productsEndpoint);
         
         if (productsRes && productsRes._error) {
-            if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">${productsRes._error} (Produk)</div>`;
+            if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">${productsRes._error}</div>`;
             return;
         }
 
@@ -189,6 +221,11 @@ async function loadShopeeIndonesia() {
             if (Array.isArray(productsRes)) extractedProducts = productsRes;
             else if (productsRes.data && Array.isArray(productsRes.data)) extractedProducts = productsRes.data;
             else if (productsRes.products && Array.isArray(productsRes.products)) extractedProducts = productsRes.products;
+            else if (typeof productsRes === 'object') {
+                for(let key in productsRes) {
+                    if (Array.isArray(productsRes[key])) { extractedProducts = productsRes[key]; break; }
+                }
+            }
         }
 
         if (extractedProducts && extractedProducts.length > 0) {
@@ -207,8 +244,14 @@ async function loadShopeeIndonesia() {
                 let parsedPrice = extractNumber(rawPrice);
                 let rawStok = deepFind(product, ['available', 'qty', 'stock', 'count']) ?? 'Tersedia';
                 
-                const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
-                const displayPrice = parsedPrice === null ? "Rp -" : formatter.format(parsedPrice);
+                let displayPrice;
+                if (parsedPrice !== null) {
+                    const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }); 
+                    displayPrice = formatter.format(parsedPrice);
+                } else {
+                    // TAMPILKAN NAMA DATA JIKA HARGA GAGAL TERDETEKSI
+                    displayPrice = `<span style="font-size:9px;">K: ${Object.keys(product).join(',').substring(0,15)}</span>`;
+                }
                 
                 card.innerHTML = `<div class="product-info"><h4>Server ID: ${product.id}</h4><p>Stok: ${rawStok}</p></div><div class="product-price">${displayPrice}</div>`;
                 card.onclick = () => { document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); selectedProductId = product.id; if (btnOrder) btnOrder.disabled = false; };
@@ -216,7 +259,6 @@ async function loadShopeeIndonesia() {
             });
         } else { 
             if (productList) productList.innerHTML = '<div class="status-text">Format Data Katalog Tidak Dikenali / Kosong.</div>'; 
-            console.log("Response aslinya (Produk):", productsRes);
         }
     } catch (error) { 
         if (productList) productList.innerHTML = `<div class="status-text" style="color:var(--danger-color);">Error koneksi API</div>`; 
@@ -246,7 +288,7 @@ if (btnOrder) {
                 const expiresAtMs = orderData.expires_at ? new Date(orderData.expires_at).getTime() : Date.now() + (20 * 60 * 1000); const createdAtMs = orderData.created_at ? new Date(orderData.created_at).getTime() : Date.now();
                 activeOrders.unshift({ id: orderData.id, productId: parseInt(selectedProductId), phone: orderData.phone_number || orderData.phone, price: finalPrice, otp: null, status: "ACTIVE", expiresAt: expiresAtMs, cancelUnlockTime: createdAtMs + (120 * 1000), isAutoCanceling: false });
                 saveToStorage(); startPollingAndTimer(); fetchBalance(); window.scrollTo({ top: 0, behavior: 'smooth' }); copyToClipboard(orderData.phone_number || orderData.phone);
-            } else { showToast(`Gagal: Format Order Tidak Dikenali`, "error"); console.log("Response Order:", res); }
+            } else { showToast(`Gagal: Format Order Tidak Dikenali`, "error"); }
         } catch (error) { showToast("Kesalahan jaringan.", "error"); }
         btnOrder.innerText = originalText; btnOrder.disabled = false;
     };
