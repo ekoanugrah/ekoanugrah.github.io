@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopee OTP Pro 🇮🇩</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="smscode.css">
+</head>
+<body class="theme-smscode">
+    <div id="appView" class="container">
+        
+        <div class="top-bar-modern" style="justify-content: flex-end;">
+            <div class="action-icons">
+                <button onclick="openStatsModal()" class="btn-switch-sm"><i class="fas fa-chart-bar"></i></button>
+                <button onclick="openBlacklistModal()" class="btn-switch-sm"><i class="fas fa-ban"></i><span id="blacklistBadge" class="badge">0</span></button>
+                <button onclick="openHistoryModal()" class="btn-switch-sm"><i class="fas fa-history"></i></button>
+                <button onclick="openSettingsModal()" class="btn-switch-sm"><i class="fas fa-cog"></i></button>
+            </div>
+        </div>
+
+        <div class="app-header-container">
+            <div class="header-titles">
+                <h1>Shopee OTP 🇮🇩</h1>
+                <p class="subtitle">Provider Tercepat</p>
+            </div>
+            <button onclick="openApiModal()" class="account-selector-btn">
+                🔌 <span id="currentApiBadge">Set API</span>
+            </button>
+            <span id="currentAccountName" style="display:none;"></span>
+        </div>
+        
+        <div class="section" style="margin-bottom: 5px;">
+            <div id="activeOrdersContainer">
+                <div class="status-text">Belum ada pesanan aktif.</div>
+            </div>
+        </div>
+
+        <div class="balance-container">
+            <div class="balance-badge">
+                <span class="balance-label">Saldo</span>
+                <span id="balanceDisplay" class="balance-value">...</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <div id="productList" class="product-list">
+                <div class="status-text">Memuat data Server...</div>
+            </div>
+            <button id="btnOrder" class="btn-primary" disabled>Pesan Nomor Baru</button>
+            <div id="extraBtnWrapper"></div>
+        </div>
+    </div>
+
+    <div id="apiModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🔌 Konfigurasi API</h3>
+                <button onclick="closeApiModal()" class="btn-danger" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 13px; font-weight: bold; color: var(--text-secondary); margin-bottom: 8px; display: block;">URL Server (Base URL)</label>
+                <input type="text" id="apiBaseUrl" class="form-input" placeholder="https://...">
+            </div>
+            <div style="text-align: left; margin-bottom: 20px;">
+                <label style="font-size: 13px; font-weight: bold; color: var(--text-secondary); margin-bottom: 8px; display: block;">ID Akun / API Key</label>
+                <input type="text" id="apiAccountName" class="form-input" placeholder="Masukkan ID Akun Anda...">
+            </div>
+            <button onclick="saveApiConfig()" class="btn-success" style="width: 100%; padding: 14px; border-radius: 12px; font-size: 15px;"><i class="fas fa-save"></i> Simpan & Konek</button>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">⚙️ Pengaturan</h3>
+                <button onclick="closeSettingsModal()" class="btn-danger" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 13px; font-weight: bold; color: var(--text-secondary); margin-bottom: 8px; display: block;">Sandi Default (Salin Otomatis)</label>
+                <input type="text" id="settingsPassword" class="form-input" placeholder="Masukkan sandi...">
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                <span style="font-size: 13px; font-weight: bold; color: var(--text-primary);">Auto-Salin Sandi Selesai</span>
+                <label class="switch">
+                    <input type="checkbox" id="settingsAutoCopy">
+                    <span class="slider"><span class="slider-knob"></span></span>
+                </label>
+            </div>
+            <button onclick="saveSettings()" class="btn-success" style="width: 100%; padding: 14px; border-radius: 12px; font-size: 15px;"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+        </div>
+    </div>
+
+    <div id="statsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Statistik Harian</h3>
+                <button onclick="closeStatsModal()" class="btn-danger" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-times"></i></button>
+            </div>
+            <input type="date" id="statDate" class="form-input" style="margin-bottom:15px; font-weight:bold; text-align:center; color: var(--text-primary); background: var(--bg-card); border: 1px solid var(--border-color);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--success-color);">
+                    <div style="font-size: 24px; font-weight: 900; color: var(--success-color);" id="statSuccess">0</div>
+                    <div style="font-size: 10px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase;">Sukses OTP</div>
+                </div>
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--danger-color);">
+                    <div style="font-size: 24px; font-weight: 900; color: var(--danger-color);" id="statFailed">0</div>
+                    <div style="font-size: 10px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase;">Batal / Ganti</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="blacklistModal" class="modal hidden">
+        <div class="modal-content" style="max-height: 85vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3 class="modal-title">Database Blacklist</h3>
+                <button onclick="closeBlacklistModal()" class="btn-danger" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="text-align: center; padding: 10px 0;">
+                <div style="font-size: 48px; font-weight: 900; color: var(--primary-color); margin-bottom: 10px; text-shadow: 0 0 15px rgba(249, 115, 22, 0.3);" id="blacklistDetailCount">0</div>
+                <p style="color: var(--text-primary); font-weight: 700; margin-bottom: 5px; font-size: 14px;">Nomor Terblokir</p>
+                <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.4; margin: 0 5px;">Nomor yang sudah sukses mendapatkan OTP akan diingat dan tidak akan diberikan lagi.</p>
+                <div id="operatorBreakdown" style="margin-top: 15px; text-align: center;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal hidden">
+        <div class="modal-content" style="max-height: 85vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3 class="modal-title">Riwayat Pesanan</h3>
+                <button onclick="closeHistoryModal()" class="btn-danger" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="history-list" style="overflow-y: auto; flex: 1; padding-right: 5px; text-align: left; display: flex; flex-direction: column; gap: 8px;">
+                <div class="status-text">Belum ada riwayat.</div>
+            </div>
+            <button onclick="clearHistory()" class="btn-danger" style="margin-top: 15px; width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: bold;"><i class="fas fa-trash"></i> Hapus Riwayat</button>
+        </div>
+    </div>
+
+    <div id="exitModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title">Keluar Aplikasi?</h3>
+            <p class="modal-desc">Apakah Anda yakin ingin menutup dan keluar dari aplikasi ini?</p>
+            <div class="modal-actions">
+                <button onclick="closeExitModal()" class="btn-primary" style="width:48%; padding:12px; background-color: var(--bg-card); color: var(--text-primary); border-radius: 12px;">Batal</button>
+                <button onclick="confirmExit()" class="btn-danger" style="width:48%; padding:12px; border-radius: 12px;">Keluar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast">Notifikasi!</div>
+
+    <script src="smscode.js"></script>
+</body>
+</html>
